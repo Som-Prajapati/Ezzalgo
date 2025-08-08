@@ -308,6 +308,7 @@ const SelectionSort: React.FC<SelectionSortProps> = ({
     const arr = [...array];
     const n = arr.length;
     const mainTimeline = gsap.timeline();
+    mainTimeline.timeScale(speed);
     // Selection sort algorithm
     for (let i = 0; i < n - 1; i++) {
       let minIndex = i;
@@ -445,7 +446,6 @@ const SelectionSort: React.FC<SelectionSortProps> = ({
             )
           );
         }
-        console.log(i);
         if (jArrowRef.current) {
           const x_initial = Number(gsap.getProperty(jArrowRef.current, "x"));
           mainTimeline.add(
@@ -546,7 +546,6 @@ const SelectionSort: React.FC<SelectionSortProps> = ({
     mainTimeline.call(() => {
       wasPausedRef.current = false;
       if (onAnimationEnd) onAnimationEnd();
-      console.log(propsRef.current.isPlaying, wasPausedRef.current);
     });
 
     timelineRef.current = mainTimeline;
@@ -592,17 +591,18 @@ const SelectionSort: React.FC<SelectionSortProps> = ({
 
   const nextStep = (): void => {
     // Next step implementation placeholder
-    console.log("Next step");
   };
 
   const previousStep = (): void => {
     // Previous step implementation placeholder
-    console.log("Previous step");
   };
 
   // Effects
   useEffect(() => {
     propsRef.current = { array, speed, isAscending, isPlaying };
+    if (timelineRef.current) {
+      timelineRef.current.timeScale(speed);
+    }
   }, [array, speed, isAscending, isPlaying]);
 
   useEffect(() => {

@@ -8,14 +8,12 @@ const BOX_HEIGHT = 80;
 const BOX_GAP = 14;
 const BOX_BORDER_RADIUS = 12;
 const BOX_FONT_SIZE = 20;
-const ARROW_HEIGHT = 60;
 const ARROW_SIZE = 8;
 const ARROW_FONT_SIZE = 16;
 const TOTAL_BOX_SPACING = BOX_WIDTH + BOX_GAP;
 const ARROW_Y_OFFSET_UP = -(BOX_HEIGHT * 1.5) / 2;
 const ARROW_Y_OFFSET_DOWN = (BOX_HEIGHT * 2.4) / 2;
 const ARROW_X_OFFSET = BOX_WIDTH / 2;
-// const ARROW_X_OFFSET_KEY = BOX_WIDTH / 2 - 10;
 
 interface InsertionSortProps {
   array: number[];
@@ -27,6 +25,7 @@ interface InsertionSortProps {
   registerResetFunction?: (fn: () => void) => void;
   registerNextStepFunction?: (fn: () => void) => void;
   registerPreviousStepFunction?: (fn: () => void) => void;
+  onAnimationEnd?: () => void;
 }
 
 const InsertionSort: React.FC<InsertionSortProps> = ({
@@ -39,6 +38,7 @@ const InsertionSort: React.FC<InsertionSortProps> = ({
   registerResetFunction,
   registerNextStepFunction,
   registerPreviousStepFunction,
+  onAnimationEnd,
 }) => {
   // Refs for DOM elements
   const containerRef = useRef<HTMLDivElement>(null);
@@ -48,26 +48,8 @@ const InsertionSort: React.FC<InsertionSortProps> = ({
   const keyArrowRef = useRef<HTMLDivElement>(null);
   const timelineRef = useRef<gsap.core.Timeline | null>(null);
   const wasPausedRef = useRef<boolean>(false);
-
   const propsRef = useRef({ array, speed, isAscending, isPlaying });
 
-  // GSAP animation function to slide element
-  const slideElement = (
-    element: HTMLElement,
-    fromX: number,
-    toX: number,
-    fromY: number = 0,
-    toY: number = 0,
-    duration: number = 0.5
-  ): gsap.core.Tween => {
-    return gsap.fromTo(
-      element,
-      { x: fromX, y: fromY, opacity: 1 },
-      { x: toX, y: toY, duration, ease: "power1.inOut" }
-    );
-  };
-
-  // New animation: slideElementTo
   // Animates an element from its current position to (toX, toY) over the given duration.
   const slideElementTo = (
     element: HTMLElement,
@@ -166,10 +148,12 @@ const InsertionSort: React.FC<InsertionSortProps> = ({
       wasPausedRef.current = false;
       return;
     }
+    resetAnimation();
 
     const arr = [...array];
     const n = arr.length;
     const mainTimeline = gsap.timeline();
+    mainTimeline.timeScale(speed);
 
     // Show and position arrows with slide down animation
     if (keyArrowRef.current && jArrowRef.current && jPlusOneArrowRef.current) {
@@ -182,13 +166,6 @@ const InsertionSort: React.FC<InsertionSortProps> = ({
         jArrowRef.current &&
         jPlusOneArrowRef.current
       ) {
-        const keyBox = arrayElementsRef.current[1];
-        const jBox = arrayElementsRef.current[0];
-        const jPlusOneBox = arrayElementsRef.current[1];
-        if (keyBox) {
-          console.log("zIndex of keyBox:", keyBox.style.zIndex);
-        }
-
         mainTimeline.add(
           gsap.fromTo(
             keyArrowRef.current,
@@ -255,8 +232,6 @@ const InsertionSort: React.FC<InsertionSortProps> = ({
       // Slide the key arrow and the key box up by box width + 20 px
       if (keyArrowRef.current && arrayElementsRef.current[i]) {
         const keyBox = arrayElementsRef.current[i] as HTMLElement;
-        const keyBoxRect = keyBox.getBoundingClientRect();
-        const boxHeight = keyBoxRect.height;
 
         if (i > 1) {
           // Animate keyArrow to move above the i-th element
@@ -336,20 +311,8 @@ const InsertionSort: React.FC<InsertionSortProps> = ({
           jPlusOneArrowRef.current
         ) {
           const keyBox = arrayElementsRef.current[j + 2] as HTMLElement;
-          const keyBoxRect = keyBox.getBoundingClientRect();
-          const boxHeight = keyBoxRect.height;
-          const moveUpY = -(boxHeight + 10);
-
           const jBox = arrayElementsRef.current[j + 1] as HTMLElement;
           const keyArrow = keyArrowRef.current;
-
-          const keyFromX = (i - 1) * TOTAL_BOX_SPACING;
-          const keyToX = (i - 2) * TOTAL_BOX_SPACING;
-          const jFromX = j * TOTAL_BOX_SPACING;
-          const jToX = (j + 1) * TOTAL_BOX_SPACING;
-          const currentKeyIndex = j;
-          const keyFromXFixed = currentKeyIndex * TOTAL_BOX_SPACING;
-          const keyToXFixed = (currentKeyIndex - 1) * TOTAL_BOX_SPACING;
 
           mainTimeline.add(
             slideElementTo(keyArrow, `-=${TOTAL_BOX_SPACING}`, `+=0`, 0.5)
@@ -387,21 +350,11 @@ const InsertionSort: React.FC<InsertionSortProps> = ({
           const texts = arrayElementsRef.current.map(
             (el: any) => el?.textContent
           );
-          console.log("arrayElementsRef text:", texts);
         }
         if (arrayElementsRef.current) {
           const temp = arrayElementsRef.current[j + 2];
           arrayElementsRef.current[j + 2] = arrayElementsRef.current[j + 1];
           arrayElementsRef.current[j + 1] = temp;
-          console.log("temp:", temp?.textContent);
-          console.log(
-            "arrayElementsRef.current[j + 1]:",
-            arrayElementsRef.current[j + 1]?.textContent
-          );
-          console.log(
-            "arrayElementsRef.current[j]:",
-            arrayElementsRef.current[j]?.textContent
-          );
         }
       }
       arr[j + 1] = key;
@@ -426,12 +379,6 @@ const InsertionSort: React.FC<InsertionSortProps> = ({
         if (keyBox) {
           mainTimeline.add(slideElementTo(keyBox, "+=0", 0, 0.3), "-=0.6");
         }
-      }
-      if (arrayElementsRef.current) {
-        const texts = arrayElementsRef.current.map(
-          (el: any) => el?.textContent
-        );
-        console.log("arrayElementsRef text:", texts);
       }
     }
     // Slide the keyArrow, jArrow, and jPlusOneArrow back to their original positions in a single for loop
@@ -469,31 +416,73 @@ const InsertionSort: React.FC<InsertionSortProps> = ({
         "-=0.5"
       );
     }
-
-    console.log("Sorted array:", arr);
+    mainTimeline.add(
+      animateSortedIndicator([...Array(arr.length).keys()]),
+      "-=0.5"
+    );
+    mainTimeline.call(() => {
+      wasPausedRef.current = false;
+      if (onAnimationEnd) onAnimationEnd();
+    });
+    timelineRef.current = mainTimeline;
   };
 
   const pauseAnimation = (): void => {
-    // TODO: Implement pause functionality
+    if (timelineRef.current) {
+      timelineRef.current.pause();
+      wasPausedRef.current = true;
+    }
   };
 
   const resetAnimation = (): void => {
-    // TODO: Implement reset functionality
+    if (arrayElementsRef.current) {
+      arrayElementsRef.current.forEach((element) => {
+        if (element) {
+          gsap.set(element, {
+            x: 0,
+            y: 0,
+            rotation: 0,
+            backgroundColor: "#f8f9fa",
+            borderColor: "#e9ecef",
+            boxShadow: "0 2px 8px rgba(0, 0, 0, 0.08)",
+          });
+        }
+      });
+    }
+
+    if (keyArrowRef.current && jArrowRef.current && jPlusOneArrowRef.current) {
+      gsap.set(
+        [keyArrowRef.current, jArrowRef.current, jPlusOneArrowRef.current],
+        {
+          opacity: 0,
+          x: 0,
+          y: 0,
+        }
+      );
+    }
+
+    if (timelineRef.current) {
+      timelineRef.current.kill();
+      timelineRef.current = null;
+    }
+
+    wasPausedRef.current = false;
   };
 
   const nextStep = (): void => {
-    // TODO: Implement next step functionality
-    console.log("Next step");
+    // Next step implementation placeholder
   };
 
   const previousStep = (): void => {
-    // TODO: Implement previous step functionality
-    console.log("Previous step");
+    // Previous step implementation placeholder
   };
 
   // Effects
   useEffect(() => {
     propsRef.current = { array, speed, isAscending, isPlaying };
+    if (timelineRef.current) {
+      timelineRef.current.timeScale(speed);
+    }
   }, [array, speed, isAscending, isPlaying]);
 
   useEffect(() => {
@@ -575,17 +564,6 @@ const InsertionSort: React.FC<InsertionSortProps> = ({
           </div>
         ))}
 
-        {/* Arrows Container */}
-        {/* <div
-        className="arrows-container"
-        style={{
-          display: "flex",
-          gap: `${BOX_GAP}px`,
-          position: "relative",
-          width: `${array.length * TOTAL_BOX_SPACING - BOX_GAP}px`,
-          height: `${ARROW_HEIGHT}px`,
-        }}
-      > */}
         {/* J Arrow */}
         <div
           ref={jArrowRef}
@@ -695,7 +673,6 @@ const InsertionSort: React.FC<InsertionSortProps> = ({
         </div>
       </div>
     </div>
-    // </div>
   );
 };
 

@@ -13,7 +13,6 @@ interface ControlsProps {
   onPreviousStep?: () => void;
 }
 
-
 const Controls: React.FC<ControlsProps> = () => {
   // Fixed initial array to prevent hydration mismatch
   const getFixedInitialArray = () => [42, 17, 89, 31, 65, 8];
@@ -47,7 +46,7 @@ const Controls: React.FC<ControlsProps> = () => {
 
   // Generate random array (only runs on client after mount)
   const generateRandomArray = () => {
-    hideArrayElementsWarning(); 
+    hideArrayElementsWarning();
     const newArray = Array.from(
       { length: arraySize },
       () => Math.floor(Math.random() * 100) + 1
@@ -180,7 +179,7 @@ const Controls: React.FC<ControlsProps> = () => {
   };
 
   const generateRandomDuplicateArray = () => {
-    hideArrayElementsWarning(); 
+    hideArrayElementsWarning();
     const length = arraySize;
     const uniqueCount = Math.max(2, Math.floor(length * 0.6));
     const duplicateCount = length - uniqueCount;
@@ -321,7 +320,7 @@ const Controls: React.FC<ControlsProps> = () => {
   };
 
   const handleSpeedChange = (increment: boolean) => {
-    if (increment && speed < 5) {
+    if (increment && speed < 10) {
       setSpeed(speed + 0.5);
     } else if (!increment && speed > 0.5) {
       setSpeed(speed - 0.5);
