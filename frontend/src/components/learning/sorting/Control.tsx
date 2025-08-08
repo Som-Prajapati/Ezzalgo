@@ -2,6 +2,7 @@
 import TestChild from "./test";
 import React, { useRef, useState, useEffect } from "react";
 import SelectionSort from "./SelectionSort";
+import InsertionSort from "./InsertionSort";
 
 interface ControlsProps {
   onArrayChange?: (array: number[]) => void;
@@ -392,7 +393,7 @@ const Controls: React.FC<ControlsProps> = () => {
   return (
     <div>
       <div className="mb-8">
-        <SelectionSort
+        <InsertionSort
           key={`${array.join(",")}-${isAscending}`}
           array={array}
           speed={speed}
