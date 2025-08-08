@@ -13,6 +13,7 @@ interface ControlsProps {
   onPreviousStep?: () => void;
 }
 
+
 const Controls: React.FC<ControlsProps> = () => {
   // Fixed initial array to prevent hydration mismatch
   const getFixedInitialArray = () => [42, 17, 89, 31, 65, 8];
@@ -46,6 +47,7 @@ const Controls: React.FC<ControlsProps> = () => {
 
   // Generate random array (only runs on client after mount)
   const generateRandomArray = () => {
+    hideArrayElementsWarning(); 
     const newArray = Array.from(
       { length: arraySize },
       () => Math.floor(Math.random() * 100) + 1
@@ -124,8 +126,8 @@ const Controls: React.FC<ControlsProps> = () => {
       showArrayLengthWarning("Array length must be at least 1");
       return false;
     }
-    if (length > 40) {
-      showArrayLengthWarning("Array length cannot exceed 40");
+    if (length > 16) {
+      showArrayLengthWarning("Array length cannot exceed 16");
       return false;
     }
     hideArrayLengthWarning();
@@ -160,8 +162,8 @@ const Controls: React.FC<ControlsProps> = () => {
         return { isValid: false };
       }
 
-      if (numbers.length > 40) {
-        showArrayElementsWarning("Array cannot have more than 40 elements");
+      if (numbers.length > 16) {
+        showArrayElementsWarning("Array cannot have more than 16 elements");
         return { isValid: false };
       }
 
@@ -178,6 +180,7 @@ const Controls: React.FC<ControlsProps> = () => {
   };
 
   const generateRandomDuplicateArray = () => {
+    hideArrayElementsWarning(); 
     const length = arraySize;
     const uniqueCount = Math.max(2, Math.floor(length * 0.6));
     const duplicateCount = length - uniqueCount;
@@ -222,31 +225,12 @@ const Controls: React.FC<ControlsProps> = () => {
     }
   };
 
-  const sortingOrder = () => {
-    setIsAscending(!isAscending);
+  const handleAscendingSort = () => {
+    setIsAscending(true);
+  };
 
-    if (!isMounted) return;
-    const ascButton = document.querySelector(
-      '[data-sort="asc"]'
-    ) as HTMLButtonElement;
-    const descButton = document.querySelector(
-      '[data-sort="desc"]'
-    ) as HTMLButtonElement;
-
-    if (ascButton && descButton) {
-      if (!isAscending) {
-        // Will be the new value after state update
-        ascButton.className =
-          "h-8 px-3 bg-blue-600 text-white rounded-md text-sm font-medium transition-colors";
-        descButton.className =
-          "h-8 px-3 bg-gray-100 hover:bg-gray-200 rounded-md text-sm font-medium text-gray-700 transition-colors";
-      } else {
-        ascButton.className =
-          "h-8 px-3 bg-gray-100 hover:bg-gray-200 rounded-md text-sm font-medium text-gray-700 transition-colors";
-        descButton.className =
-          "h-8 px-3 bg-blue-600 text-white rounded-md text-sm font-medium transition-colors";
-      }
-    }
+  const handleDescendingSort = () => {
+    setIsAscending(false);
   };
 
   // Event Handlers
@@ -404,6 +388,7 @@ const Controls: React.FC<ControlsProps> = () => {
           registerResetFunction={registerResetFunction}
           registerNextStepFunction={registerNextStepFunction}
           registerPreviousStepFunction={registerPreviousStepFunction}
+          onAnimationEnd={() => setIsPlaying(false)}
         />
       </div>
       <div className="bg-white rounded-lg shadow-lg p-6 max-w-6xl mx-auto">
@@ -432,7 +417,7 @@ const Controls: React.FC<ControlsProps> = () => {
                   handleArraySizeChange(parseInt(e.target.value) || 1)
                 }
                 min="1"
-                max="40"
+                max="16"
                 className="w-16 h-8 text-center border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
               <button
@@ -527,7 +512,7 @@ const Controls: React.FC<ControlsProps> = () => {
             <div className="flex gap-2">
               <button
                 data-sort="asc"
-                onClick={sortingOrder}
+                onClick={handleAscendingSort}
                 className={`h-8 px-3 rounded-md text-sm font-medium transition-colors ${
                   isAscending
                     ? "bg-blue-600 text-white"
@@ -538,7 +523,7 @@ const Controls: React.FC<ControlsProps> = () => {
               </button>
               <button
                 data-sort="desc"
-                onClick={sortingOrder}
+                onClick={handleDescendingSort}
                 className={`h-8 px-3 rounded-md text-sm font-medium transition-colors ${
                   !isAscending
                     ? "bg-blue-600 text-white"

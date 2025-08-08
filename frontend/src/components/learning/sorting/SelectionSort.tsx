@@ -3,16 +3,57 @@ import React, { useRef, useEffect } from "react";
 import { gsap } from "gsap";
 
 // Constants for sizing
-const BOX_WIDTH = 80;
-const BOX_HEIGHT = 80;
-const BOX_GAP = 16;
-const BOX_BORDER_RADIUS = 12;
-const BOX_FONT_SIZE = 20;
+// const BOX_WIDTH = 80;
+// const BOX_HEIGHT = 80;
+// const BOX_GAP = 16;
+// const BOX_BORDER_RADIUS = 12;
+// const BOX_FONT_SIZE = 20;
+// const ARROW_HEIGHT = 60;
+// const ARROW_SIZE = 8;
+// const ARROW_FONT_SIZE = 14;
+// const ECLIPSE_HEIGHT = 60;
+// const TOTAL_BOX_SPACING = BOX_WIDTH + BOX_GAP;
+// Dynamic sizing based on array length
+// Dynamic sizing based on array length
+const getDynamicSizing = (arrayLength: number) => {
+  if (arrayLength <= 9) {
+    return {
+      BOX_WIDTH: 80,
+      BOX_HEIGHT: 80,
+      BOX_GAP: 16,
+      BOX_BORDER_RADIUS: 12,
+      BOX_FONT_SIZE: 20,
+      ARROW_SIZE: 8,
+      ARROW_FONT_SIZE: 16,
+    };
+  } else {
+    return {
+      BOX_WIDTH: 55,
+      BOX_HEIGHT: 55,
+      BOX_GAP: 10,
+      BOX_BORDER_RADIUS: 8,
+      BOX_FONT_SIZE: 16,
+      ARROW_SIZE: 6,
+      ARROW_FONT_SIZE: 14,
+    };
+  }
+  // else {
+  //   return {
+  //     BOX_WIDTH: 50,
+  //     BOX_HEIGHT: 50,
+  //     BOX_GAP: 10,
+  //     BOX_BORDER_RADIUS: 8,
+  //     BOX_FONT_SIZE: 16,
+  //     ARROW_SIZE: 4,
+  //     ARROW_FONT_SIZE: 10,
+  //   };
+  // }
+};
 const ARROW_HEIGHT = 60;
-const ARROW_SIZE = 8;
-const ARROW_FONT_SIZE = 14;
+// const ARROW_SIZE = 8;
+// const ARROW_FONT_SIZE = 14;
 const ECLIPSE_HEIGHT = 60;
-const TOTAL_BOX_SPACING = BOX_WIDTH + BOX_GAP;
+// const TOTAL_BOX_SPACING = BOX_WIDTH + BOX_GAP;
 
 interface SelectionSortProps {
   array: number[];
@@ -24,6 +65,7 @@ interface SelectionSortProps {
   registerResetFunction?: (fn: () => void) => void;
   registerNextStepFunction?: (fn: () => void) => void;
   registerPreviousStepFunction?: (fn: () => void) => void;
+  onAnimationEnd?: () => void;
 }
 
 const SelectionSort: React.FC<SelectionSortProps> = ({
@@ -36,6 +78,7 @@ const SelectionSort: React.FC<SelectionSortProps> = ({
   registerResetFunction,
   registerNextStepFunction,
   registerPreviousStepFunction,
+  onAnimationEnd,
 }) => {
   // Refs for DOM elements
   const containerRef = useRef<HTMLDivElement>(null);
@@ -44,6 +87,19 @@ const SelectionSort: React.FC<SelectionSortProps> = ({
   const jArrowRef = useRef<HTMLDivElement>(null);
   const timelineRef = useRef<gsap.core.Timeline | null>(null);
   const wasPausedRef = useRef<boolean>(false);
+
+  // Get dynamic sizing based on array length
+  const dynamicSizing = getDynamicSizing(array.length);
+  const {
+    BOX_WIDTH,
+    BOX_HEIGHT,
+    BOX_GAP,
+    BOX_BORDER_RADIUS,
+    BOX_FONT_SIZE,
+    ARROW_SIZE,
+    ARROW_FONT_SIZE,
+  } = dynamicSizing;
+  const TOTAL_BOX_SPACING = BOX_WIDTH + BOX_GAP;
 
   const propsRef = useRef({ array, speed, isAscending, isPlaying });
 
@@ -82,6 +138,7 @@ const SelectionSort: React.FC<SelectionSortProps> = ({
         {
           backgroundColor: "#d4edda",
           borderColor: "#c3e6cb",
+          boxShadow: "0 2px 8px rgba(0, 0, 0, 0.08)",
           duration: 0.5,
           ease: "power2.out",
         },
@@ -92,48 +149,54 @@ const SelectionSort: React.FC<SelectionSortProps> = ({
     return timeline;
   };
 
-  // Highlight boxes animation
-  const highlightBoxes = (
-    indices: number | number[],
-    intensity: "low" | "high" = "low",
-    duration: number = 0.6
-  ): gsap.core.Timeline => {
-    const targetIndices = Array.isArray(indices) ? indices : [indices];
-    const elements = targetIndices
-      .map((index) => arrayElementsRef.current[index])
-      .filter((el): el is HTMLDivElement => el instanceof HTMLDivElement);
-
-    if (elements.length === 0) return gsap.timeline();
+  // Highlight min element (persistent red)
+  const highlightMinElement = (index: number): gsap.core.Timeline => {
+    const element = arrayElementsRef.current[index];
+    if (!element) return gsap.timeline();
 
     const timeline = gsap.timeline();
-    const shadowConfig = {
-      low: "0 0 10px #ffd700, 0 2px 15px rgba(255, 215, 0, 0.3)",
-      high: "0 0 25px #ff4444, 0 4px 30px rgba(255, 68, 68, 0.5)",
-    };
+    timeline.to(element, {
+      backgroundColor: "#ffebee",
+      borderColor: "#f44336",
+      boxShadow:
+        "0 0 20px rgba(244, 67, 54, 0.4), 0 2px 15px rgba(244, 67, 54, 0.2)",
+      duration: 0.4,
+      ease: "power2.out",
+    });
 
-    const glowShadow = shadowConfig[intensity];
-    const originalBoxShadow = "0 2px 8px rgba(0, 0, 0, 0.08)";
+    return timeline;
+  };
 
-    elements.forEach((element) => {
-      timeline
-        .to(
-          element,
-          {
-            boxShadow: glowShadow,
-            duration: duration / 2,
-            ease: "power2.out",
-          },
-          0
-        )
-        .to(
-          element,
-          {
-            boxShadow: originalBoxShadow,
-            duration: duration / 2,
-            ease: "power2.in",
-          },
-          duration / 2
-        );
+  // Highlight j element (blue comparison)
+  const highlightJElement = (index: number): gsap.core.Timeline => {
+    const element = arrayElementsRef.current[index];
+    if (!element) return gsap.timeline();
+
+    const timeline = gsap.timeline();
+    timeline.to(element, {
+      backgroundColor: "#e3f2fd",
+      borderColor: "#2196f3",
+      boxShadow:
+        "0 0 15px rgba(33, 150, 243, 0.3), 0 2px 12px rgba(33, 150, 243, 0.2)",
+      duration: 0.3,
+      ease: "power2.out",
+    });
+
+    return timeline;
+  };
+
+  // Remove highlighting from element
+  const removeHighlight = (index: number): gsap.core.Timeline => {
+    const element = arrayElementsRef.current[index];
+    if (!element) return gsap.timeline();
+
+    const timeline = gsap.timeline();
+    timeline.to(element, {
+      backgroundColor: "#f8f9fa",
+      borderColor: "#e9ecef",
+      boxShadow: "0 2px 8px rgba(0, 0, 0, 0.08)",
+      duration: 0.3,
+      ease: "power2.out",
     });
 
     return timeline;
@@ -235,6 +298,7 @@ const SelectionSort: React.FC<SelectionSortProps> = ({
       wasPausedRef.current = false;
       return;
     }
+    resetAnimation();
 
     // Hide arrows initially
     if (minArrowRef.current && jArrowRef.current) {
@@ -244,23 +308,21 @@ const SelectionSort: React.FC<SelectionSortProps> = ({
     const arr = [...array];
     const n = arr.length;
     const mainTimeline = gsap.timeline();
-
     // Selection sort algorithm
     for (let i = 0; i < n - 1; i++) {
       let minIndex = i;
 
-      // Show and position arrows
+      // Show and position arrows at start of each iteration
       if (
         minArrowRef.current &&
         jArrowRef.current &&
         arrayElementsRef.current[i] &&
         arrayElementsRef.current[i + 1]
       ) {
-        const minTargetX = i * TOTAL_BOX_SPACING + 40;
-        const jTargetX = (i + 1) * TOTAL_BOX_SPACING + 40;
+        const minTargetX = i * TOTAL_BOX_SPACING + BOX_WIDTH * 0.25;
+        const jTargetX = (i + 1) * TOTAL_BOX_SPACING + BOX_WIDTH * 0.75;
 
-        gsap.set([minArrowRef.current, jArrowRef.current], { opacity: 1 });
-
+        // Position min arrow at current minimum (i)
         mainTimeline.add(
           slideElement(
             minArrowRef.current,
@@ -271,48 +333,98 @@ const SelectionSort: React.FC<SelectionSortProps> = ({
             0.5
           )
         );
+
+        // Position j arrow at first comparison position (i + 1)
         mainTimeline.add(
           slideElement(jArrowRef.current, jTargetX, jTargetX, -60, -20, 0.5),
           "-=0.5"
         );
 
-        mainTimeline.add(highlightBoxes(i, "low", 0.6));
-        mainTimeline.to({}, { duration: 1 });
+        // // Make arrows visible
+        // mainTimeline.to(
+        //   [minArrowRef.current, jArrowRef.current],
+        //   {
+        //     opacity: 1,
+        //     duration: 0.3,
+        //   },
+        //   "-=0.2"
+        // );
+
+        // Highlight initial min element (red)
+        mainTimeline.add(highlightMinElement(i), "-=0.5");
+        mainTimeline.to({}, { duration: 0.5 });
       }
 
       // Find minimum element
       for (let j = i + 1; j < n; j++) {
+        // Move j arrow to current comparison position
         if (jArrowRef.current && j > i + 1) {
-          const newJTargetX = j * TOTAL_BOX_SPACING + 40;
+          const newJTargetX = j * TOTAL_BOX_SPACING + BOX_WIDTH * 0.75;
           mainTimeline.add(
             slideElement(
               jArrowRef.current,
-              (j - 1) * TOTAL_BOX_SPACING + 40,
+              (j - 1) * TOTAL_BOX_SPACING + BOX_WIDTH * 0.75,
               newJTargetX,
               -20,
               -20,
-              0.5
+              0.3
             )
           );
+          // Remove highlight from previous j only if it's not the current min
+          if (j - 1 !== minIndex) {
+            mainTimeline.add(removeHighlight(j - 1), "-=0.4");
+          }
         }
 
+        // Highlight current j element (blue) only if it's not the current min
+        if (j !== minIndex) {
+          mainTimeline.add(highlightJElement(j), "-=0.3");
+        }
+
+        // Small pause for comparison
+        mainTimeline.to({}, { duration: 0.4 });
+
+        // Check if we found a new minimum
         if (isAscending ? arr[j] < arr[minIndex] : arr[j] > arr[minIndex]) {
+          const oldMinIndex = minIndex;
           minIndex = j;
 
+          // Remove red highlight from old minimum only if it's different from new min
+          if (oldMinIndex !== j) {
+            mainTimeline.add(removeHighlight(oldMinIndex), "-=0.1");
+          }
+
+          // Move min arrow to new minimum position
           if (minArrowRef.current) {
-            const newMinTargetX = j * TOTAL_BOX_SPACING + 40;
+            const newMinTargetX = j * TOTAL_BOX_SPACING + BOX_WIDTH * 0.25;
             mainTimeline.add(
               slideElement(
                 minArrowRef.current,
-                minIndex * TOTAL_BOX_SPACING + 40,
+                oldMinIndex * TOTAL_BOX_SPACING + BOX_WIDTH * 0.25,
                 newMinTargetX,
                 -20,
                 -20,
                 0.5
-              )
+              ),
+              "-=0.2"
             );
           }
+
+          // Highlight the new minimum (red) - this will override the blue j highlight
+          mainTimeline.add(highlightMinElement(j), "-=0.1");
+        } else {
+          // If j is not the new min, ensure the current min stays highlighted
+          mainTimeline.add(highlightMinElement(minIndex), "-=0.2");
         }
+
+        // Small pause between comparisons
+        mainTimeline.to({}, { duration: 0.3 });
+      }
+
+      // Remove highlight from last j element if it's not the min
+      const lastJ = n - 1;
+      if (lastJ !== minIndex) {
+        mainTimeline.add(removeHighlight(lastJ));
       }
 
       // Swap if needed
@@ -321,32 +433,47 @@ const SelectionSort: React.FC<SelectionSortProps> = ({
         arr[i] = arr[minIndex];
         arr[minIndex] = temp;
 
-        // Move arrows out of the way
-        if (minArrowRef.current && jArrowRef.current) {
+        if (minArrowRef.current) {
           mainTimeline.add(
             slideElement(
               minArrowRef.current,
-              minArrowRef.current.offsetLeft,
-              minIndex * TOTAL_BOX_SPACING + 40,
+              minIndex * TOTAL_BOX_SPACING + BOX_WIDTH * 0.25,
+              minIndex * TOTAL_BOX_SPACING + BOX_WIDTH * 0.25,
               -20,
-              -60,
+              -80,
               0.5
             )
           );
+        }
+        console.log(i);
+        if (jArrowRef.current) {
+          const x_initial = Number(gsap.getProperty(jArrowRef.current, "x"));
           mainTimeline.add(
             slideElement(
               jArrowRef.current,
-              jArrowRef.current.offsetLeft,
-              i * TOTAL_BOX_SPACING + 40,
+              x_initial + BOX_WIDTH + 15,
+              x_initial + BOX_WIDTH + 15,
               -20,
-              -60,
+              -80,
               0.5
             ),
             "-=0.5"
           );
-          gsap.set([minArrowRef.current, jArrowRef.current], { opacity: 0 });
         }
 
+        // Hide arrows before swap
+        if (minArrowRef.current && jArrowRef.current) {
+          mainTimeline.to(
+            [minArrowRef.current, jArrowRef.current],
+            {
+              opacity: 0,
+              duration: 0.2,
+            },
+            "-=0.6"
+          );
+        }
+
+        mainTimeline.to({}, { duration: 0.3 });
         // Visual swap
         if (arrayElementsRef.current[i] && arrayElementsRef.current[minIndex]) {
           mainTimeline.add(
@@ -362,12 +489,36 @@ const SelectionSort: React.FC<SelectionSortProps> = ({
           arrayElementsRef.current[i] = arrayElementsRef.current[minIndex];
           arrayElementsRef.current[minIndex] = tempRef;
         }
+
+        mainTimeline.to(
+          [minArrowRef.current, jArrowRef.current],
+          {
+            opacity: 0,
+            duration: 0.3,
+          },
+          "+=0.5"
+        );
+      } else {
+        // No swap needed, just hide arrows and remove min highlight
+        if (minArrowRef.current && jArrowRef.current) {
+          mainTimeline.to([minArrowRef.current, jArrowRef.current], {
+            opacity: 0,
+            duration: 0.3,
+          });
+        }
+        // Remove red highlight from min element before marking as sorted
+        mainTimeline.add(removeHighlight(minIndex), "-=0.2");
       }
 
+      // Mark element as sorted
       mainTimeline.add(animateSortedIndicator(i));
+      mainTimeline.to({}, { duration: 0.5 });
     }
 
-    // Reset array elements order
+    // Mark final element as sorted
+    mainTimeline.add(animateSortedIndicator(n - 1));
+
+    // Reset array elements order for reference tracking
     if (arrayElementsRef.current && Array.isArray(arrayElementsRef.current)) {
       const valueToIndices: Record<string, number[]> = {};
       arrayElementsRef.current.forEach((el, idx) => {
@@ -389,6 +540,14 @@ const SelectionSort: React.FC<SelectionSortProps> = ({
 
       arrayElementsRef.current = newOrder;
     }
+    // We use mainTimeline.call(...) to execute a function at the end of the GSAP timeline.
+    // This ensures that after all animations are complete, we set isPlaying to false and wasPausedRef to false.
+    // The .call() method schedules the callback at the current point in the timeline, which here is the end.
+    mainTimeline.call(() => {
+      wasPausedRef.current = false;
+      if (onAnimationEnd) onAnimationEnd();
+      console.log(propsRef.current.isPlaying, wasPausedRef.current);
+    });
 
     timelineRef.current = mainTimeline;
   };
@@ -401,6 +560,10 @@ const SelectionSort: React.FC<SelectionSortProps> = ({
   };
 
   const resetAnimation = (): void => {
+    if (timelineRef.current) {
+      timelineRef.current.kill();
+      timelineRef.current = null;
+    }
     if (arrayElementsRef.current) {
       arrayElementsRef.current.forEach((element) => {
         if (element) {
@@ -560,7 +723,7 @@ const SelectionSort: React.FC<SelectionSortProps> = ({
               marginTop: "4px",
             }}
           >
-            min
+            {isAscending ? "min" : "max"}
           </div>
         </div>
 
