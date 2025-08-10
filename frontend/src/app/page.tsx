@@ -10,7 +10,7 @@ import SortingVisualizerApp2 from "@/components/learning/AINotes.tsx/sortingVisu
 export default function Home() {
   return (
     <>
-      {/* <div>
+      <div>
         <BubbleSort />
       </div>
       <div>
@@ -21,13 +21,13 @@ export default function Home() {
       </div>
       <div>
         <SortingVisualizerApp />
-      </div> */}
+      </div>
       <div>
         <SortingVisualizerApp2 />
       </div>
-      {/* <div>
+      <div>
         <AINotesPage />
-      </div> */}
+      </div>
     </>
   );
 }
