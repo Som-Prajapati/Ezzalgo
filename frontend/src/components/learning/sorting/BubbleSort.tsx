@@ -2,18 +2,7 @@
 import React, { useRef, useEffect, useState } from "react";
 import { gsap } from "gsap";
 import Image from "next/image";
-
-interface BubbleSortProps {
-  array: number[];
-  speed: number;
-  isAscending: boolean;
-  isPlaying: boolean;
-  registerPlayFunction?: (fn: () => void) => void;
-  registerPauseFunction?: (fn: () => void) => void;
-  registerResetFunction?: (fn: () => void) => void;
-  registerNextStepFunction?: (fn: () => void) => void;
-  registerPreviousStepFunction?: (fn: () => void) => void;
-}
+import Controls from "./Control";
 
 // Constants for sizing
 const BOX_WIDTH = 80;
@@ -29,64 +18,17 @@ const ARROW_X_OFFSET = BOX_WIDTH / 2;
 const IMAGE_HEIGHT = 260;
 const IMAGE_WIDTH = 260;
 
-const BubbleSort: React.FC<BubbleSortProps> = ({
-  array: propArray,
-  speed: propSpeed,
-  isAscending: propIsAscending,
-  isPlaying: propIsPlaying,
-  registerPlayFunction,
-  registerPauseFunction,
-  registerResetFunction,
-  registerNextStepFunction,
-  registerPreviousStepFunction,
-}) => {
-  // Use props instead of internal state
-  const [array, setArray] = useState<number[]>(propArray);
-  const [speed, setSpeed] = useState<number>(propSpeed);
-  const [isAscending, setIsAscending] = useState<boolean>(propIsAscending);
-  const [isPlaying, setIsPlaying] = useState<boolean>(propIsPlaying);
+const BubbleSort: React.FC = () => {
+  // Fixed initial array to prevent hydration mismatch
+  const getFixedInitialArray = () => [42, 17, 89, 31, 65, 8];
+  const initialArray = getFixedInitialArray();
 
-  // Update internal state when props change
-  useEffect(() => {
-    setArray(propArray);
-    // Update propsRef when array changes
-    propsRef.current = { array: propArray, speed, isAscending, isPlaying };
-  }, [propArray]);
-
-  useEffect(() => {
-    setSpeed(propSpeed);
-    // Update propsRef when speed changes
-    propsRef.current = { array, speed: propSpeed, isAscending, isPlaying };
-  }, [propSpeed]);
-
-  useEffect(() => {
-    setIsAscending(propIsAscending);
-    // Update propsRef when sort order changes
-    propsRef.current = { array, speed, isAscending: propIsAscending, isPlaying };
-  }, [propIsAscending]);
-
-  useEffect(() => {
-    setIsPlaying(propIsPlaying);
-    // Update propsRef when playing state changes
-    propsRef.current = { array, speed, isAscending, isPlaying: propIsPlaying };
-  }, [propIsPlaying]);
-
-  // Register functions with parent
-  useEffect(() => {
-    const registerIfExists = () => {
-      if (registerPlayFunction && handlePlay) registerPlayFunction(handlePlay);
-      if (registerPauseFunction && handlePause) registerPauseFunction(handlePause);
-      if (registerResetFunction && handleReset) registerResetFunction(handleReset);
-      if (registerNextStepFunction && handleNextStep) registerNextStepFunction(handleNextStep);
-      if (registerPreviousStepFunction && handlePreviousStep) registerPreviousStepFunction(handlePreviousStep);
-    };
-    
-    // Defer registration to ensure all handlers are defined
-    setTimeout(registerIfExists, 0);
-  }, [registerPlayFunction, registerPauseFunction, registerResetFunction, registerNextStepFunction, registerPreviousStepFunction]);
-
-  // Derived state
-  const arraySize = array.length;
+  // State management
+  const [array, setArray] = useState<number[]>(initialArray);
+  const [arraySize, setArraySize] = useState<number>(6);
+  const [isAscending, setIsAscending] = useState<boolean>(true);
+  const [speed, setSpeed] = useState<number>(1);
+  const [isPlaying, setIsPlaying] = useState<boolean>(false);
 
   // Refs for DOM elements
   const containerRef = useRef<HTMLDivElement>(null);
@@ -692,8 +634,7 @@ const BubbleSort: React.FC<BubbleSortProps> = ({
   };
 
   const handleArraySizeChange = (newSize: number): void => {
-    // Array size is now controlled by parent component
-    // This function is kept for compatibility but doesn't change local state
+    setArraySize(newSize);
   };
 
   const handleSortOrderChange = (ascending: boolean): void => {
@@ -742,7 +683,7 @@ const BubbleSort: React.FC<BubbleSortProps> = ({
             gap: "2rem",
             padding: "2rem",
             fontFamily: "system-ui, -apple-system, sans-serif",
-            // backgroundColor: "#ffffff",
+            backgroundColor: "#ffffff",
             color: "#1a1a1a",
             minHeight: "400px",
             zIndex: 0,
@@ -883,6 +824,24 @@ const BubbleSort: React.FC<BubbleSortProps> = ({
           </div>
         </div>
       </div>
+
+      {/* Controls */}
+      <Controls
+        array={array}
+        arraySize={arraySize}
+        isAscending={isAscending}
+        speed={speed}
+        isPlaying={isPlaying}
+        onArrayChange={handleArrayChange}
+        onArraySizeChange={handleArraySizeChange}
+        onSortOrderChange={handleSortOrderChange}
+        onSpeedChange={handleSpeedChange}
+        onPlay={handlePlay}
+        onPause={handlePause}
+        onReset={handleReset}
+        onNextStep={handleNextStep}
+        onPreviousStep={handlePreviousStep}
+      />
     </div>
   );
 };
