@@ -502,7 +502,7 @@ const SortingControls: React.FC<SortingControls> = ({
   };
 
   return (
-    <div className="h-screen flex bg-gray-50">
+    <div className="flex bg-gray-50">
       <div
         ref={mediaPlayerRef}
         className="fixed left-1/2 bottom-8.5 -translate-x-1/2 -translate-y-1 z-100 w-auto inline-flex"

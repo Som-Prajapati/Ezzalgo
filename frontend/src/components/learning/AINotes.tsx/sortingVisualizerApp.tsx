@@ -48,7 +48,7 @@ const pseudoCode = [
 export default function SortingVisualizerApp() {
   // Sidebar state
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const [sidebarWidth, setSidebarWidth] = useState(260);
+  const [sidebarWidth, setSidebarWidth] = useState(300);
   const [selectedAlgorithm, setSelectedAlgorithm] = useState<'bubble' | 'selection' | 'insertion'>('selection');
 
   // Control layout specific state
@@ -382,7 +382,7 @@ export default function SortingVisualizerApp() {
         
 
         {/* Visualization Area */}
-        <div>
+        <div className="flex justify-center items-center flex-1 p-4">
           <SelectionSort 
           isOpen={isSidebarOpen}
           width={sidebarWidth}

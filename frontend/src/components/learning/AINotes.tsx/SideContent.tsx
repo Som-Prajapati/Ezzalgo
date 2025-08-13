@@ -145,7 +145,7 @@ export default function SideContent({
       onWidthChange(0);
     } else {
       // Otherwise, resize normally
-      const constrainedWidth = Math.max(260, Math.min(200, newWidth));
+      const constrainedWidth = Math.max(260, Math.min(300, newWidth));
       onWidthChange(constrainedWidth);
     }
   };
@@ -369,11 +369,11 @@ export default function SideContent({
           </div>
         ) : (
           <div
-            className="w-8 h-full bg-slate-50 border-r border-slate-200 flex items-center justify-center cursor-pointer hover:bg-slate-100 transition-colors"
-            onClick={handleClosedSidebarClick}
-          >
-            <ChevronRight className="w-4 h-4 text-slate-400" />
-          </div>
+          className="w-3 bg-gray-300 hover:bg-blue-500 cursor-pointer transition-all duration-300 flex items-center justify-center group"
+          onClick={handleClosedSidebarClick}
+        >
+          <div className="w-1 h-8 bg-gray-900 group-hover:bg-white rounded-full transition-colors"></div>
+        </div>
         )}
 
       </div>
