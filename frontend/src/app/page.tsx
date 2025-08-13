@@ -19,17 +19,13 @@ export default function Home() {
       </div>
       <div>
         <SelectionSort />
-      </div>
+      </div> */}
       <div>
         <SortingVisualizerApp />
-      </div> */}
+      </div>
       {/* <div>
         <SortingVisualizerApp2 />
       </div> */}
-      <SelectionSort />
-
-      {/* <SortingControls /> */}
-
       {/* <div>
         <AINotesPage />
       </div> */}
