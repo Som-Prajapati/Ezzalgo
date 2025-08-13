@@ -7,6 +7,7 @@ import AINotesPage from "@/components/learning/AINotes.tsx/AINotesPage";
 import SortingVisualizerApp from "@/components/learning/AINotes.tsx/sortingVisualizerApp";
 import SortingVisualizerApp2 from "@/components/learning/AINotes.tsx/sortingVisualizerApp2";
 import SortingControls from "@/components/learning/sorting/SortingControl";
+import SideContent from "@/components/learning/AINotes.tsx/SideContent";
 
 export default function Home() {
   return (
@@ -23,6 +24,9 @@ export default function Home() {
       <div>
         <SortingVisualizerApp />
       </div>
+      {/* <div>
+        <SideContent />
+      </div> */}
       {/* <div>
         <SortingVisualizerApp2 />
       </div> */}

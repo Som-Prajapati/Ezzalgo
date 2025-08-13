@@ -73,7 +73,7 @@ const menuItems: MenuItem[] = [
   },
 ];
 
-export default function Sidebar({ 
+export default function SideContent({ 
   isOpen, 
   width, 
   onWidthChange, 

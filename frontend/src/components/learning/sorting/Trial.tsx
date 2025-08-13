@@ -36,18 +36,8 @@ const getDynamicSizing = (arrayLength: number) => {
   }
 };
 
-
-interface SidebarProps {
-  isOpen: boolean;
-  width: number;
-}
-
-const SelectionSort: React.FC<SidebarProps> = ({
-  isOpen, 
-  width
-}: SidebarProps) => {
+const SelectionSort: React.FC = () => {
   // Fixed initial array to prevent hydration mismatch
-  console.log(isOpen, width);
   const getFixedInitialArray = () => [42, 17, 89, 31, 65, 8];
   const initialArray = getFixedInitialArray();
 
@@ -791,7 +781,7 @@ const SelectionSort: React.FC<SidebarProps> = ({
             gap: "2rem",
             padding: "2rem",
             fontFamily: "system-ui, -apple-system, sans-serif",
-            // backgroundColor: "#ffffff",
+            backgroundColor: "#ffffff",
             color: "#1a1a1a",
             minHeight: "400px",
             zIndex: 0,
@@ -914,9 +904,6 @@ const SelectionSort: React.FC<SidebarProps> = ({
 
       {/* Controls */}
       <SortingControls
-      // fix the error
-        isOpen={isOpen}
-        width={width}
         array={array}
         arraySize={arraySize}
         isAscending={isAscending}

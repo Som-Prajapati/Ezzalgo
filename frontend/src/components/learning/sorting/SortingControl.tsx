@@ -19,6 +19,8 @@ import {
 } from "lucide-react";
 
 interface SortingControls {
+  isOpen: boolean;
+  width: number;
   array: number[];
   arraySize: number;
   isAscending: boolean;
@@ -36,6 +38,8 @@ interface SortingControls {
 }
 
 const SortingControls: React.FC<SortingControls> = ({
+  isOpen,
+  width,
   array,
   arraySize,
   isAscending,
@@ -52,10 +56,10 @@ const SortingControls: React.FC<SortingControls> = ({
   onPreviousStep,
 }) => {
   // Sidebar state
-  const [sidebarWidth, setSidebarWidth] = useState(320);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  // const [sidebarWidth, setSidebarWidth] = useState(260);
+  // const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isPanelOpen, setIsPanelOpen] = useState(true);
-
+  console.log("Panel is open:", isOpen,width);
   // Input width state for resizable array elements input
   const [inputWidth, setInputWidth] = useState(256);
   const [isResizing, setIsResizing] = useState(false);
@@ -406,7 +410,7 @@ const SortingControls: React.FC<SortingControls> = ({
         ref={mediaPlayerRef}
         className="fixed left-1/2 bottom-6 -translate-x-1/2 -translate-y-1 z-100 w-auto inline-flex"
         style={{
-          left: isSidebarOpen ? `calc(${sidebarWidth / 2}px + 50%)` : "50%",
+          left: isOpen ? `calc(${width / 2}px + 50%)` : "50%",
           zIndex: 1000,
         }}
       >
@@ -473,7 +477,7 @@ const SortingControls: React.FC<SortingControls> = ({
         ref={floatingPanelRef}
         className="fixed bottom-5 z-40 bg-background border rounded-xl"
         style={{
-          left: `${isSidebarOpen ? sidebarWidth + 20 : 20}px`,
+          left: `${isOpen ? width + 20 : 20}px`,
           right: "20px",
         }}
       >
