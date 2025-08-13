@@ -2,6 +2,7 @@
 import React, { useRef, useEffect, useState } from "react";
 import { gsap } from "gsap";
 import Controls from "./Control";
+import SortingControls from "./SortingControl";
 
 const getDynamicSizing = (arrayLength: number) => {
   if (arrayLength <= 9) {
@@ -902,7 +903,7 @@ const SelectionSort: React.FC = () => {
       </div>
 
       {/* Controls */}
-      <Controls
+      <SortingControls
         array={array}
         arraySize={arraySize}
         isAscending={isAscending}
