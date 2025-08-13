@@ -6,6 +6,7 @@ import InsertionSort from "@/components/learning/sorting/InsertionSort";
 import AINotesPage from "@/components/learning/AINotes.tsx/AINotesPage";
 import SortingVisualizerApp from "@/components/learning/AINotes.tsx/sortingVisualizerApp";
 import SortingVisualizerApp2 from "@/components/learning/AINotes.tsx/sortingVisualizerApp2";
+import SortingControls from "@/components/learning/sorting/SortingControl";
 
 export default function Home() {
   return (
