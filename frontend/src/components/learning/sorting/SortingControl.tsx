@@ -14,7 +14,6 @@ import {
   Minus,
   Plus,
   GripVertical,
-  Copy,
   Code,
 } from "lucide-react";
 
@@ -59,7 +58,7 @@ const SortingControls: React.FC<SortingControls> = ({
   // const [sidebarWidth, setSidebarWidth] = useState(260);
   // const [isOpen, setisOpen] = useState(true);
   const [isPanelOpen, setIsPanelOpen] = useState(true);
-  console.log("Panel is open:", isOpen,width);
+  console.log("Panel is open:", isOpen, width);
   // Input width state for resizable array elements input
   const [inputWidth, setInputWidth] = useState(256);
   const [isResizing, setIsResizing] = useState(false);
@@ -406,14 +405,14 @@ const SortingControls: React.FC<SortingControls> = ({
 
   const mediaPlayerStyles = {
     container: isOpen
-      ? "flex items-center gap-0 p-0 bg-gradient-to-br from-white to-gray-50 border-2 border-gray-200 rounded-2xl hover:border-gray-300 transition-all duration-300"
-      : "flex items-center gap-1 p-1 bg-gradient-to-br from-white to-gray-50 border-2 border-gray-200 rounded-2xl hover:border-gray-300 transition-all duration-300",
+      ? "flex items-center gap-0 p-1 bg-gradient-to-br from-white to-gray-50 border-3 border-gray-700 rounded-2xl hover:border-gray-700 transition-all duration-300"
+      : "flex items-center gap-1 p-1 bg-gradient-to-br from-white to-gray-50 border-3 border-gray-700 rounded-2xl hover:border-gray-700 transition-all duration-300",
 
-    button: isOpen ? "h-10 w-11" : "h-10 w-13",
+    button: isOpen ? "h-10 w-11" : "h-10 w-12",
 
     icon: {
-      width: isOpen ? "18px" : "20px",
-      height: isOpen ? "18px" : "20px",
+      width: isOpen ? "18px" : "18px",
+      height: isOpen ? "18px" : "18px",
     },
   };
 
@@ -421,37 +420,29 @@ const SortingControls: React.FC<SortingControls> = ({
   const controlPanelStyles = {
     container: isOpen
       ? "flex items-center justify-between gap-4 p-4 bg-background border-t min-w-0"
-      : "flex items-center justify-between gap-4 p-4 bg-background border-t min-w-0", // Keep same padding and gap
+      : "flex items-center justify-between gap-4 p-3.5 bg-background border-t min-w-0", // Keep same padding and gap
 
-    leftSection: isOpen
-      ? "flex items-center gap-2"
-      : "flex items-center gap-2", // Keep same gap
+    leftSection: isOpen ? "flex items-center gap-2" : "flex items-center gap-2", // Keep same gap
 
     controlGroup: isOpen
       ? "flex flex-col items-center gap-2"
       : "flex flex-col items-center gap-2", // Keep same gap
 
-    buttonGroup: isOpen
-      ? "flex items-center gap-2"
-      : "flex items-center gap-2", // Keep same gap
+    buttonGroup: isOpen ? "flex items-center gap-2" : "flex items-center gap-3", // Keep same gap
 
-    controlButton: isOpen
-      ? "h-8 w-8 hover:bg-muted"
-      : "h-8 w-8 hover:bg-muted", // Keep same button size
+    controlButton: isOpen ? "h-8 w-8 hover:bg-muted" : "h-9 w-8 hover:bg-muted", // Keep same button size
 
-    plusButton: isOpen
-      ? "h-8 w-6 hover:bg-muted"
-      : "h-8 w-6 hover:bg-muted", // Keep same button size
+    plusButton: isOpen ? "h-8 w-6 hover:bg-muted" : "h-9 w-6 hover:bg-muted", // Keep same button size
 
     actionButton: isOpen
       ? "h-8 w-16 px-3 text-xs bg-transparent"
-      : "h-8 w-20 px-3 text-xs bg-transparent", // Keep same button size
+      : "h-9 w-20 px-3 text-xs bg-transparent", // Keep same button size
 
     label: isOpen
       ? "text-xs text-muted-foreground font-medium"
       : "text-xs text-muted-foreground font-medium", // Keep same text size
 
-    input: isOpen ? "h-8 text-sm pr-8" : "h-8 text-sm pr-8", // Keep same input size
+    input: isOpen ? "h-8 text-sm pr-8" : "h-9 text-sm pr-8", // Keep same input size
 
     resizeHandle: isOpen
       ? "absolute right-0 top-0 h-full w-8 cursor-ew-resize hover:bg-blue-100 bg-transparent rounded-r flex items-center justify-center z-20 border-l border-gray-200"
@@ -465,40 +456,54 @@ const SortingControls: React.FC<SortingControls> = ({
 
     // Right section styles
     rightSection: isOpen
-      ? "flex items-center gap-1 flex-shrink-0"
-      : "flex items-center gap-2 flex-shrink-0",
+      ? "flex items-center gap-1 min-w-0 relative"
+      : "flex items-center gap-2 min-w-0 relative",
 
     rightControlGroup: isOpen
-      ? "flex flex-col items-center gap-1"
+      ? "flex flex-col items-center gap-1 "
       : "flex flex-col items-center gap-2",
 
     rightButtonGroup: isOpen
       ? "flex items-center gap-4"
       : "flex items-center gap-2",
 
-    speedButton: isOpen
-      ? "h-8 w-7 hover:bg-muted"
-      : "h-8 w-9 hover:bg-muted",
+    speedSection: isOpen
+      ? "flex flex-col items-center gap-2 absolute right-60" // Position from right edge
+      : "flex flex-col items-center gap-2 absolute right-80",
+
+    speedButton: isOpen ? "h-8 w-7 hover:bg-muted" : "h-9 w-14 hover:bg-muted",
 
     speedPlusButton: isOpen
       ? "h-8 w-5 hover:bg-muted"
-      : "h-8 w-9 hover:bg-muted",
+      : "h-9 w-14 hover:bg-muted",
 
     speedDisplay: isOpen
-      ? "min-w-[1.5rem] text-center font-medium text-xs"
-      : "min-w-[2rem] text-center font-medium text-s",
+      ? "min-w-[1.5rem] text-center font-medium text-s"
+      : "min-w-[2rem] text-center font-medium text-l",
 
     sortButtonGroup: isOpen
-      ? "flex items-center gap-3"
-      : "flex items-center gap-2",
+      ? "flex items-center gap-5"
+      : "flex items-center gap-8 ",
 
-    sortLabel: isOpen 
-      ? "text-xs text-muted-foreground font-medium ml-2" 
-      : "text-xs text-muted-foreground font-medium ml-3",
-    
-    tabsList: isOpen ? "grid w-24 grid-cols-2 h-8" : "grid w-30 grid-cols-2 h-8",
+    sortOrderContainer: isOpen
+      ? "flex flex-col gap-2 absolute right-5"
+      : "flex flex-col gap-2 absolute right-2",
 
-    codeButton: isOpen ? "w-18 px-2 h-8" : "w-24 px-2 h-8",
+    sortLabel: isOpen
+      ? "text-xs text-muted-foreground font-medium ml-5"
+      : "text-xs text-muted-foreground font-medium ml-10",
+
+    tabsList: isOpen
+      ? "grid w-26 grid-cols-2 h-8 text-gray-900 "
+      : "grid w-38 grid-cols-2 h-9 text-gray-900 ",
+
+    AscDescLabel: isOpen
+      ? "text-xs "
+      : "text-s ",
+
+    codeButton: isOpen
+      ? "w-20 px-2 h-8 text-xs bg-transparent"
+      : "w-28 h-9 px-3 text-s bg-transparent",
   };
 
   return (
@@ -516,7 +521,7 @@ const SortingControls: React.FC<SortingControls> = ({
             <Button
               onClick={togglePanel}
               size="icon"
-              className={`${mediaPlayerStyles.button} bg-white hover:bg-gray-50 text-gray-700 transition-all duration-200 hover:scale-105`}
+              className={`${mediaPlayerStyles.button} bg-white hover:bg-muted text-gray-700 transition-all duration-200 `}
               aria-label={isPanelOpen ? "Close settings" : "Open settings"}
             >
               <Settings
@@ -573,7 +578,7 @@ const SortingControls: React.FC<SortingControls> = ({
       {/* Floating Control Panel Container - Outside sidebar, positioned relative to main content */}
       <div
         ref={floatingPanelRef}
-        className="fixed bottom-5 z-40 bg-background border rounded-xl"
+        className="fixed bottom-5 z-40 bg-background border-2 rounded-m"
         style={{
           left: `${isOpen ? width + 20 : 20}px`,
           right: "20px",
@@ -609,7 +614,7 @@ const SortingControls: React.FC<SortingControls> = ({
                   onMouseDown={startContinuousIncrease}
                   onMouseUp={stopContinuous}
                   onMouseLeave={stopContinuous}
-                  className={controlPanelStyles.plusButton}
+                  className={controlPanelStyles.controlButton}
                   disabled={arraySize >= maxArraySize}
                 >
                   <Plus className={controlPanelStyles.icon} />
@@ -638,7 +643,11 @@ const SortingControls: React.FC<SortingControls> = ({
                     className={`${controlPanelStyles.input} ${
                       inputError ? "border-red-300 focus:border-red-500" : ""
                     }`}
-                    style={{ width: `${inputWidth}px` }}
+                    style={{
+                      width: isOpen
+                        ? `${inputWidth * 0.5}px` // 80% of inputWidth when sidebar open
+                        : `${inputWidth * 0.7}px`, // Full inputWidth when sidebar closed
+                    }}
                   />
                   <div
                     className={controlPanelStyles.resizeHandle}
@@ -664,7 +673,6 @@ const SortingControls: React.FC<SortingControls> = ({
                   title="Duplicate current array"
                   onClick={generateRandomDuplicateArray}
                 >
-                  {/* <Copy className="h-3 w-3 mr-1" /> */}
                   Duplicate
                 </Button>
               </div>
@@ -674,7 +682,7 @@ const SortingControls: React.FC<SortingControls> = ({
           {/* Right Section: Speed and Sort Controls */}
           <div className={controlPanelStyles.rightSection}>
             {/* Speed Controls */}
-            <div className={controlPanelStyles.rightControlGroup}>
+            <div className={controlPanelStyles.speedSection}>
               <span className={controlPanelStyles.label}>Speed</span>
               <div className={controlPanelStyles.rightButtonGroup}>
                 <Button
@@ -708,18 +716,18 @@ const SortingControls: React.FC<SortingControls> = ({
             </div>
 
             {/* Sort Order Controls */}
-            <div className={controlPanelStyles.rightControlGroup}>
-              <span className={controlPanelStyles.label}>Sort Order</span>
+            <div className={controlPanelStyles.sortOrderContainer}>
+              <span className={controlPanelStyles.sortLabel}>Sort Order</span>
               <div className={controlPanelStyles.sortButtonGroup}>
                 <Tabs
                   value={isAscending ? "asc" : "desc"}
                   onValueChange={handleSortOrderChange}
                 >
                   <TabsList className={controlPanelStyles.tabsList}>
-                    <TabsTrigger value="asc" className="text-xs">
+                    <TabsTrigger value="asc" className={controlPanelStyles.AscDescLabel}>
                       Asc
                     </TabsTrigger>
-                    <TabsTrigger value="desc" className="text-xs">
+                    <TabsTrigger value="desc" className={controlPanelStyles.AscDescLabel}>
                       Desc
                     </TabsTrigger>
                   </TabsList>
@@ -727,7 +735,7 @@ const SortingControls: React.FC<SortingControls> = ({
                 <Button
                   variant="outline"
                   size="sm"
-                  className={controlPanelStyles.codeButton}
+                  className={`${controlPanelStyles.codeButton} text-s`}
                 >
                   <Code className={`${controlPanelStyles.icon} mr-1`} />
                   Code

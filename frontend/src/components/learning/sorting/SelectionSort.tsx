@@ -317,13 +317,13 @@ const SelectionSort: React.FC<SidebarProps> = ({
             gsap.fromTo(
               minArrowRef.current,
               {
-                x: ARROW_X_OFFSET + i * TOTAL_BOX_SPACING,
+                x:  i * TOTAL_BOX_SPACING + BOX_WIDTH*0.25,
                 y: 0,
                 opacity: 0,
                 zIndex: -1,
               },
               {
-                y: ARROW_Y_OFFSET_DOWN,
+                y: ARROW_Y_OFFSET_DOWN ,
                 opacity: 1,
                 duration: 0.5,
                 ease: "power1.out",
@@ -334,7 +334,7 @@ const SelectionSort: React.FC<SidebarProps> = ({
             gsap.fromTo(
               jArrowRef.current,
               {
-                x: ARROW_X_OFFSET + (i + 1) * TOTAL_BOX_SPACING,
+                x:  (i + 1) * TOTAL_BOX_SPACING + BOX_WIDTH*0.75,
                 y: 0,
                 opacity: 0,
                 zIndex: -1,
@@ -371,7 +371,7 @@ const SelectionSort: React.FC<SidebarProps> = ({
           mainTimeline.add(
             slideElementTo(
               jArrowRef.current,
-              ARROW_X_OFFSET + j * TOTAL_BOX_SPACING,
+               j * TOTAL_BOX_SPACING + BOX_WIDTH*0.75,
               `+=0`,
               0.3
             ),
@@ -407,7 +407,7 @@ const SelectionSort: React.FC<SidebarProps> = ({
             mainTimeline.add(
               slideElementTo(
                 minArrowRef.current,
-                ARROW_X_OFFSET + j * TOTAL_BOX_SPACING,
+                 j * TOTAL_BOX_SPACING + BOX_WIDTH*0.25,
                 `+=0`,
                 0.3
               ),
