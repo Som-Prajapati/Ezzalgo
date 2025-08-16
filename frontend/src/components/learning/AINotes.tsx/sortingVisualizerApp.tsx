@@ -27,6 +27,7 @@ import SideContent from "./SideContent";
 import { Abril_Fatface } from "next/font/google";
 import BubbleSort from "../sorting/BubbleSort";
 import SelectionSort from "../sorting/SelectionSort";
+import InsertionSort from "../sorting/InsertionSort";
 
 const michroma = Abril_Fatface({
   weight: "400",
@@ -382,12 +383,49 @@ export default function SortingVisualizerApp() {
         
 
         {/* Visualization Area */}
-        <div className="flex justify-center items-center flex-1 p-4">
+        {/* <div className="flex justify-center items-center flex-1 p-4">
+          <BubbleSort 
+          isOpen={isSidebarOpen}
+          width={sidebarWidth}
+          />
+        </div> */}
+        {/* <div className="flex justify-center items-center flex-1 p-4">
+          <InsertionSort 
+          isOpen={isSidebarOpen}
+          width={sidebarWidth}
+          />
+        </div> */}
+        {/* <div className="flex justify-center items-center flex-1 p-4">
           <SelectionSort 
           isOpen={isSidebarOpen}
           width={sidebarWidth}
           />
-        </div>
+        </div> */}
+        {/* selectedAlgorithm logic here */}
+        {selectedAlgorithm === "bubble" && (
+          <div className="flex justify-center items-center flex-1 p-4">
+            <BubbleSort
+              isOpen={isSidebarOpen}
+              width={sidebarWidth}
+            />
+          </div>
+        )}
+        {selectedAlgorithm === "insertion" && (
+          <div className="flex justify-center items-center flex-1 p-4">
+            <InsertionSort
+              isOpen={isSidebarOpen}
+              width={sidebarWidth}
+            />
+          </div>
+        )}
+        {selectedAlgorithm === "selection" && (
+          <div className="flex justify-center items-center flex-1 p-4">
+            <SelectionSort
+              isOpen={isSidebarOpen}
+              width={sidebarWidth}
+            />
+          </div>
+        )}
 
         {/* Control Panel - Inline */}
         

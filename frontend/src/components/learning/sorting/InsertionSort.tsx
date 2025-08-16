@@ -2,6 +2,7 @@
 import React, { useRef, useEffect, useState } from "react";
 import { gsap } from "gsap";
 import Controls from "./Control";
+import SortingControls from "./SortingControl";
 
 // Constants for sizing
 const BOX_WIDTH = 80;
@@ -16,7 +17,15 @@ const ARROW_Y_OFFSET_UP = -(BOX_HEIGHT * 1.5) / 2;
 const ARROW_Y_OFFSET_DOWN = (BOX_HEIGHT * 2.4) / 2;
 const ARROW_X_OFFSET = BOX_WIDTH / 2;
 
-const InsertionSort: React.FC = () => {
+interface SidebarProps {
+  isOpen: boolean;
+  width: number;
+}
+
+const InsertionSort: React.FC<SidebarProps> = ({
+  isOpen,
+  width
+}: SidebarProps) => {
   // Fixed initial array to prevent hydration mismatch
   const getFixedInitialArray = () => [42, 17, 89, 31, 65, 8];
   const initialArray = getFixedInitialArray();
@@ -693,7 +702,7 @@ const InsertionSort: React.FC = () => {
             gap: "2rem",
             padding: "2rem",
             fontFamily: "system-ui, -apple-system, sans-serif",
-            backgroundColor: "#ffffff",
+            // backgroundColor: "#ffffff",
             color: "#1a1a1a",
             minHeight: "400px",
             zIndex: 0,
@@ -851,7 +860,9 @@ const InsertionSort: React.FC = () => {
       </div>
 
       {/* Controls */}
-      <Controls
+      <SortingControls
+        isOpen={isOpen}
+        width={width}
         array={array}
         arraySize={arraySize}
         isAscending={isAscending}

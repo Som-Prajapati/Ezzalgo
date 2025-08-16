@@ -12,6 +12,7 @@ import {
   GripHorizontal,
   Menu,
   Link as LinkIcon,
+  BotMessageSquare,
 } from "lucide-react";
 import { BarChart3, Binary, GitBranch, List } from "lucide-react";
 // Import Link from Next.js for navigation
@@ -379,12 +380,12 @@ export default function SideContent({
       </div>
       
       {/* Fixed AI Button - Now properly using Next.js Link */}
-      <div className="fixed right-0 top-1/2 transform -translate-y-1/2 z-40">
+      <div className="fixed right-[-3] top-1/2 transform -translate-y-1/2 z-40">
         <Link href="/notes/bubble" passHref>
-          <button className="relative inline-flex h-28 w-10 rounded-sm overflow-hidden p-[1px] focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50 transition-transform hover:scale-105">
+          <button className="relative inline-flex h-28 w-8 rounded-sm overflow-hidden p-[1px] focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50 transition-transform hover:scale-105">
             <span className="absolute inset-[-1000%] animate-[spin_2s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,#8B5CF6_0%,#F59E0B_50%,#EF4444_75%,#8B5CF6_100%)]" />
             <span className="inline-flex h-full w-full cursor-pointer items-center justify-center bg-zinc-900 px-3 py-1 text-sm font-medium text-white backdrop-blur-3xl hover:bg-zinc-800 transition-colors">
-              <span className="transform -rotate-90 whitespace-nowrap">AI</span>
+              <span className=" whitespace-nowrap"><BotMessageSquare /></span>
             </span>
           </button>
         </Link>
