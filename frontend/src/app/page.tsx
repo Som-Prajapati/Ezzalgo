@@ -6,11 +6,13 @@ import InsertionSort from "@/components/learning/sorting/InsertionSort";
 import AINotesPage from "@/components/learning/AINotes.tsx/AINotesPage";
 import SortingVisualizerApp from "@/components/learning/AINotes.tsx/sortingVisualizerApp";
 import SortingVisualizerApp2 from "@/components/learning/AINotes.tsx/sortingVisualizerApp2";
+import SortingControls from "@/components/learning/sorting/SortingControl";
+import SideContent from "@/components/learning/AINotes.tsx/SideContent";
 
 export default function Home() {
   return (
     <>
-      <div>
+      {/* <div>
         <BubbleSort />
       </div>
       <div>
@@ -18,16 +20,19 @@ export default function Home() {
       </div>
       <div>
         <SelectionSort />
-      </div>
+      </div> */}
       <div>
         <SortingVisualizerApp />
       </div>
-      <div>
+      {/* <div>
+        <SideContent />
+      </div> */}
+      {/* <div>
         <SortingVisualizerApp2 />
-      </div>
-      <div>
+      </div> */}
+      {/* <div>
         <AINotesPage />
-      </div>
+      </div> */}
     </>
   );
 }
