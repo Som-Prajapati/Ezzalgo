@@ -1042,10 +1042,10 @@ export default function SortingVisualizerApp() {
       </div>
 
       {/* Draggable Code Panel */}
-      <DraggableCodePanel
+      {/* <DraggableCodePanel
         showCode={showCode}
         currentCodeLine={currentCodeLine}
-      />
+      /> */}
 
       {/* Original Pseudocode Panel (keeping for backward compatibility) */}
       {showPseudocode && (
