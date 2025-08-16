@@ -5,18 +5,39 @@ import Image from "next/image";
 import Controls from "./Control";
 
 // Constants for sizing
-const BOX_WIDTH = 80;
-const BOX_HEIGHT = 80;
-const BOX_GAP = 14;
-const BOX_BORDER_RADIUS = 12;
-const BOX_FONT_SIZE = 20;
-const ARROW_SIZE = 8;
-const ARROW_FONT_SIZE = 16;
-const TOTAL_BOX_SPACING = BOX_WIDTH + BOX_GAP;
-const ARROW_Y_OFFSET_DOWN = (BOX_HEIGHT * 2.4) / 2;
-const ARROW_X_OFFSET = BOX_WIDTH / 2;
-const IMAGE_HEIGHT = 260;
-const IMAGE_WIDTH = 260;
+const getDynamicSizing = (arrayLength: number) => {
+  if (arrayLength <= 9) {
+    return {
+      BOX_WIDTH: 80,
+      BOX_HEIGHT: 80,
+      BOX_GAP: 14,
+      BOX_BORDER_RADIUS: 12,
+      BOX_FONT_SIZE: 20,
+      ARROW_SIZE: 8,
+      ARROW_FONT_SIZE: 16,
+      TOTAL_BOX_SPACING: 80 + 14,
+      ARROW_Y_OFFSET_DOWN: (80 * 2.4) / 2,
+      ARROW_X_OFFSET: 80 / 2,
+      IMAGE_HEIGHT: 260,
+      IMAGE_WIDTH: 260,
+    };
+  } else {
+    return {
+      BOX_WIDTH: 55,
+      BOX_HEIGHT: 55,
+      BOX_GAP: 10,
+      BOX_BORDER_RADIUS: 8,
+      BOX_FONT_SIZE: 16,
+      ARROW_SIZE: 6,
+      ARROW_FONT_SIZE: 14,
+      TOTAL_BOX_SPACING: 55 + 10,
+      ARROW_Y_OFFSET_DOWN: (55 * 2.4) / 2,
+      ARROW_X_OFFSET: 55 / 2,
+      IMAGE_HEIGHT: 200,
+      IMAGE_WIDTH: 200,
+    };
+  }
+};
 
 const BubbleSort: React.FC = () => {
   // Fixed initial array to prevent hydration mismatch
@@ -43,7 +64,21 @@ const BubbleSort: React.FC = () => {
   // Add refs for step management
   const currentStepRef = useRef<number>(0);
   const totalStepsRef = useRef<number>(0);
-
+  const dynamicSizing = getDynamicSizing(array.length);
+  const {
+    BOX_WIDTH,
+    BOX_HEIGHT,
+    BOX_GAP,
+    BOX_BORDER_RADIUS,
+    BOX_FONT_SIZE,
+    ARROW_SIZE,
+    ARROW_FONT_SIZE,
+    TOTAL_BOX_SPACING,
+    ARROW_Y_OFFSET_DOWN,
+    ARROW_X_OFFSET,
+    IMAGE_HEIGHT,
+    IMAGE_WIDTH,
+  } = dynamicSizing;
   // Animates an element from its current position to (toX, toY) over the given duration.
   const slideElementTo = (
     element: HTMLElement,
