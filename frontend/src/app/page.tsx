@@ -2,6 +2,7 @@
 import BubbleSort from "@/components/learning/sorting/BubbleSort";
 import SelectionSort from "@/components/learning/sorting/SelectionSort";
 import InsertionSort from "@/components/learning/sorting/InsertionSort";
+import page from "./notes/[algo]/page";
 
 // import AINotesPage from "@/components/learning/AINotes.tsx/AINotesPage";
 import AINotesPage from "@/components/learning/AINotes.tsx/AINotes";
@@ -18,12 +19,12 @@ export default function Home() {
       {/* <div>
         <InsertionSort />
       </div> */}
-      <div>
-        <SelectionSort />
-      </div>
       {/* <div>
         <SortingVisualizerApp />
-      </div>  */}
+      </div> */}
+      <div>
+        <SortingVisualizerApp />
+      </div>
       {/* <div>
         <SortingVisualizerApp2 />
       </div> */}

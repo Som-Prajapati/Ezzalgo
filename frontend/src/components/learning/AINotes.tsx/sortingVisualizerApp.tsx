@@ -1,6 +1,7 @@
 "use client";
 import React from "react";
 import { useState, useMemo, useRef, useCallback } from "react";
+import JumpSearch from "../searching/JumpSearch";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -28,6 +29,7 @@ import { Abril_Fatface } from "next/font/google";
 import BubbleSort from "../sorting/BubbleSort";
 import SelectionSort from "../sorting/SelectionSort";
 import InsertionSort from "../sorting/InsertionSort";
+import HeapSort from "../sorting/HeapSort";
 
 const michroma = Abril_Fatface({
   weight: "400",
@@ -50,7 +52,9 @@ export default function SortingVisualizerApp() {
   // Sidebar state
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [sidebarWidth, setSidebarWidth] = useState(300);
-  const [selectedAlgorithm, setSelectedAlgorithm] = useState<'bubble' | 'selection' | 'insertion'>('selection');
+  const [selectedAlgorithm, setSelectedAlgorithm] = useState<
+    "bubble" | "selection" | "insertion" | "heap" | "jump"
+  >("heap");
 
   // Control layout specific state
   const [inputWidth, setInputWidth] = useState(256);
@@ -82,8 +86,6 @@ export default function SortingVisualizerApp() {
   const [currentStep, setCurrentStep] = useState(4); // Current line in pseudocode
   const [currentCodeLine, setCurrentCodeLine] = useState(3); // 0-indexed, line 4 highlighted
 
-
-
   // Visualization data
   const arrayValues = [45, 85, 95, 60, 75, 25, 35];
   const maxValue = Math.max(...arrayValues);
@@ -93,7 +95,9 @@ export default function SortingVisualizerApp() {
     setIsSidebarOpen(!isSidebarOpen);
   };
 
-  const handleAlgorithmChange = (algorithm: 'bubble' | 'selection' | 'insertion') => {
+  const handleAlgorithmChange = (
+    algorithm: "bubble" | "selection" | "insertion" | "heap" | "jump"
+  ) => {
     setSelectedAlgorithm(algorithm);
   };
 
@@ -237,8 +241,6 @@ export default function SortingVisualizerApp() {
     setIsResizingInput(false);
   }, []);
 
-  
-
   // Pseudocode dragging handlers
   const handlePseudoMouseDown = (e: React.MouseEvent) => {
     setIsDraggingPseudo(true);
@@ -260,7 +262,6 @@ export default function SortingVisualizerApp() {
   const handlePseudoMouseUp = () => {
     setIsDraggingPseudo(false);
   };
-
 
   // // Add global mouse event listeners for resize handle
   // React.useEffect(() => {
@@ -380,59 +381,36 @@ export default function SortingVisualizerApp() {
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col">
-        
-
         {/* Visualization Area */}
-        {/* <div className="flex justify-center items-center flex-1 p-4">
-          <BubbleSort 
-          isOpen={isSidebarOpen}
-          width={sidebarWidth}
-          />
-        </div> */}
-        {/* <div className="flex justify-center items-center flex-1 p-4">
-          <InsertionSort 
-          isOpen={isSidebarOpen}
-          width={sidebarWidth}
-          />
-        </div> */}
-        {/* <div className="flex justify-center items-center flex-1 p-4">
-          <SelectionSort 
-          isOpen={isSidebarOpen}
-          width={sidebarWidth}
-          />
-        </div> */}
-        {/* selectedAlgorithm logic here */}
         {selectedAlgorithm === "bubble" && (
           <div className="flex justify-center items-center flex-1 p-4">
-            <BubbleSort
-              isOpen={isSidebarOpen}
-              width={sidebarWidth}
-            />
+            <BubbleSort isOpen={isSidebarOpen} width={sidebarWidth} />
           </div>
         )}
         {selectedAlgorithm === "insertion" && (
           <div className="flex justify-center items-center flex-1 p-4">
-            <InsertionSort
-              isOpen={isSidebarOpen}
-              width={sidebarWidth}
-            />
+            <InsertionSort isOpen={isSidebarOpen} width={sidebarWidth} />
           </div>
         )}
         {selectedAlgorithm === "selection" && (
           <div className="flex justify-center items-center flex-1 p-4">
-            <SelectionSort
-              isOpen={isSidebarOpen}
-              width={sidebarWidth}
-            />
+            <SelectionSort isOpen={isSidebarOpen} width={sidebarWidth} />
           </div>
         )}
-
+        {selectedAlgorithm === "heap" && (
+          <div className="flex justify-center items-center flex-1 p-4">
+            <HeapSort isOpen={isSidebarOpen} width={sidebarWidth} />
+          </div>
+        )}
+        {selectedAlgorithm === "jump" && (
+          <div className="flex justify-center items-center flex-1 p-4">
+            <JumpSearch isOpen={isSidebarOpen} width={sidebarWidth} />
+          </div>
+        )}
         {/* Control Panel - Inline */}
-        
       </div>
 
       {/* Floating Draggable Pseudocode Panel */}
-    
     </div>
   );
 }

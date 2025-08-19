@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import { useState, useMemo, useEffect, useRef, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,6 +19,7 @@ import { BarChart3, Binary, GitBranch, List } from "lucide-react";
 import Link from "next/link";
 // At the top of your component or in a separate fonts file
 import { Abril_Fatface } from "next/font/google";
+import JumpSearch from "../searching/JumpSearch";
 
 const michroma = Abril_Fatface({
   weight: "400",
@@ -38,8 +39,10 @@ interface SidebarProps {
   width: number;
   onWidthChange: (width: number) => void;
   onToggle: () => void;
-  selectedAlgorithm?: 'bubble' | 'selection' | 'insertion';
-  onAlgorithmChange?: (algorithm: 'bubble' | 'selection' | 'insertion') => void;
+  selectedAlgorithm?: "bubble" | "selection" | "insertion" | "heap" | "jump";
+  onAlgorithmChange?: (
+    algorithm: "bubble" | "selection" | "insertion" | "heap" | "jump"
+  ) => void;
 }
 
 const menuItems: MenuItem[] = [
@@ -67,6 +70,18 @@ const menuItems: MenuItem[] = [
     icon: <Binary className="w-4 h-4 text-purple-500" />,
   },
   {
+    id: "searching-algorithms",
+    label: "Searching Algorithms",
+    icon: <Search className="w-4 h-4 text-pink-500" />,
+    children: [
+      { id: "linear-search", label: "Linear Search" },
+      { id: "binary-search", label: "Binary Search" },
+      { id: "jump-search", label: "Jump Search" },
+      { id: "interpolation-search", label: "Interpolation Search" },
+      { id: "exponential-search", label: "Exponential Search" },
+    ],
+  },
+  {
     id: "trees",
     label: "Trees",
     icon: <GitBranch className="w-4 h-4 text-orange-500" />,
@@ -74,13 +89,13 @@ const menuItems: MenuItem[] = [
   },
 ];
 
-export default function SideContent({ 
-  isOpen, 
-  width, 
-  onWidthChange, 
-  onToggle, 
-  selectedAlgorithm, 
-  onAlgorithmChange 
+export default function SideContent({
+  isOpen,
+  width,
+  onWidthChange,
+  onToggle,
+  selectedAlgorithm,
+  onAlgorithmChange,
 }: SidebarProps) {
   const [isDragging, setIsDragging] = useState(false);
   const [dragStartX, setDragStartX] = useState(0);
@@ -186,24 +201,37 @@ export default function SideContent({
   const renderMenuItem = (item: MenuItem, level = 0) => {
     const isExpanded = expandedItems.includes(item.id);
     const hasChildren = item.children && item.children.length > 0;
-    
+
     // Check if this is a sorting algorithm item
-    const isAlgorithmItem = ['bubble-sort', 'selection-sort', 'insertion-sort'].includes(item.id);
-    const isSelected = isAlgorithmItem && (
-      (item.id === 'bubble-sort' && selectedAlgorithm === 'bubble') ||
-      (item.id === 'selection-sort' && selectedAlgorithm === 'selection') ||
-      (item.id === 'insertion-sort' && selectedAlgorithm === 'insertion')
-    );
+    const isAlgorithmItem = [
+      "bubble-sort",
+      "selection-sort",
+      "insertion-sort",
+      "heap-sort",
+      "jump-search",
+    ].includes(item.id);
+    const isSelected =
+      isAlgorithmItem &&
+      ((item.id === "bubble-sort" && selectedAlgorithm === "bubble") ||
+        (item.id === "selection-sort" && selectedAlgorithm === "selection") ||
+        (item.id === "insertion-sort" && selectedAlgorithm === "insertion") ||
+        (item.id === "heap-sort" && selectedAlgorithm === "heap") ||
+        (item.id === "jump-search" && selectedAlgorithm === "jump"));
 
     const handleItemClick = () => {
       if (hasChildren) {
         toggleExpanded(item.id);
       } else if (isAlgorithmItem && onAlgorithmChange) {
         // Map the menu item IDs to algorithm names
-        const algorithmMap: Record<string, 'bubble' | 'selection' | 'insertion'> = {
-          'bubble-sort': 'bubble',
-          'selection-sort': 'selection',
-          'insertion-sort': 'insertion'
+        const algorithmMap: Record<
+          string,
+          "bubble" | "selection" | "insertion" | "heap" | "jump"
+        > = {
+          "bubble-sort": "bubble",
+          "selection-sort": "selection",
+          "insertion-sort": "insertion",
+          "heap-sort": "heap",
+          "jump-search": "jump",
         };
         const algorithm = algorithmMap[item.id];
         if (algorithm) {
@@ -216,9 +244,7 @@ export default function SideContent({
       <div key={item.id} className="select-none">
         <div
           className={`flex items-center justify-between px-2 py-1.5 rounded cursor-pointer group ${
-            isSelected 
-              ? 'bg-blue-100 text-blue-700' 
-              : 'hover:bg-slate-100'
+            isSelected ? "bg-blue-100 text-blue-700" : "hover:bg-slate-100"
           }`}
           style={{ paddingLeft: `${8 + level * 16}px` }}
           onClick={handleItemClick}
@@ -235,9 +261,11 @@ export default function SideContent({
             )}
             {!hasChildren && <div className="w-3" />}
             {item.icon && <div className="flex-shrink-0">{item.icon}</div>}
-            <span className={`text-sm truncate ${
-              isSelected ? 'text-blue-700 font-medium' : 'text-slate-700'
-            }`}>
+            <span
+              className={`text-sm truncate ${
+                isSelected ? "text-blue-700 font-medium" : "text-slate-700"
+              }`}
+            >
               {item.label}
             </span>
           </div>
@@ -255,38 +283,39 @@ export default function SideContent({
     <div className="flex flex-col h-full">
       {/* Navbar - always present */}
       <div className="absolute inset-0 z-0">
-      <header className="h-16 flex items-center justify-between px-8 relative z-10">
-        <div className="flex items-center gap-4">
-          {/* Sidebar toggle button */}
-          
-        </div>
-        {/* Center - Dynamic Algorithm title */}
-        <div className="absolute left-1/2 transform -translate-x-1/2 flex items-center gap-4">
-          <span
-            className={`text-xl font-extrabold text-gray-900 ${michroma.className}`}
-          >
-            {selectedAlgorithm === 'selection' && 'Selection Sort'}
-            {selectedAlgorithm === 'bubble' && 'Bubble Sort'}
-            {selectedAlgorithm === 'insertion' && 'Insertion Sort'}
-            {!selectedAlgorithm && 'Ezzalgo'}
-          </span>
-        </div>
-        {/* Right side - buttons and user avatar */}
-        <div className="flex items-center gap-4">
-          <button className="relative inline-flex h-9 w-28 rounded-lg overflow-hidden p-[1px] focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50">
-            <span className="absolute inset-[-1000%] animate-[spin_2s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,#8B5CF6_0%,#F59E0B_50%,#EF4444_75%,#8B5CF6_100%)]" />
-            <span className="inline-flex h-full w-full cursor-pointer rounded-lg items-center justify-center bg-white px-3 py-1 text-sm font-medium text-black backdrop-blur-3xl hover:bg-zinc-100">
-              Beast Mode
+        <header className="h-16 flex items-center justify-between px-8 relative z-10">
+          <div className="flex items-center gap-4">
+            {/* Sidebar toggle button */}
+          </div>
+          {/* Center - Dynamic Algorithm title */}
+          <div className="absolute left-1/2 transform -translate-x-1/2 flex items-center gap-4">
+            <span
+              className={`text-xl font-extrabold text-gray-900 ${michroma.className}`}
+            >
+              {selectedAlgorithm === "selection" && "Selection Sort"}
+              {selectedAlgorithm === "bubble" && "Bubble Sort"}
+              {selectedAlgorithm === "insertion" && "Insertion Sort"}
+              {selectedAlgorithm === "heap" && "Heap Sort"}
+              {selectedAlgorithm === "jump" && "Jump Search"}
+              {!selectedAlgorithm && "Ezzalgo"}
             </span>
-          </button>
-          <div className="underline flex justify-end items-center gap-1">
-            <span>Arjun</span>
-            <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center">
-              <User className="h-4 w-4 text-white" />
+          </div>
+          {/* Right side - buttons and user avatar */}
+          <div className="flex items-center gap-4">
+            <button className="relative inline-flex h-9 w-28 rounded-lg overflow-hidden p-[1px] focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50">
+              <span className="absolute inset-[-1000%] animate-[spin_2s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,#8B5CF6_0%,#F59E0B_50%,#EF4444_75%,#8B5CF6_100%)]" />
+              <span className="inline-flex h-full w-full cursor-pointer rounded-lg items-center justify-center bg-white px-3 py-1 text-sm font-medium text-black backdrop-blur-3xl hover:bg-zinc-100">
+                Beast Mode
+              </span>
+            </button>
+            <div className="underline flex justify-end items-center gap-1">
+              <span>Arjun</span>
+              <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center">
+                <User className="h-4 w-4 text-white" />
+              </div>
             </div>
           </div>
-        </div>
-      </header>
+        </header>
       </div>
 
       {/* Content area with sidebar */}
@@ -302,9 +331,13 @@ export default function SideContent({
               <div className="p-6 border-b border-slate-200">
                 <h1 className="text-2xl font-bold text-slate-900">Ezzalgo</h1>
               </div>
-              
+
               <div className="flex items-center justify-between px-4 py-3">
-                <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col min-h-0">
+                <Tabs
+                  value={activeTab}
+                  onValueChange={setActiveTab}
+                  className="flex-1 flex flex-col min-h-0"
+                >
                   <TabsList className="grid w-50 grid-cols-2 mx-4 mt-3">
                     <TabsTrigger value="docs" className="text-xs">
                       Docs
@@ -314,7 +347,10 @@ export default function SideContent({
                     </TabsTrigger>
                   </TabsList>
 
-                  <TabsContent value="docs" className="flex-1 flex flex-col min-h-0 mt-3">
+                  <TabsContent
+                    value="docs"
+                    className="flex-1 flex flex-col min-h-0 mt-3"
+                  >
                     <div className="px-4 mb-3">
                       <div className="relative">
                         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4" />
@@ -327,10 +363,13 @@ export default function SideContent({
                       </div>
                     </div>
 
-                    <div className="flex-1 overflow-y-auto px-2 scrollbar-hide" style={{
-                      scrollbarWidth: 'none',
-                      msOverflowStyle: 'none'
-                    }}>
+                    <div
+                      className="flex-1 overflow-y-auto px-2 scrollbar-hide"
+                      style={{
+                        scrollbarWidth: "none",
+                        msOverflowStyle: "none",
+                      }}
+                    >
                       <style jsx>{`
                         .scrollbar-hide::-webkit-scrollbar {
                           display: none;
@@ -342,15 +381,22 @@ export default function SideContent({
                     </div>
                   </TabsContent>
 
-                  <TabsContent value="profile" className="flex-1 flex flex-col min-h-0 mt-3">
+                  <TabsContent
+                    value="profile"
+                    className="flex-1 flex flex-col min-h-0 mt-3"
+                  >
                     <div className="px-4">
                       <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg">
                         <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
                           <User className="w-4 h-4 text-white" />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <div className="text-sm font-medium text-slate-900">User Profile</div>
-                          <div className="text-xs text-slate-500 truncate">user@example.com</div>
+                          <div className="text-sm font-medium text-slate-900">
+                            User Profile
+                          </div>
+                          <div className="text-xs text-slate-500 truncate">
+                            user@example.com
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -370,22 +416,23 @@ export default function SideContent({
           </div>
         ) : (
           <div
-          className="w-3 bg-gray-300 hover:bg-blue-500 cursor-pointer transition-all duration-300 flex items-center justify-center group"
-          onClick={handleClosedSidebarClick}
-        >
-          <div className="w-1 h-8 bg-gray-900 group-hover:bg-white rounded-full transition-colors"></div>
-        </div>
+            className="w-3 bg-gray-300 hover:bg-blue-500 cursor-pointer transition-all duration-300 flex items-center justify-center group"
+            onClick={handleClosedSidebarClick}
+          >
+            <div className="w-1 h-8 bg-gray-900 group-hover:bg-white rounded-full transition-colors"></div>
+          </div>
         )}
-
       </div>
-      
+
       {/* Fixed AI Button - Now properly using Next.js Link */}
       <div className="fixed right-[-3] top-1/2 transform -translate-y-1/2 z-40">
         <Link href="/notes/bubble" passHref>
           <button className="relative inline-flex h-28 w-8 rounded-sm overflow-hidden p-[1px] focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50 transition-transform hover:scale-105">
             <span className="absolute inset-[-1000%] animate-[spin_2s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,#8B5CF6_0%,#F59E0B_50%,#EF4444_75%,#8B5CF6_100%)]" />
             <span className="inline-flex h-full w-full cursor-pointer items-center justify-center bg-zinc-900 px-3 py-1 text-sm font-medium text-white backdrop-blur-3xl hover:bg-zinc-800 transition-colors">
-              <span className=" whitespace-nowrap"><BotMessageSquare /></span>
+              <span className=" whitespace-nowrap">
+                <BotMessageSquare />
+              </span>
             </span>
           </button>
         </Link>
