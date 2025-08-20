@@ -75,7 +75,7 @@ const SortingControls: React.FC<SortingControls> = ({
 
   // Constants for array size limits
   const minArraySize = 1;
-  const maxArraySize = 18;
+  const maxArraySize = 16;
 
   // Refs for continuous increment/decrement
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -324,7 +324,7 @@ const SortingControls: React.FC<SortingControls> = ({
   const generateRandomArray = () => {
     const newArray = Array.from(
       { length: arraySize },
-      () => Math.floor(Math.random() * 100) + 1
+      () => Math.floor(Math.random() * 150) + 1
     );
     const newArrayString = newArray.join(", ");
     setInputValue(newArrayString);
@@ -405,8 +405,8 @@ const SortingControls: React.FC<SortingControls> = ({
 
   const mediaPlayerStyles = {
     container: isOpen
-      ? "flex items-center gap-0 p-1 bg-gradient-to-br from-white to-gray-50 border-3 border-gray-700 rounded-2xl hover:border-gray-700 transition-all duration-300"
-      : "flex items-center gap-1 p-1 bg-gradient-to-br from-white to-gray-50 border-3 border-gray-700 rounded-2xl hover:border-gray-700 transition-all duration-300",
+      ? "flex items-center gap-0 p-1 bg-gradient-to-br from-white to-gray-50 border-2 border-gray-300 rounded-2xl hover:border-gray-700 transition-all duration-300"
+      : "flex items-center gap-1 p-1 bg-gradient-to-br from-white to-gray-50 border-2 border-gray-300 rounded-2xl hover:border-gray-700 transition-all duration-300",
 
     button: isOpen ? "h-10 w-11" : "h-10 w-12",
 

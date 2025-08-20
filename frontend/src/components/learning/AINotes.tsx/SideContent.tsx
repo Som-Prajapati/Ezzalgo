@@ -255,7 +255,13 @@ export default function SideContent({
     <div className="flex flex-col h-full">
       {/* Navbar - always present */}
       <div className="absolute inset-0 z-0">
-      <header className="h-16 flex items-center justify-between px-8 relative z-10">
+      <header
+        className={`h-16 flex items-center justify-between px-8 relative z-10`}
+        style={{
+          left: isOpen ? `calc(${width}px)` : '0%',
+          width: isOpen ? `calc(100% - ${width}px)` : '100%'
+        }}
+      >
         <div className="flex items-center gap-4">
           {/* Sidebar toggle button */}
           
@@ -263,7 +269,7 @@ export default function SideContent({
         {/* Center - Dynamic Algorithm title */}
         <div className="absolute left-1/2 transform -translate-x-1/2 flex items-center gap-4">
           <span
-            className={`text-xl font-extrabold text-gray-900 ${michroma.className}`}
+            className={`text-xl font-bold text-gray-900 `}
           >
             {selectedAlgorithm === 'selection' && 'Selection Sort'}
             {selectedAlgorithm === 'bubble' && 'Bubble Sort'}

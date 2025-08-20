@@ -506,6 +506,8 @@ const BubbleSort: React.FC<SidebarProps> = ({
         (timelineRef.current as gsap.core.Timeline).play(`step-${0}`);
         currentStepRef.current = 1;
         (timelineRef.current as gsap.core.Timeline).addPause(`step-${1}`);
+        wasPausedRef.current = true;
+
       }
       return;
     }
@@ -645,6 +647,14 @@ const BubbleSort: React.FC<SidebarProps> = ({
         timelineRef.current.timeScale(temp);
       }
       wasPausedRef.current = true;
+      if (propsRef.current.isPlaying) {
+        setTimeout(() => {
+          if (timelineRef.current) {
+            timelineRef.current.play();
+          }
+          wasPausedRef.current = false;
+        }, 100); // Add a 100ms delay before playing
+      }
     }
   };
   // Control handlers

@@ -36,15 +36,14 @@ const getDynamicSizing = (arrayLength: number) => {
   }
 };
 
-
 interface SidebarProps {
   isOpen: boolean;
   width: number;
 }
 
 const SelectionSort: React.FC<SidebarProps> = ({
-  isOpen, 
-  width
+  isOpen,
+  width,
 }: SidebarProps) => {
   // Fixed initial array to prevent hydration mismatch
   console.log(isOpen, width);
@@ -317,13 +316,13 @@ const SelectionSort: React.FC<SidebarProps> = ({
             gsap.fromTo(
               minArrowRef.current,
               {
-                x:  i * TOTAL_BOX_SPACING + BOX_WIDTH*0.25,
+                x: i * TOTAL_BOX_SPACING + BOX_WIDTH * 0.25,
                 y: 0,
                 opacity: 0,
                 zIndex: -1,
               },
               {
-                y: ARROW_Y_OFFSET_DOWN ,
+                y: ARROW_Y_OFFSET_DOWN,
                 opacity: 1,
                 duration: 0.5,
                 ease: "power1.out",
@@ -334,7 +333,7 @@ const SelectionSort: React.FC<SidebarProps> = ({
             gsap.fromTo(
               jArrowRef.current,
               {
-                x:  (i + 1) * TOTAL_BOX_SPACING + BOX_WIDTH*0.75,
+                x: (i + 1) * TOTAL_BOX_SPACING + BOX_WIDTH * 0.75,
                 y: 0,
                 opacity: 0,
                 zIndex: -1,
@@ -371,7 +370,7 @@ const SelectionSort: React.FC<SidebarProps> = ({
           mainTimeline.add(
             slideElementTo(
               jArrowRef.current,
-               j * TOTAL_BOX_SPACING + BOX_WIDTH*0.75,
+              j * TOTAL_BOX_SPACING + BOX_WIDTH * 0.75,
               `+=0`,
               0.3
             ),
@@ -407,7 +406,7 @@ const SelectionSort: React.FC<SidebarProps> = ({
             mainTimeline.add(
               slideElementTo(
                 minArrowRef.current,
-                 j * TOTAL_BOX_SPACING + BOX_WIDTH*0.25,
+                j * TOTAL_BOX_SPACING + BOX_WIDTH * 0.25,
                 `+=0`,
                 0.3
               ),
@@ -577,6 +576,7 @@ const SelectionSort: React.FC<SidebarProps> = ({
         (timelineRef.current as gsap.core.Timeline).play(`step-${0}`);
         currentStepRef.current = 1;
         (timelineRef.current as gsap.core.Timeline).addPause(`step-${1}`);
+        wasPausedRef.current = true;
       }
       return;
     }
@@ -707,7 +707,18 @@ const SelectionSort: React.FC<SidebarProps> = ({
       if (timelineRef.current) {
         timelineRef.current.timeScale(temp);
       }
+
       wasPausedRef.current = true;
+
+      // INSERT_YOUR_CODE
+      if (propsRef.current.isPlaying) {
+        setTimeout(() => {
+          if (timelineRef.current) {
+            timelineRef.current.play();
+          }
+          wasPausedRef.current = false;
+        }, 100); // Add a 100ms delay before playing
+      }
     }
   };
 
@@ -914,7 +925,7 @@ const SelectionSort: React.FC<SidebarProps> = ({
 
       {/* Controls */}
       <SortingControls
-      // fix the error
+        // fix the error
         isOpen={isOpen}
         width={width}
         array={array}
