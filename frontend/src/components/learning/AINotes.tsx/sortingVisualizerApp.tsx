@@ -2,6 +2,7 @@
 import React from "react";
 import { useState, useMemo, useRef, useCallback } from "react";
 import JumpSearch from "../searching/JumpSearch";
+import InterpolationSearch from "../searching/InterpolationSearch";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -65,7 +66,8 @@ export default function SortingVisualizerApp() {
     | "linear"
     | "binary"
     | "radix"
-  >("binary");
+    | "interpolation"
+  >("linear");
 
   // Control layout specific state
   const [inputWidth, setInputWidth] = useState(256);
@@ -113,6 +115,7 @@ export default function SortingVisualizerApp() {
       | "insertion"
       | "heap"
       | "jump"
+      | "interpolation"
       | "linear"
       | "binary"
       | "radix"
@@ -410,12 +413,6 @@ export default function SortingVisualizerApp() {
           <div className="flex justify-center items-center flex-1 p-4">
             <InsertionSort isOpen={isSidebarOpen} width={sidebarWidth} />
           </div>
-          // <div className="flex justify-center items-center flex-1 p-4">
-          //   <InsertionSort
-          //     isOpen={isSidebarOpen}
-          //     width={sidebarWidth}
-          //   />
-          // </div>
         )}
         {selectedAlgorithm === "selection" && (
           <div className="flex justify-center items-center flex-1 p-4">
@@ -430,6 +427,11 @@ export default function SortingVisualizerApp() {
         {selectedAlgorithm === "jump" && (
           <div className="flex justify-center items-center flex-1 p-4">
             <JumpSearch isOpen={isSidebarOpen} width={sidebarWidth} />
+          </div>
+        )}
+        {selectedAlgorithm === "interpolation" && (
+          <div className="flex justify-center items-center flex-1 p-4">
+            <InterpolationSearch isOpen={isSidebarOpen} width={sidebarWidth} />
           </div>
         )}
         {selectedAlgorithm === "radix" && (

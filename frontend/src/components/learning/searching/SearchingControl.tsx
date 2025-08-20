@@ -77,7 +77,7 @@ const SearchingControls: React.FC<SortingControls> = ({
 
   // Constants for array size limits
   const minArraySize = 1;
-  const maxArraySize = 18;
+  const maxArraySize = 16;
 
   // Refs for continuous increment/decrement
   const intervalRef = useRef<NodeJS.Timeout | null>(null);

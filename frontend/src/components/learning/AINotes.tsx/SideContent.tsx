@@ -19,7 +19,7 @@ import { BarChart3, Binary, GitBranch, List } from "lucide-react";
 import Link from "next/link";
 // At the top of your component or in a separate fonts file
 import { Abril_Fatface } from "next/font/google";
-import JumpSearch from "../searching/JumpSearch";
+
 
 const michroma = Abril_Fatface({
   weight: "400",
@@ -47,6 +47,7 @@ interface SidebarProps {
     | "jump"
     | "linear"
     | "binary"
+    | "interpolation"
     | "radix";
   onAlgorithmChange?: (
     algorithm:
@@ -57,6 +58,7 @@ interface SidebarProps {
       | "jump"
       | "linear"
       | "binary"
+      | "interpolation"
       | "radix"
   ) => void;
 }
@@ -228,6 +230,7 @@ export default function SideContent({
       "jump-search",
       "radix-sort",
       "linear-search",
+      "interpolation-search",
       "binary-search",
     ].includes(item.id);
     const isSelected =
@@ -239,6 +242,7 @@ export default function SideContent({
           (item.id === "jump-search" && selectedAlgorithm === "jump") ||
           (item.id === "radix-sort" && selectedAlgorithm === "radix"))) ||
       (item.id === "linear-search" && selectedAlgorithm === "linear") ||
+      (item.id === "interpolation-search" && selectedAlgorithm === "interpolation") ||
       (item.id === "binary-search" && selectedAlgorithm === "binary");
 
     const handleItemClick = () => {
@@ -255,6 +259,7 @@ export default function SideContent({
           | "jump"
           | "linear"
           | "binary"
+          | "interpolation"
           | "radix"
         > = {
           "bubble-sort": "bubble",
@@ -263,6 +268,7 @@ export default function SideContent({
           "heap-sort": "heap",
           "jump-search": "jump",
           "radix-sort": "radix",
+          "interpolation-search": "interpolation",
           "linear-search": "linear",
           "binary-search": "binary",
         };
@@ -332,6 +338,7 @@ export default function SideContent({
               {selectedAlgorithm === "jump" && "Jump Search"}
               {selectedAlgorithm === "radix" && "Radix Sort"}
               {selectedAlgorithm === "linear" && "Linear Search"}
+              {selectedAlgorithm === "interpolation" && "Interpolation Search"}
               {selectedAlgorithm === "binary" && "Binary Search"}
               {/* Default title if no algorithm is selected */}
               {!selectedAlgorithm ||
