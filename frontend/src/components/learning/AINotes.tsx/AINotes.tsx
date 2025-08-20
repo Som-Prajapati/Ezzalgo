@@ -4,7 +4,7 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { gsap } from "gsap";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import {
   Paperclip,
   Plus,
