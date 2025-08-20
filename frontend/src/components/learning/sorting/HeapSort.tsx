@@ -1905,6 +1905,7 @@ const HeapSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
 
       {/* Controls */}
       <SortingControls
+        limit={150}
         isOpen={isOpen}
         width={width}
         array={array}

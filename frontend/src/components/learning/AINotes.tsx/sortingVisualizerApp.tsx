@@ -33,6 +33,7 @@ import HeapSort from "../sorting/HeapSort";
 import RadixSort from "../sorting/RadixSort";
 import LinearSearch from "../searching/LinearSearch";
 import BinarySearch from "../searching/BinarySearch";
+import CountSort from "../sorting/CountSort";
 
 const michroma = Abril_Fatface({
   weight: "400",
@@ -64,7 +65,7 @@ export default function SortingVisualizerApp() {
     | "linear"
     | "binary"
     | "radix"
-  >("linear");
+  >("binary");
 
   // Control layout specific state
   const [inputWidth, setInputWidth] = useState(256);
@@ -443,7 +444,7 @@ export default function SortingVisualizerApp() {
         )}
         {selectedAlgorithm === "binary" && (
           <div className="flex justify-center items-center flex-1 p-4">
-            <BinarySearch isOpen={isSidebarOpen} width={sidebarWidth} />
+            <CountSort isOpen={isSidebarOpen} width={sidebarWidth} />
           </div>
         )}
         {/* Control Panel - Inline */}

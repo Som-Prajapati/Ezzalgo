@@ -232,103 +232,104 @@ const RadixSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
   //   return timeline;
   // };
 
+  const highlightDigit = (
+    element: HTMLElement,
+    digitPlace: number
+  ): gsap.core.Timeline => {
+    const timeline = gsap.timeline();
+    const value = parseInt(element.textContent || "0");
+    const elementIndex = arrayElementsRef.current.indexOf(
+      element as HTMLDivElement
+    );
 
-const highlightDigit = (
-  element: HTMLElement,
-  digitPlace: number
-): gsap.core.Timeline => {
-  const timeline = gsap.timeline();
-  const value = parseInt(element.textContent || "0");
-  const elementIndex = arrayElementsRef.current.indexOf(
-    element as HTMLDivElement
-  );
+    // Store original content and create highlighted version
+    const originalContent = element.textContent || "0";
+    element.setAttribute("data-original-content", originalContent);
 
-  // Store original content and create highlighted version
-  const originalContent = element.textContent || "0";
-  element.setAttribute("data-original-content", originalContent);
-  
-  // Build the highlighted HTML
-  const paddedStr = value.toString().padStart(digitPlace + 1, "0");
-  const digitIndex = paddedStr.length - 1 - digitPlace;
-  const beforeDigit = paddedStr.substring(0, digitIndex);
-  const highlightedDigit = paddedStr[digitIndex] ?? "0";
-  const afterDigit = paddedStr.substring(digitIndex + 1);
-  
-  const highlightedHTML = `${beforeDigit}<span style="color:rgb(243, 9, 9);">${highlightedDigit}</span>${afterDigit}`;
+    // Build the highlighted HTML
+    const paddedStr = value.toString().padStart(digitPlace + 1, "0");
+    const digitIndex = paddedStr.length - 1 - digitPlace;
+    const beforeDigit = paddedStr.substring(0, digitIndex);
+    const highlightedDigit = paddedStr[digitIndex] ?? "0";
+    const afterDigit = paddedStr.substring(digitIndex + 1);
 
-  // Use GSAP to animate the highlight
-  timeline.to({}, { duration: 0.1 });
-  
-  // Animate to highlighted state
-  timeline.fromTo(element, 
-    { 
-      opacity: 1,
-      scale: 1
-    },
-    { 
-      opacity: 1,
-      scale: 1.05,
+    const highlightedHTML = `${beforeDigit}<span style="color:rgb(243, 9, 9);">${highlightedDigit}</span>${afterDigit}`;
+
+    // Use GSAP to animate the highlight
+    timeline.to({}, { duration: 0.1 });
+
+    // Animate to highlighted state
+    timeline.fromTo(
+      element,
+      {
+        opacity: 1,
+        scale: 1,
+      },
+      {
+        opacity: 1,
+        scale: 1.05,
+        duration: 0.15,
+        ease: "power2.out",
+        onStart: () => {
+          // Store this highlight in our state map
+          highlightStateRef.current.set(currentStepRef.current, {
+            elementIndex,
+            digitPlace,
+          });
+          // Apply the highlighted HTML
+          element.innerHTML = highlightedHTML;
+        },
+      }
+    );
+
+    // Scale back to normal
+    timeline.to(element, {
+      scale: 1,
       duration: 0.15,
       ease: "power2.out",
-      onStart: () => {
-        // Store this highlight in our state map
-        highlightStateRef.current.set(currentStepRef.current, {
-          elementIndex,
-          digitPlace,
-        });
-        // Apply the highlighted HTML
-        element.innerHTML = highlightedHTML;
+    });
+
+    return timeline;
+  };
+
+  const removeDigitHighlight = (element: HTMLElement): gsap.core.Timeline => {
+    const timeline = gsap.timeline();
+
+    timeline.to({}, { duration: 0.1 });
+
+    // Animate back to original state
+    timeline.fromTo(
+      element,
+      {
+        opacity: 1,
+        scale: 1,
+      },
+      {
+        opacity: 1,
+        scale: 0.95,
+        duration: 0.15,
+        ease: "power2.out",
+        onComplete: () => {
+          // Restore original content
+          const originalContent =
+            element.getAttribute("data-original-content") ||
+            element.textContent?.replace(/<[^>]*>/g, "") ||
+            "0";
+          element.innerHTML = originalContent;
+          element.removeAttribute("data-original-content");
+        },
       }
-    }
-  );
+    );
 
-  // Scale back to normal
-  timeline.to(element, {
-    scale: 1,
-    duration: 0.15,
-    ease: "power2.out"
-  });
-
-  return timeline;
-};
-
-const removeDigitHighlight = (element: HTMLElement): gsap.core.Timeline => {
-  const timeline = gsap.timeline();
-
-  timeline.to({}, { duration: 0.1 });
-
-  // Animate back to original state
-  timeline.fromTo(element,
-    {
-      opacity: 1,
-      scale: 1
-    },
-    {
-      opacity: 1,
-      scale: 0.95,
+    // Scale back to normal
+    timeline.to(element, {
+      scale: 1,
       duration: 0.15,
       ease: "power2.out",
-      onComplete: () => {
-        // Restore original content
-        const originalContent = element.getAttribute("data-original-content") || 
-                               element.textContent?.replace(/<[^>]*>/g, "") || 
-                               "0";
-        element.innerHTML = originalContent;
-        element.removeAttribute("data-original-content");
-      }
-    }
-  );
+    });
 
-  // Scale back to normal
-  timeline.to(element, {
-    scale: 1,
-    duration: 0.15,
-    ease: "power2.out"
-  });
-
-  return timeline;
-};
-
+    return timeline;
+  };
 
   // const removeDigitHighlight = (element: HTMLElement): gsap.core.Timeline => {
   //   const timeline = gsap.timeline();
@@ -624,7 +625,7 @@ const removeDigitHighlight = (element: HTMLElement): gsap.core.Timeline => {
       return;
     }
 
-    // Create an array to store all 
+    // Create an array to store all
     // values for step tracking
     const addLabelArray: string[] = [];
 
@@ -909,14 +910,14 @@ const removeDigitHighlight = (element: HTMLElement): gsap.core.Timeline => {
 
   // const previousStep = (): void => {
   //   if (!timelineRef.current) return;
-  
+
   //   if (currentStepRef.current > 0) {
   //     // Store the step we're moving away from (current step)
   //     const stepMovingAwayFrom = currentStepRef.current;
-      
+
   //     // Move to previous step first
   //     currentStepRef.current--;
-      
+
   //     // Now clear highlights that were added in the step we just moved away from
   //     const stepHighlight = highlightStateRef.current.get(stepMovingAwayFrom);
   //     if (stepHighlight) {
@@ -934,18 +935,18 @@ const removeDigitHighlight = (element: HTMLElement): gsap.core.Timeline => {
   //       }
   //       highlightStateRef.current.delete(stepMovingAwayFrom);
   //     }
-  
+
   //     const prevLabel =
   //       currentStepRef.current === 0
   //         ? "step-0"
   //         : `step-${currentStepRef.current}`;
-  
+
   //     const temp = propsRef.current.speed;
   //     timelineRef.current.timeScale(propsRef.current.speed * 4);
   //     timelineRef.current.reverse();
   //     timelineRef.current.pause(prevLabel);
   //     timelineRef.current.timeScale(temp);
-  
+
   //     // Ensure digit place indicator reflects the previous step's place
   //     const placeForPrevStep = stepDigitPlaceRef.current.get(
   //       currentStepRef.current
@@ -956,7 +957,7 @@ const removeDigitHighlight = (element: HTMLElement): gsap.core.Timeline => {
   //         placeForPrevStep
   //       )}`;
   //     }
-  
+
   //     wasPausedRef.current = true;
   //     if (propsRef.current.isPlaying) {
   //       setTimeout(() => {
@@ -968,7 +969,6 @@ const removeDigitHighlight = (element: HTMLElement): gsap.core.Timeline => {
   //     }
   //   }
   // };
-
 
   const pauseAnimation = (): void => {
     if (timelineRef.current) {
@@ -1300,6 +1300,7 @@ const removeDigitHighlight = (element: HTMLElement): gsap.core.Timeline => {
 
       {/* Controls */}
       <SortingControls
+        limit={150}
         isOpen={isOpen}
         width={width}
         array={array}

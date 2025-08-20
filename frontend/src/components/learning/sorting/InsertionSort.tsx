@@ -43,7 +43,7 @@ interface SidebarProps {
 
 const InsertionSort: React.FC<SidebarProps> = ({
   isOpen,
-  width
+  width,
 }: SidebarProps) => {
   // Fixed initial array to prevent hydration mismatch
   const getFixedInitialArray = () => [42, 17, 89, 31, 65, 8];
@@ -143,25 +143,25 @@ const InsertionSort: React.FC<SidebarProps> = ({
     if (elements.length === 0) return gsap.timeline();
 
     const timeline = gsap.timeline();
-         const shadowConfig = {
-       low: "0 0 10px #ffd700, 0 2px 15px rgba(255, 215, 0, 0.3)",
-       high: "0 0 25px rgb(235, 167, 22), 0 4px 30px rgb(247, 155, 15)",
-     };
+    const shadowConfig = {
+      low: "0 0 10px #ffd700, 0 2px 15px rgba(255, 215, 0, 0.3)",
+      high: "0 0 25px rgb(235, 167, 22), 0 4px 30px rgb(247, 155, 15)",
+    };
 
     const glowShadow = shadowConfig[intensity];
     const originalBoxShadow = "0 2px 8px rgba(0, 0, 0, 0.08)";
-    
-         // Color configurations for different intensities
-     const colorConfig = {
-       low: {
-         backgroundColor: "#fff3cd",
-         borderColor: "orange",
-       },
-       high: {
-         backgroundColor: "rgb(246, 222, 178)",
-         borderColor: "red",
-       },
-     };
+
+    // Color configurations for different intensities
+    const colorConfig = {
+      low: {
+        backgroundColor: "#fff3cd",
+        borderColor: "orange",
+      },
+      high: {
+        backgroundColor: "rgb(246, 222, 178)",
+        borderColor: "red",
+      },
+    };
 
     const highlightColors = colorConfig[intensity];
     const originalColors = {
@@ -534,7 +534,6 @@ const InsertionSort: React.FC<SidebarProps> = ({
         currentStepRef.current = 1;
         (timelineRef.current as gsap.core.Timeline).addPause(`step-${1}`);
         wasPausedRef.current = true;
-
       }
       return;
     }
@@ -923,6 +922,7 @@ const InsertionSort: React.FC<SidebarProps> = ({
 
       {/* Controls */}
       <SortingControls
+        limit={150}
         isOpen={isOpen}
         width={width}
         array={array}

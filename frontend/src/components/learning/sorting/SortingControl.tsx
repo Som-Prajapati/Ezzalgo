@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 
 interface SortingControls {
+  limit: number;
   isOpen: boolean;
   width: number;
   array: number[];
@@ -37,6 +38,7 @@ interface SortingControls {
 }
 
 const SortingControls: React.FC<SortingControls> = ({
+  limit = 150,
   isOpen,
   width,
   array,
@@ -104,7 +106,7 @@ const SortingControls: React.FC<SortingControls> = ({
       onArraySizeChange(newSize);
 
       // Add one new random element to existing array
-      const newArray = [...array, Math.floor(Math.random() * 100) + 1];
+      const newArray = [...array, Math.floor(Math.random() * limit) + 1];
       onArrayChange(newArray);
     }
   };
@@ -137,7 +139,7 @@ const SortingControls: React.FC<SortingControls> = ({
         // Add new random element to current array
         const newArray = [
           ...currentArrayRef.current,
-          Math.floor(Math.random() * 100) + 1,
+          Math.floor(Math.random() * limit) + 1,
         ];
         currentArrayRef.current = newArray;
         onArrayChange(newArray);
@@ -324,7 +326,7 @@ const SortingControls: React.FC<SortingControls> = ({
   const generateRandomArray = () => {
     const newArray = Array.from(
       { length: arraySize },
-      () => Math.floor(Math.random() * 150) + 1
+      () => Math.floor(Math.random() * limit) + 1
     );
     const newArrayString = newArray.join(", ");
     setInputValue(newArrayString);
@@ -339,7 +341,7 @@ const SortingControls: React.FC<SortingControls> = ({
     // Generate all unique numbers first
     const uniqueNumbers = Array.from(
       { length: length },
-      () => Math.floor(Math.random() * 99) + 1
+      () => Math.floor(Math.random() * limit) + 1
     );
 
     // Create new array with 60% probability of duplicates

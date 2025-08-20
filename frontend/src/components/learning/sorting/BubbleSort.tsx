@@ -503,7 +503,6 @@ const BubbleSort: React.FC<SidebarProps> = ({ isOpen, width }) => {
         currentStepRef.current = 1;
         (timelineRef.current as gsap.core.Timeline).addPause(`step-${1}`);
         wasPausedRef.current = true;
-
       }
       return;
     }
@@ -877,6 +876,7 @@ const BubbleSort: React.FC<SidebarProps> = ({ isOpen, width }) => {
 
       {/* Controls */}
       <SortingControls
+        limit={150}
         isOpen={isOpen}
         width={width}
         array={array}

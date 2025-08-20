@@ -925,6 +925,7 @@ const SelectionSort: React.FC<SidebarProps> = ({
 
       {/* Controls */}
       <SortingControls
+        limit={150}
         // fix the error
         isOpen={isOpen}
         width={width}
