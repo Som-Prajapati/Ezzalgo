@@ -58,7 +58,7 @@ const SearchingControls: React.FC<SortingControls> = ({
   // const [sidebarWidth, setSidebarWidth] = useState(260);
   // const [isOpen, setisOpen] = useState(true);
   const [isPanelOpen, setIsPanelOpen] = useState(true);
-  console.log("Panel is open:", isOpen, width);
+  // console.log("Panel is open:", isOpen, width);
   // Input width state for resizable array elements input
   const [inputWidth, setInputWidth] = useState(256);
   const [isResizing, setIsResizing] = useState(false);
