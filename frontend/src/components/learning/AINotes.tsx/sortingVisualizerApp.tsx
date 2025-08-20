@@ -64,7 +64,7 @@ export default function SortingVisualizerApp() {
     | "linear"
     | "binary"
     | "radix"
-  >("heap");
+  >("linear");
 
   // Control layout specific state
   const [inputWidth, setInputWidth] = useState(256);
