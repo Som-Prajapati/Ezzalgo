@@ -231,14 +231,14 @@ export default function SideContent({
       "binary-search",
     ].includes(item.id);
     const isSelected =
-      isAlgorithmItem &&
-      ((item.id === "bubble-sort" && selectedAlgorithm === "bubble") ||
-        (item.id === "selection-sort" && selectedAlgorithm === "selection") ||
-        (item.id === "insertion-sort" && selectedAlgorithm === "insertion") ||
-        (item.id === "heap-sort" && selectedAlgorithm === "heap") ||
-        (item.id === "jump-search" && selectedAlgorithm === "jump") ||
-        (item.id === "radix-sort" && selectedAlgorithm === "radix"));
-    (item.id === "linear-search" && selectedAlgorithm === "linear") ||
+      (isAlgorithmItem &&
+        ((item.id === "bubble-sort" && selectedAlgorithm === "bubble") ||
+          (item.id === "selection-sort" && selectedAlgorithm === "selection") ||
+          (item.id === "insertion-sort" && selectedAlgorithm === "insertion") ||
+          (item.id === "heap-sort" && selectedAlgorithm === "heap") ||
+          (item.id === "jump-search" && selectedAlgorithm === "jump") ||
+          (item.id === "radix-sort" && selectedAlgorithm === "radix"))) ||
+      (item.id === "linear-search" && selectedAlgorithm === "linear") ||
       (item.id === "binary-search" && selectedAlgorithm === "binary");
 
     const handleItemClick = () => {
