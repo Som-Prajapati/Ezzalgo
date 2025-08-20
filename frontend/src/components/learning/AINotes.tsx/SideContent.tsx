@@ -19,7 +19,7 @@ import { BarChart3, Binary, GitBranch, List } from "lucide-react";
 import Link from "next/link";
 // At the top of your component or in a separate fonts file
 import { Abril_Fatface } from "next/font/google";
-import JumpSearch from "../searching/JumpSearch";
+
 
 const michroma = Abril_Fatface({
   weight: "400",
@@ -39,9 +39,9 @@ interface SidebarProps {
   width: number;
   onWidthChange: (width: number) => void;
   onToggle: () => void;
-  selectedAlgorithm?: "bubble" | "selection" | "insertion" | "heap" | "jump";
+  selectedAlgorithm?: "bubble" | "selection" | "insertion" | "heap" | "jump" | "interpolation";
   onAlgorithmChange?: (
-    algorithm: "bubble" | "selection" | "insertion" | "heap" | "jump"
+    algorithm: "bubble" | "selection" | "insertion" | "heap" | "jump" | "interpolation"
   ) => void;
 }
 
@@ -209,14 +209,19 @@ export default function SideContent({
       "insertion-sort",
       "heap-sort",
       "jump-search",
+      "interpolation-search"
     ].includes(item.id);
     const isSelected =
       isAlgorithmItem &&
-      ((item.id === "bubble-sort" && selectedAlgorithm === "bubble") ||
+      (
+        (item.id === "bubble-sort" && selectedAlgorithm === "bubble") ||
         (item.id === "selection-sort" && selectedAlgorithm === "selection") ||
         (item.id === "insertion-sort" && selectedAlgorithm === "insertion") ||
         (item.id === "heap-sort" && selectedAlgorithm === "heap") ||
-        (item.id === "jump-search" && selectedAlgorithm === "jump"));
+        (item.id === "jump-search" && selectedAlgorithm === "jump") ||
+        (item.id === "interpolation-search" && selectedAlgorithm === "interpolation")
+      );
+        
 
     const handleItemClick = () => {
       if (hasChildren) {
@@ -225,13 +230,14 @@ export default function SideContent({
         // Map the menu item IDs to algorithm names
         const algorithmMap: Record<
           string,
-          "bubble" | "selection" | "insertion" | "heap" | "jump"
+          "bubble" | "selection" | "insertion" | "heap" | "jump" | "interpolation"
         > = {
           "bubble-sort": "bubble",
           "selection-sort": "selection",
           "insertion-sort": "insertion",
           "heap-sort": "heap",
           "jump-search": "jump",
+          "interpolation-search": "interpolation",
         };
         const algorithm = algorithmMap[item.id];
         if (algorithm) {
@@ -297,6 +303,7 @@ export default function SideContent({
               {selectedAlgorithm === "insertion" && "Insertion Sort"}
               {selectedAlgorithm === "heap" && "Heap Sort"}
               {selectedAlgorithm === "jump" && "Jump Search"}
+              {selectedAlgorithm === "interpolation" && "Interpolation Search"}
               {!selectedAlgorithm && "Ezzalgo"}
             </span>
           </div>

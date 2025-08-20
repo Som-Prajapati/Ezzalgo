@@ -89,13 +89,13 @@ interface SidebarProps {
 const HeapSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
   // Fixed initial array to prevent hydration mismatch
   const getFixedInitialArray = () => [
-    42, 17, 89, 31, 65, 8, 23, 56, 91, 12, 78, 34, 67, 45, 19, 83,
+    42, 17, 89, 31, 65, 8
   ];
   const initialArray = getFixedInitialArray();
 
   // State management
   const [array, setArray] = useState<number[]>(initialArray);
-  const [arraySize, setArraySize] = useState<number>(16);
+  const [arraySize, setArraySize] = useState<number>(6);
   const [isAscending, setIsAscending] = useState<boolean>(true);
   const [speed, setSpeed] = useState<number>(1);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
