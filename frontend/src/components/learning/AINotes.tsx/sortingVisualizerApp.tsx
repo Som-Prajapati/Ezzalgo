@@ -28,6 +28,7 @@ import { Abril_Fatface } from "next/font/google";
 import BubbleSort from "../sorting/BubbleSort";
 import SelectionSort from "../sorting/SelectionSort";
 import InsertionSort from "../sorting/InsertionSort";
+import LinearSearch from "../searching/LinearSearch";
 
 const michroma = Abril_Fatface({
   weight: "400",
@@ -412,11 +413,17 @@ export default function SortingVisualizerApp() {
         )}
         {selectedAlgorithm === "insertion" && (
           <div className="flex justify-center items-center flex-1 p-4">
-            <InsertionSort
+            <LinearSearch
               isOpen={isSidebarOpen}
               width={sidebarWidth}
             />
           </div>
+          // <div className="flex justify-center items-center flex-1 p-4">
+          //   <InsertionSort
+          //     isOpen={isSidebarOpen}
+          //     width={sidebarWidth}
+          //   />
+          // </div>
         )}
         {selectedAlgorithm === "selection" && (
           <div className="flex justify-center items-center flex-1 p-4">
