@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 
 interface SortingControls {
+  randomOnly: boolean;
   isOpen: boolean;
   width: number;
   array: number[];
@@ -37,6 +38,7 @@ interface SortingControls {
 }
 
 const SearchingControls: React.FC<SortingControls> = ({
+  randomOnly = false,
   isOpen,
   width,
   array,
@@ -58,7 +60,7 @@ const SearchingControls: React.FC<SortingControls> = ({
   // const [sidebarWidth, setSidebarWidth] = useState(260);
   // const [isOpen, setisOpen] = useState(true);
   const [isPanelOpen, setIsPanelOpen] = useState(true);
-  console.log("Panel is open:", isOpen, width);
+  // console.log("Panel is open:", isOpen, width);
   // Input width state for resizable array elements input
   const [inputWidth, setInputWidth] = useState(256);
   const [isResizing, setIsResizing] = useState(false);
@@ -92,20 +94,26 @@ const SearchingControls: React.FC<SortingControls> = ({
       const newSize = arraySize - 1;
       onArraySizeChange(newSize);
 
-      // Sort the array according to isAscending before trimming
-      const sortedArray = [...array].sort((a, b) =>
-        isAscending ? a - b : b - a
-      );
+      if (randomOnly) {
+        // Just trim the array, no sorting
+        const newArray = array.slice(0, newSize);
+        onArrayChange(newArray);
+      } else {
+        // Sort the array according to isAscending before trimming
+        const sortedArray = [...array].sort((a, b) =>
+          isAscending ? a - b : b - a
+        );
 
-      // Trim the sorted array
-      const newArray = sortedArray.slice(0, newSize);
+        // Trim the sorted array
+        const newArray = sortedArray.slice(0, newSize);
 
-      // Sort again after trimming to maintain order
-      const finalArray = [...newArray].sort((a, b) =>
-        isAscending ? a - b : b - a
-      );
+        // Sort again after trimming to maintain order
+        const finalArray = [...newArray].sort((a, b) =>
+          isAscending ? a - b : b - a
+        );
 
-      onArrayChange(finalArray);
+        onArrayChange(finalArray);
+      }
     }
   };
 
@@ -114,21 +122,28 @@ const SearchingControls: React.FC<SortingControls> = ({
       const newSize = arraySize + 1;
       onArraySizeChange(newSize);
 
-      // Sort the array according to isAsecing before adding a new element
-      const sortedArray = [...array].sort((a, b) =>
-        isAscending ? a - b : b - a
-      );
+      if (randomOnly) {
+        // Just add a new random element, no sorting
+        const newElement = Math.floor(Math.random() * 100) + 1;
+        const newArray = [...array, newElement];
+        onArrayChange(newArray);
+      } else {
+        // Sort the array according to isAscending before adding a new element
+        const sortedArray = [...array].sort((a, b) =>
+          isAscending ? a - b : b - a
+        );
 
-      // Add one new random element
-      const newElement = Math.floor(Math.random() * 100) + 1;
-      const newArray = [...sortedArray, newElement];
+        // Add one new random element
+        const newElement = Math.floor(Math.random() * 100) + 1;
+        const newArray = [...sortedArray, newElement];
 
-      // Sort again after adding the new element
-      const finalArray = [...newArray].sort((a, b) =>
-        isAscending ? a - b : b - a
-      );
+        // Sort again after adding the new element
+        const finalArray = [...newArray].sort((a, b) =>
+          isAscending ? a - b : b - a
+        );
 
-      onArrayChange(finalArray);
+        onArrayChange(finalArray);
+      }
     }
   };
 
@@ -350,13 +365,15 @@ const SearchingControls: React.FC<SortingControls> = ({
       { length: arraySize },
       () => Math.floor(Math.random() * 100) + 1
     );
-    // Sort the array according to isAscending
-    const sortedArray = [...newArray].sort((a, b) =>
-      isAscending ? a - b : b - a
-    );
-    const newArrayString = sortedArray.join(", ");
+    let finalArray: number[];
+    if (randomOnly) {
+      finalArray = newArray;
+    } else {
+      finalArray = [...newArray].sort((a, b) => (isAscending ? a - b : b - a));
+    }
+    const newArrayString = finalArray.join(", ");
     setInputValue(newArrayString);
-    onArrayChange(sortedArray);
+    onArrayChange(finalArray);
     setInputError("");
   };
 
@@ -381,14 +398,18 @@ const SearchingControls: React.FC<SortingControls> = ({
       return num;
     });
 
-    // Sort the array according to isAscending
-    const sortedArray = [...newArray].sort((a, b) =>
-      isAscending ? a - b : b - a
-    );
+    let finalArray: number[];
+    if (randomOnly) {
+      // If randomOnly, do not sort, just use the array with duplicates
+      finalArray = newArray;
+    } else {
+      // Sort the array according to isAscending
+      finalArray = [...newArray].sort((a, b) => (isAscending ? a - b : b - a));
+    }
 
-    const newArrayString = sortedArray.join(", ");
+    const newArrayString = finalArray.join(", ");
     setInputValue(newArrayString);
-    onArrayChange(sortedArray);
+    onArrayChange(finalArray);
     setInputError("");
   };
 

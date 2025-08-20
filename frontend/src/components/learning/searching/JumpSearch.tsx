@@ -448,245 +448,43 @@ const JumpSearch: React.FC<SidebarProps> = ({ isOpen, width }) => {
     let prev = 0;
     let currentPos = Math.min(jump, n - 1);
 
-    if (jump >= n) {
-      currentPos = n - 1;
+    // Check if the element at index 'prev' is equal to the search target
+    if (arr[prev] === searchTarget) {
+      // Highlight the element at 'prev' as found
+      mainTimeline.add(highlightBoxe(prev), "+=0.2");
+      mainTimeline.add(removeHighlight(prev), "+=0.5");
 
-      // Animate the search icon jumping directly to the last element
-      if (
-        searchIconRef.current &&
-        arrayElementsRef.current[0] &&
-        arrayElementsRef.current[currentPos]
-      ) {
-        const containerRect = containerRef.current?.getBoundingClientRect();
-        const startBox = arrayElementsRef.current[0]?.getBoundingClientRect();
-        const endBox =
-          arrayElementsRef.current[currentPos]?.getBoundingClientRect();
-
-        if (containerRect && startBox && endBox) {
-          const x1 = 0 * TOTAL_BOX_SPACING;
-          const y1 = startBox.top - containerRect.top;
-          const x2 = currentPos * TOTAL_BOX_SPACING;
-          const y2 = endBox.top - containerRect.top;
-
-          mainTimeline.add(
-            jumpWithCloudTrail(
-              searchIconRef.current,
-              arrayElementsRef.current[currentPos]!,
-              x1,
-              0,
-              x2,
-              0,
-              0.8
-            ),
-            "+=0"
-          );
-        }
-      }
-
-      // Highlight the last element
-      mainTimeline.add(highlightBoxe(currentPos), "+=0.2");
-
+      mainTimeline.add(animateSortedIndicator(prev), "-=0.2");
+      // Add label and step tracking for this found step
       const thisStep = stepIndex;
-      mainTimeline.addLabel(`step-${thisStep}`);
+      mainTimeline.addLabel(`step-${thisStep}`, "+=0.4");
       mainTimeline.call(() => {
         currentStepRef.current = thisStep;
       });
       stepIndex++;
-
-      // Check if the last element is our target
-      if (arr[currentPos] === searchTarget) {
-        mainTimeline.add(animateSortedIndicator(currentPos), "+=0.1");
-      } else {
-        // Grey out the last element and start linear search backwards
-        mainTimeline.add(greyOutElement(currentPos), "+=0.1");
-
-        // Start linear search from second-to-last element
-        let linearSearchPos = currentPos - 1;
-        prev = currentPos; // Set prev to last element for linear search reference
-
-        // Add a brief pause to show transition to linear search
-        mainTimeline.add("+=0.3");
-
-        while (linearSearchPos >= 0) {
-          // Add label and step tracking for linear search slide
-          const thisLinearStep = stepIndex;
-          mainTimeline.addLabel(`step-${thisLinearStep}`);
-          mainTimeline.call(() => {
-            currentStepRef.current = thisLinearStep;
-          });
-          stepIndex++;
-
-          // Animate sliding the search icon to the current linear search position
-          if (
-            searchIconRef.current &&
-            arrayElementsRef.current[linearSearchPos]
-          ) {
-            const targetX = linearSearchPos * TOTAL_BOX_SPACING;
-            mainTimeline.add(
-              slideElementTo(
-                searchIconRef.current,
-                `-=${TOTAL_BOX_SPACING}`,
-                0,
-                0.4
-              ),
-              "+=0"
-            );
-          }
-
-          // Highlight the element being checked in linear search
-          mainTimeline.add(highlightBoxe(linearSearchPos), "+=0.1");
-
-          // Check if we found the target
-          if (arr[linearSearchPos] === searchTarget) {
-            mainTimeline.add(animateSortedIndicator(linearSearchPos), "+=0.1");
-            break;
-          }
-
-          // Grey out this element and continue backwards
-          mainTimeline.add(greyOutElement(linearSearchPos), "+=0.1");
-          linearSearchPos--;
-          mainTimeline.add("+=0.1");
-        }
-      }
+      // No need to continue, target found
+      // Optionally, you could break or return here if in a loop
     } else {
-      while (currentPos < n) {
-        // Check if we found the target
-        if (arr[currentPos] === searchTarget) {
-          // Animate the search icon "jumping" from prev to currentPos with cloud trail
-          if (
-            searchIconRef.current &&
-            arrayElementsRef.current[prev] &&
-            arrayElementsRef.current[currentPos]
-          ) {
-            // Get bounding box of array container for relative positioning
-            const containerRect = containerRef.current?.getBoundingClientRect();
-            const prevBox =
-              arrayElementsRef.current[prev]?.getBoundingClientRect();
-            const currBox =
-              arrayElementsRef.current[currentPos]?.getBoundingClientRect();
+      if (jump >= n) {
+        currentPos = n - 1;
 
-            if (containerRect && prevBox && currBox) {
-              // Calculate relative positions
-              const x1 = prev * TOTAL_BOX_SPACING;
-              const y1 = prevBox.top - containerRect.top;
-              const x2 = currentPos * TOTAL_BOX_SPACING;
-              const y2 = currBox.top - containerRect.top;
-
-              // Animate the search icon jumping with cloud trail
-              mainTimeline.add(
-                jumpWithCloudTrail(
-                  searchIconRef.current,
-                  arrayElementsRef.current[currentPos]!,
-                  x1,
-                  0,
-                  x2,
-                  0,
-                  0.8
-                ),
-                "+=0"
-              );
-            }
-          }
-
-          // Add label and step tracking for this jump
-
-          // Highlight the found element
-          mainTimeline.add(highlightBoxe(currentPos), "+=0.2");
-
-          // Add the sorted indicator animation for the found element
-          mainTimeline.add(animateSortedIndicator(currentPos), "+=0.1");
-
-          const thisStep = stepIndex;
-          mainTimeline.addLabel(`step-${thisStep}`);
-          mainTimeline.call(() => {
-            currentStepRef.current = thisStep;
-          });
-          stepIndex++;
-          // Target found - break out of the loop
-          break;
-        }
-
-        // Check if current element has overshot the target based on sort order
-        const hasOvershot = isAscending
-          ? arr[currentPos] > searchTarget // In ascending: if current > target, we've gone too far
-          : arr[currentPos] < searchTarget; // In descending: if current < target, we've gone too far
-
-        if (hasOvershot) {
-          // Animate the search icon "jumping" from prev to currentPos with cloud trail
-          if (
-            searchIconRef.current &&
-            arrayElementsRef.current[prev] &&
-            arrayElementsRef.current[currentPos]
-          ) {
-            // Get bounding box of array container for relative positioning
-            const containerRect = containerRef.current?.getBoundingClientRect();
-            const prevBox =
-              arrayElementsRef.current[prev]?.getBoundingClientRect();
-            const currBox =
-              arrayElementsRef.current[currentPos]?.getBoundingClientRect();
-
-            if (containerRect && prevBox && currBox) {
-              // Calculate relative positions
-              const x1 = prev * TOTAL_BOX_SPACING;
-              const y1 = prevBox.top - containerRect.top;
-              const x2 = currentPos * TOTAL_BOX_SPACING;
-              const y2 = currBox.top - containerRect.top;
-
-              // Animate the search icon jumping with cloud trail
-              mainTimeline.add(
-                jumpWithCloudTrail(
-                  searchIconRef.current,
-                  arrayElementsRef.current[currentPos]!,
-                  x1,
-                  0,
-                  x2,
-                  0,
-                  0.8
-                ),
-                "+=0"
-              );
-            }
-          }
-
-          // Highlight the element that has overshot the target
-          mainTimeline.add(highlightBoxe(currentPos), "+=0.2");
-
-          // Grey out this element since it has overshot the target
-          mainTimeline.add(greyOutElement(currentPos), "+=0.1");
-
-          // Add label and step tracking for this jump
-          const thisStep = stepIndex;
-          mainTimeline.addLabel(`step-${thisStep}`);
-          mainTimeline.call(() => {
-            currentStepRef.current = thisStep;
-          });
-          stepIndex++;
-
-          // Element has overshot target - stop jumping and start linear search from prev
-          break;
-        }
-
-        // Animate the search icon "jumping" from prev to currentPos with cloud trail
+        // Animate the search icon jumping directly to the last element
         if (
           searchIconRef.current &&
-          arrayElementsRef.current[prev] &&
+          arrayElementsRef.current[0] &&
           arrayElementsRef.current[currentPos]
         ) {
-          // Get bounding box of array container for relative positioning
           const containerRect = containerRef.current?.getBoundingClientRect();
-          const prevBox =
-            arrayElementsRef.current[prev]?.getBoundingClientRect();
-          const currBox =
+          const startBox = arrayElementsRef.current[0]?.getBoundingClientRect();
+          const endBox =
             arrayElementsRef.current[currentPos]?.getBoundingClientRect();
 
-          if (containerRect && prevBox && currBox) {
-            // Calculate relative positions
-            const x1 = prev * TOTAL_BOX_SPACING;
-            const y1 = prevBox.top - containerRect.top;
+          if (containerRect && startBox && endBox) {
+            const x1 = 0 * TOTAL_BOX_SPACING;
+            const y1 = startBox.top - containerRect.top;
             const x2 = currentPos * TOTAL_BOX_SPACING;
-            const y2 = currBox.top - containerRect.top;
+            const y2 = endBox.top - containerRect.top;
 
-            // Animate the search icon jumping with cloud trail
             mainTimeline.add(
               jumpWithCloudTrail(
                 searchIconRef.current,
@@ -702,67 +500,10 @@ const JumpSearch: React.FC<SidebarProps> = ({ isOpen, width }) => {
           }
         }
 
-        // Highlight the element being checked at current position
+        // Highlight the last element
         mainTimeline.add(highlightBoxe(currentPos), "+=0.2");
+        mainTimeline.add(removeHighlight(currentPos), "+=0.5");
 
-        // Add label and step tracking for this jump
-        const thisStep = stepIndex;
-        mainTimeline.addLabel(`step-${thisStep}`, "+=0.4");
-        mainTimeline.call(() => {
-          currentStepRef.current = thisStep;
-        });
-        stepIndex++;
-
-        // Check if we found the target
-        if (arr[currentPos] === searchTarget) {
-          // Add the sorted indicator animation for the found element
-          mainTimeline.add(animateSortedIndicator(currentPos), "+=0.1");
-          // Target found - break out of the loop
-          break;
-        }
-
-        // Check if current element has overshot the target based on sort order (duplicate check for flow)
-        const hasOvershotAgain = isAscending
-          ? arr[currentPos] > searchTarget // In ascending: if current > target, we've gone too far
-          : arr[currentPos] < searchTarget; // In descending: if current < target, we've gone too far
-
-        if (hasOvershotAgain) {
-          // Grey out this element since it has overshot the target
-          mainTimeline.add(greyOutElement(currentPos), "+=0.1");
-          // Element has overshot target - stop jumping
-          break;
-        }
-
-        // Current element hasn't reached target yet, grey it out
-        mainTimeline.add(greyOutElement(currentPos), "+=0.1");
-
-        // Calculate next jump position
-        let nextPos = currentPos + jump;
-
-        // Handle boundary case - if jump goes out of bounds, set to last element
-        if (nextPos >= n) {
-          nextPos = n - 1;
-
-          // If we're already at the last element, target not found - break
-          if (currentPos === nextPos) {
-            break;
-          }
-        }
-
-        prev = currentPos;
-        currentPos = nextPos;
-      }
-    }
-    // Jump in blocks - find the right block
-
-    if (arr[currentPos] !== searchTarget) {
-      let linearSearchPos = currentPos - 1;
-
-      // Add a brief pause to show transition from jump to linear search
-      mainTimeline.add("+=0.3");
-
-      while (linearSearchPos > prev) {
-        // Add label and step tracking for linear search slide
         const thisStep = stepIndex;
         mainTimeline.addLabel(`step-${thisStep}`);
         mainTimeline.call(() => {
@@ -770,77 +511,367 @@ const JumpSearch: React.FC<SidebarProps> = ({ isOpen, width }) => {
         });
         stepIndex++;
 
-        // Animate sliding the search icon to the current linear search position
-        if (
-          searchIconRef.current &&
-          arrayElementsRef.current[linearSearchPos]
-        ) {
-          const containerRect = containerRef.current?.getBoundingClientRect();
-          const targetBox =
-            arrayElementsRef.current[linearSearchPos]?.getBoundingClientRect();
+        // Check if the last element is our target
+        if (arr[currentPos] === searchTarget) {
+          mainTimeline.add(animateSortedIndicator(currentPos), "-=0.2");
+        } else {
+          // Grey out the last element and start linear search backwards
+          mainTimeline.add(greyOutElement(currentPos), "-=0.2");
 
-          if (containerRect && targetBox) {
-            // Calculate target position for the search icon
-            const targetX = linearSearchPos * TOTAL_BOX_SPACING;
+          // Start linear search from second-to-last element
+          let linearSearchPos = currentPos - 1;
+          prev = currentPos; // Set prev to last element for linear search reference
 
-            // Slide the search icon to this position
-            mainTimeline.add(
-              slideElementTo(
-                searchIconRef.current,
-                `-=${TOTAL_BOX_SPACING}`,
-                0,
-                0.4 // Slower animation for linear search
-              ),
-              "+=0"
-            );
+          // Add a brief pause to show transition to linear search
+          mainTimeline.add("+=0.3");
+
+          while (linearSearchPos >= 0) {
+            // Add label and step tracking for linear search slide
+            const thisLinearStep = stepIndex;
+            mainTimeline.addLabel(`step-${thisLinearStep}`);
+            mainTimeline.call(() => {
+              currentStepRef.current = thisLinearStep;
+            });
+            stepIndex++;
+
+            // Animate sliding the search icon to the current linear search position
+            if (
+              searchIconRef.current &&
+              arrayElementsRef.current[linearSearchPos]
+            ) {
+              const targetX = linearSearchPos * TOTAL_BOX_SPACING;
+              mainTimeline.add(
+                slideElementTo(
+                  searchIconRef.current,
+                  `-=${TOTAL_BOX_SPACING}`,
+                  0,
+                  0.4
+                ),
+                "+=0"
+              );
+            }
+
+            // Highlight the element being checked in linear search
+            mainTimeline.add(highlightBoxe(linearSearchPos), "+=0.2");
+            mainTimeline.add(removeHighlight(linearSearchPos), "+=0.5");
+
+            // Check if we found the target
+            if (arr[linearSearchPos] === searchTarget) {
+              mainTimeline.add(
+                animateSortedIndicator(linearSearchPos),
+                "+=0.1"
+              );
+              break;
+            }
+
+            // Grey out this element and continue backwards
+            mainTimeline.add(greyOutElement(linearSearchPos), "-=0.2");
+            linearSearchPos--;
+            mainTimeline.add("+=0.1");
           }
         }
+      } else {
+        while (currentPos < n) {
+          // Check if we found the target
+          if (arr[currentPos] === searchTarget) {
+            // Animate the search icon "jumping" from prev to currentPos with cloud trail
+            if (
+              searchIconRef.current &&
+              arrayElementsRef.current[prev] &&
+              arrayElementsRef.current[currentPos]
+            ) {
+              // Get bounding box of array container for relative positioning
+              const containerRect =
+                containerRef.current?.getBoundingClientRect();
+              const prevBox =
+                arrayElementsRef.current[prev]?.getBoundingClientRect();
+              const currBox =
+                arrayElementsRef.current[currentPos]?.getBoundingClientRect();
 
-        // Highlight the element being checked in linear search
-        mainTimeline.add(highlightBoxe(linearSearchPos), "+=0.1");
+              if (containerRect && prevBox && currBox) {
+                // Calculate relative positions
+                const x1 = prev * TOTAL_BOX_SPACING;
+                const y1 = prevBox.top - containerRect.top;
+                const x2 = currentPos * TOTAL_BOX_SPACING;
+                const y2 = currBox.top - containerRect.top;
 
-        // Check if we found the target
-        if (arr[linearSearchPos] === searchTarget) {
-          // Target found during linear search!
-          // Add the sorted indicator animation for the found element
-          mainTimeline.add(animateSortedIndicator(linearSearchPos), "+=0.1");
-          mainTimeline.add("+=0.2"); // Brief pause to show success
-          break;
+                // Animate the search icon jumping with cloud trail
+                mainTimeline.add(
+                  jumpWithCloudTrail(
+                    searchIconRef.current,
+                    arrayElementsRef.current[currentPos]!,
+                    x1,
+                    0,
+                    x2,
+                    0,
+                    0.8
+                  ),
+                  "+=0"
+                );
+              }
+            }
+
+            // Add label and step tracking for this jump
+
+            // Highlight the found elem+nt
+            mainTimeline.add(highlightBoxe(currentPos), "+=0.2");
+            mainTimeline.add(removeHighlight(currentPos), "+=0.5");
+
+            // Add the sorted indicator animation for the found element
+            mainTimeline.add(animateSortedIndicator(currentPos), "-=0.2");
+
+            const thisStep = stepIndex;
+            mainTimeline.addLabel(`step-${thisStep}`);
+            mainTimeline.call(() => {
+              currentStepRef.current = thisStep;
+            });
+            stepIndex++;
+            // Target found - break out of the loop
+            break;
+          }
+
+          // Check if current element has overshot the target based on sort order
+          const hasOvershot = isAscending
+            ? arr[currentPos] > searchTarget // In ascending: if current > target, we've gone too far
+            : arr[currentPos] < searchTarget; // In descending: if current < target, we've gone too far
+
+          if (hasOvershot) {
+            // Animate the search icon "jumping" from prev to currentPos with cloud trail
+            if (
+              searchIconRef.current &&
+              arrayElementsRef.current[prev] &&
+              arrayElementsRef.current[currentPos]
+            ) {
+              // Get bounding box of array container for relative positioning
+              const containerRect =
+                containerRef.current?.getBoundingClientRect();
+              const prevBox =
+                arrayElementsRef.current[prev]?.getBoundingClientRect();
+              const currBox =
+                arrayElementsRef.current[currentPos]?.getBoundingClientRect();
+
+              if (containerRect && prevBox && currBox) {
+                // Calculate relative positions
+                const x1 = prev * TOTAL_BOX_SPACING;
+                const y1 = prevBox.top - containerRect.top;
+                const x2 = currentPos * TOTAL_BOX_SPACING;
+                const y2 = currBox.top - containerRect.top;
+
+                // Animate the search icon jumping with cloud trail
+                mainTimeline.add(
+                  jumpWithCloudTrail(
+                    searchIconRef.current,
+                    arrayElementsRef.current[currentPos]!,
+                    x1,
+                    0,
+                    x2,
+                    0,
+                    0.8
+                  ),
+                  "+=0"
+                );
+              }
+            }
+
+            // Highlight the element that has overshot the target
+            mainTimeline.add(highlightBoxe(currentPos), "+=0.2");
+            mainTimeline.add(removeHighlight(currentPos), "+=0.5");
+
+            // Grey out this element since it has overshot the target
+            mainTimeline.add(greyOutElement(currentPos), "-=0.2");
+
+            // Add label and step tracking for this jump
+            const thisStep = stepIndex;
+            mainTimeline.addLabel(`step-${thisStep}`);
+            mainTimeline.call(() => {
+              currentStepRef.current = thisStep;
+            });
+            stepIndex++;
+
+            // Element has overshot target - stop jumping and start linear search from prev
+            break;
+          }
+
+          // Animate the search icon "jumping" from prev to currentPos with cloud trail
+          if (
+            searchIconRef.current &&
+            arrayElementsRef.current[prev] &&
+            arrayElementsRef.current[currentPos]
+          ) {
+            // Get bounding box of array container for relative positioning
+            const containerRect = containerRef.current?.getBoundingClientRect();
+            const prevBox =
+              arrayElementsRef.current[prev]?.getBoundingClientRect();
+            const currBox =
+              arrayElementsRef.current[currentPos]?.getBoundingClientRect();
+
+            if (containerRect && prevBox && currBox) {
+              // Calculate relative positions
+              const x1 = prev * TOTAL_BOX_SPACING;
+              const y1 = prevBox.top - containerRect.top;
+              const x2 = currentPos * TOTAL_BOX_SPACING;
+              const y2 = currBox.top - containerRect.top;
+
+              // Animate the search icon jumping with cloud trail
+              mainTimeline.add(
+                jumpWithCloudTrail(
+                  searchIconRef.current,
+                  arrayElementsRef.current[currentPos]!,
+                  x1,
+                  0,
+                  x2,
+                  0,
+                  0.8
+                ),
+                "+=0"
+              );
+            }
+          }
+
+          // Highlight the element being checked at current position
+          mainTimeline.add(highlightBoxe(currentPos), "+=0.2");
+          mainTimeline.add(removeHighlight(currentPos), "+=0.5");
+
+          // Add label and step tracking for this jump
+          const thisStep = stepIndex;
+          mainTimeline.addLabel(`step-${thisStep}`, "+=0.4");
+          mainTimeline.call(() => {
+            currentStepRef.current = thisStep;
+          });
+          stepIndex++;
+
+          // Check if we found the target
+          if (arr[currentPos] === searchTarget) {
+            // Add the sorted indicator animation for the found element
+            mainTimeline.add(animateSortedIndicator(currentPos), "-=0.2");
+            // Target found - break out of the loop
+            break;
+          }
+
+          // Check if current element has overshot the target based on sort order (duplicate check for flow)
+          const hasOvershotAgain = isAscending
+            ? arr[currentPos] > searchTarget // In ascending: if current > target, we've gone too far
+            : arr[currentPos] < searchTarget; // In descending: if current < target, we've gone too far
+
+          if (hasOvershotAgain) {
+            // Grey out this element since it has overshot the target
+            mainTimeline.add(greyOutElement(currentPos), "+=0.1");
+            // Element has overshot target - stop jumping
+            break;
+          }
+
+          // Current element hasn't reached target yet, grey it out
+          mainTimeline.add(greyOutElement(currentPos), "+=0.1");
+
+          // Calculate next jump position
+          let nextPos = currentPos + jump;
+
+          // Handle boundary case - if jump goes out of bounds, set to last element
+          if (nextPos >= n) {
+            nextPos = n - 1;
+
+            // If we're already at the last element, target not found - break
+            if (currentPos === nextPos) {
+              break;
+            }
+          }
+
+          prev = currentPos;
+          currentPos = nextPos;
         }
-
-        // Check if current element has gone past target in linear search based on sort order
-        const hasPastTarget = isAscending
-          ? arr[linearSearchPos] < searchTarget // In ascending: if current < target, we've gone too far back
-          : arr[linearSearchPos] > searchTarget; // In descending: if current > target, we've gone too far back
-
-        if (hasPastTarget) {
-          // We've gone too far back - target doesn't exist between prev and currentPos
-          mainTimeline.add(greyOutElement(linearSearchPos), "+=0.1");
-          break;
-        }
-
-        // Current element is still past target, grey it out and continue backwards
-        mainTimeline.add(greyOutElement(linearSearchPos), "+=0.1");
-
-        linearSearchPos--;
-
-        // Add small delay between linear search steps
-        mainTimeline.add("+=0.1");
       }
+      // Jump in blocks - find the right block
 
-      // Final result handling
-      const finalStep = stepIndex;
-      mainTimeline.call(() => {
-        currentStepRef.current = finalStep;
-        // You can add logic here to show search result (found/not found)
-        if (arr[linearSearchPos] === searchTarget) {
-          console.log(
-            `Target ${searchTarget} found at index ${linearSearchPos}`
-          );
-        } else {
-          console.log(`Target ${searchTarget} not found in array`);
+      if (arr[currentPos] !== searchTarget) {
+        let linearSearchPos = currentPos - 1;
+
+        // Add a brief pause to show transition from jump to linear search
+        mainTimeline.add("+=0.3");
+
+        while (linearSearchPos > prev) {
+          // Add label and step tracking for linear search slide
+          const thisStep = stepIndex;
+          mainTimeline.addLabel(`step-${thisStep}`);
+          mainTimeline.call(() => {
+            currentStepRef.current = thisStep;
+          });
+          stepIndex++;
+
+          // Animate sliding the search icon to the current linear search position
+          if (
+            searchIconRef.current &&
+            arrayElementsRef.current[linearSearchPos]
+          ) {
+            const containerRect = containerRef.current?.getBoundingClientRect();
+            const targetBox =
+              arrayElementsRef.current[
+                linearSearchPos
+              ]?.getBoundingClientRect();
+
+            if (containerRect && targetBox) {
+              // Calculate target position for the search icon
+              const targetX = linearSearchPos * TOTAL_BOX_SPACING;
+
+              // Slide the search icon to this position
+              mainTimeline.add(
+                slideElementTo(
+                  searchIconRef.current,
+                  `-=${TOTAL_BOX_SPACING}`,
+                  0,
+                  0.4 // Slower animation for linear search
+                ),
+                "+=0"
+              );
+            }
+          }
+
+          // Highlight the element being checked in linear search
+          mainTimeline.add(highlightBoxe(linearSearchPos), "+=0.2");
+          mainTimeline.add(removeHighlight(linearSearchPos), "+=0.5");
+
+          // Check if we found the target
+          if (arr[linearSearchPos] === searchTarget) {
+            // Target found during linear search!
+            // Add the sorted indicator animation for the found eleme-t
+            mainTimeline.add(animateSortedIndicator(linearSearchPos), "-=0.2");
+            mainTimeline.add("+=0.2"); // Brief pause to show success
+            break;
+          }
+
+          // Check if current element has gone past target in linear search based on sort order
+          const hasPastTarget = isAscending
+            ? arr[linearSearchPos] < searchTarget // In ascending: if current < target, we've gone too far back
+            : arr[linearSearchPos] > searchTarget; // In descending: if current > target, we've gone too far back
+
+          if (hasPastTarget) {
+            // We've gone too far back - target doesn't exist between prev and currentPos
+            mainTimeline.add(greyOutElement(linearSearchPos), "+=0.1");
+            break;
+          }
+
+          // Current element is still past target, grey it out and continue backwards
+          mainTimeline.add(greyOutElement(linearSearchPos), "+=0.1");
+
+          linearSearchPos--;
+
+          // Add small delay between linear search steps
+          mainTimeline.add("+=0.1");
         }
-      });
+
+        // Final result handling
+        const finalStep = stepIndex;
+        mainTimeline.call(() => {
+          currentStepRef.current = finalStep;
+          // You can add logic here to show search result (found/not found)
+          if (arr[linearSearchPos] === searchTarget) {
+            console.log(
+              `Target ${searchTarget} found at index ${linearSearchPos}`
+            );
+          } else {
+            console.log(`Target ${searchTarget} not found in array`);
+          }
+        });
+      }
     }
 
     // Set total steps and add final timeline actions
@@ -932,6 +963,7 @@ const JumpSearch: React.FC<SidebarProps> = ({ isOpen, width }) => {
             borderColor: "#e9ecef",
             boxShadow: "0 2px 8px rgba(0, 0, 0, 0.08)",
             zIndex: "auto",
+            color: "#212529", // Reset text color to default (Bootstrap body color)
           });
         }
       });
@@ -1280,6 +1312,7 @@ const JumpSearch: React.FC<SidebarProps> = ({ isOpen, width }) => {
 
       {/* Controls */}
       <SearchingControls
+        randomOnly={false}
         isOpen={isOpen}
         width={width}
         array={array}

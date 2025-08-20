@@ -507,7 +507,7 @@ const HeapSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
     edge.setAttribute("stroke", "#bdbdbd");
     edge.setAttribute("stroke-width", "3");
     edge.setAttribute("fill", "none");
-    // edge.setAttribute("opacity", "0");
+    edge.setAttribute("opacity", "0");
     edge.setAttribute("class", `heap-edge edge-${parentIndex}-${childIndex}`);
 
     // Add to SVG
@@ -587,6 +587,7 @@ const HeapSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
     return timeline;
   };
 
+  // Animate the edge "growing" from parent to child using stroke-dasharray and stroke-dashoffset
   const animateEdgeExtend = (
     edge: SVGLineElement,
     x1: number,
@@ -600,17 +601,34 @@ const HeapSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
     // Set the initial position (collapsed at parent)
     edge.setAttribute("x1", `${x1}`);
     edge.setAttribute("y1", `${y1}`);
-    edge.setAttribute("x2", `${x1}`);
-    edge.setAttribute("y2", `${y1}`);
-    // Set opacity to 1 and add to timeline
+    edge.setAttribute("x2", `${x2}`);
+    edge.setAttribute("y2", `${y2}`);
 
-    // Then animate the line's x2/y2 to the child node's position
+    // Calculate the length of the line
+    const dx = x2 - x1;
+    const dy = y2 - y1;
+    const length = Math.sqrt(dx * dx + dy * dy);
+
+    // Set up stroke-dasharray and stroke-dashoffset for the "draw" effect
+    edge.setAttribute("stroke-dasharray", `${length}`);
+    edge.setAttribute("stroke-dashoffset", `${length}`);
+    // edge.setAttribute("opacity", "1");
+
+    // Animate the stroke-dashoffset from full length to 0 (revealing the line)
     timeline.to(edge, {
-      attr: { x2: x2, y2: y2 },
+      strokeDashoffset: 0,
       duration,
       ease: "power2.out",
+      onStart: () => {
+        edge.setAttribute("opacity", "1");
+      },
+      onComplete: () => {
+        // Clean up so the line is solid after animation
+        edge.removeAttribute("stroke-dasharray");
+        edge.removeAttribute("stroke-dashoffset");
+      },
     });
-    // timeline.set(edge, { opacity: 1 });
+
     return timeline;
   };
 
@@ -638,6 +656,7 @@ const HeapSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
       ease: "power2.in",
     });
 
+    // timeline.set(edge, { opacity: 0 }, 0);
     return timeline;
   };
 
@@ -825,7 +844,7 @@ const HeapSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
     node.style.boxShadow = "0 2px 8px rgba(0,0,0,0.10)";
     node.style.transition = "all 0.3s ease";
     node.style.zIndex = "2";
-    // node.style.opacity = "0";
+    node.style.opacity = "0";
     node.textContent = value.toString();
     node.setAttribute("data-index", index.toString());
     return node;
@@ -859,6 +878,7 @@ const HeapSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
     ).webkitClipPath = node.style.clipPath; // For Safari
 
     // Step 2: Reveal 90deg arc
+    // Animate revealing the node from 0 to 90 degrees (pie slice reveal)
     timeline.to(
       node,
       {
@@ -869,8 +889,9 @@ const HeapSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
         transformOrigin: "50% 50%",
         ease: "power1.inOut",
         onUpdate: function () {
+          // Reveal from 0 to 90 degrees
           const progress = this.progress();
-          const deg = 90 * progress;
+          const deg = 0 + 90 * progress;
           node.style.clipPath = getPiePolygon(deg);
           (
             node.style as CSSStyleDeclaration & { webkitClipPath?: string }
@@ -986,7 +1007,7 @@ const HeapSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
     const timeline = gsap.timeline();
 
     // Step 1: Set initial state (fully visible, full circle)
-    gsap.set(node, { opacity: 1, scale: 1, rotation: 0 });
+    // gsap.set(node, { opacity: 1, scale: 1, rotation: 0 });
     node.style.clipPath = getPiePolygon(360);
     (
       node.style as CSSStyleDeclaration & { webkitClipPath?: string }
@@ -1108,7 +1129,7 @@ const HeapSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
       },
     });
 
-    timeline.set(node, { opacity: 0 });
+    // timeline.set(node, { opacity: 0 });
 
     return timeline;
   }
@@ -1157,10 +1178,15 @@ const HeapSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
   }
 
   // Heapify function: heapifies subtree rooted at i in array arr of size n, returns a GSAP timeline of the swaps
-  function heapify(arr: number[], n: number, i: number): GSAPTimeline {
+  function heapify(
+    arr: number[],
+    n: number,
+    i: number,
+    isMaxHeap: boolean = propsRef.current.isAscending
+  ): GSAPTimeline {
     const timeline = gsap.timeline();
 
-    let largest = i;
+    let target = i; // Use 'target' instead of 'target' for clarity
     const left = 2 * i + 1;
     const right = 2 * i + 2;
 
@@ -1180,7 +1206,7 @@ const HeapSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
 
     // Highlight current node
     if (arrayNodeRef.current) {
-      timeline.add(highlightNode(largest));
+      timeline.add(highlightNode(target));
     }
     timeline.add(highlightElement(i, "blue"));
 
@@ -1197,10 +1223,13 @@ const HeapSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
       });
       timeline.add(removeHighlight(left));
     }
-    if (left < n && arr[left] > arr[largest]) {
-      largest = left;
+    if (left < n) {
+      if (isMaxHeap && arr[left] > arr[target]) {
+        target = left;
+      } else if (!isMaxHeap && arr[left] < arr[target]) {
+        target = left;
+      }
     }
-
     if (arrayNodeRef.current && right < n && arrayNodeRef.current[right]) {
       timeline.add(highlightNode(right));
       timeline.to(arrayNodeRef.current[right], {
@@ -1214,36 +1243,40 @@ const HeapSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
       });
       timeline.add(removeHighlight(right));
     }
-    if (right < n && arr[right] > arr[largest]) {
-      largest = right;
+    if (right < n) {
+      if (isMaxHeap && arr[right] > arr[target]) {
+        target = right;
+      } else if (!isMaxHeap && arr[right] < arr[target]) {
+        target = right;
+      }
     }
 
-    if (largest !== i) {
+    if (target !== i) {
       // Animate swap
 
       if (
         arrayNodeRef.current &&
         arrayNodeRef.current[i] &&
-        arrayNodeRef.current[largest]
+        arrayNodeRef.current[target]
       ) {
         // Use eclipseSwapNodes animation for the swap
-        timeline.add(eclipseSwapNodes(i, largest));
+        timeline.add(eclipseSwapNodes(i, target));
         // Swap the array boxes (arrayElementsRef) visually using eclipseSwap
         if (
           arrayElementsRef.current &&
           arrayElementsRef.current[i] &&
-          arrayElementsRef.current[largest]
+          arrayElementsRef.current[target]
         ) {
           timeline.add(
             eclipseSwap(
               arrayElementsRef.current[i],
-              arrayElementsRef.current[largest] as HTMLElement
+              arrayElementsRef.current[target] as HTMLElement
             )
           );
           // Swap the refs so the visual order matches the logical order
           const tempRef = arrayElementsRef.current[i];
-          arrayElementsRef.current[i] = arrayElementsRef.current[largest];
-          arrayElementsRef.current[largest] = tempRef;
+          arrayElementsRef.current[i] = arrayElementsRef.current[target];
+          arrayElementsRef.current[target] = tempRef;
 
           // Swap the text content of the array boxes so the numbers visually swap
 
@@ -1253,21 +1286,21 @@ const HeapSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
         if (
           arrayNodeRef.current &&
           arrayNodeRef.current[i] &&
-          arrayNodeRef.current[largest]
+          arrayNodeRef.current[target]
         ) {
-          [arrayNodeRef.current[i], arrayNodeRef.current[largest]] = [
-            arrayNodeRef.current[largest],
+          [arrayNodeRef.current[i], arrayNodeRef.current[target]] = [
+            arrayNodeRef.current[target],
             arrayNodeRef.current[i],
           ];
         }
       }
 
       // Swap values in array
-      [arr[i], arr[largest]] = [arr[largest], arr[i]];
+      [arr[i], arr[target]] = [arr[target], arr[i]];
 
       // Also swap the arrayNodeRef nodes so the tree visualization matches the array swap
 
-      timeline.add(heapify(arr, n, largest));
+      timeline.add(heapify(arr, n, target));
     } else {
       // If no swap, restore only the nodes in the subtree rooted at i
       timeline.add(restoreOnlyNodes([i]));
@@ -1297,11 +1330,13 @@ const HeapSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
     const mainTimeline = gsap.timeline();
     mainTimeline.timeScale(propsRef.current.speed);
     currentStepRef.current = 0;
+    const isMaxHeap = propsRef.current.isAscending;
 
     mainTimeline.addLabel("step-0");
     mainTimeline.call(() => {
       currentStepRef.current = 0;
     });
+    let stepIndex = 1;
 
     if (arrayElementsRef.current) {
       const elements = arrayElementsRef.current.filter(Boolean);
@@ -1350,6 +1385,8 @@ const HeapSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
     // Store node elements for later reference
     arrayNodeRef.current = [];
 
+    // Add a label for this step using stepIndex, then increment stepIndex
+
     // Create all nodes for the heap tree
     for (let i = 0; i < n; i++) {
       const { x, y } = getNodePosition(i, n);
@@ -1368,33 +1405,23 @@ const HeapSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
 
     // Build heap: call heapify for all non-leaf nodes from bottom up
     for (let i = Math.floor(n / 2) - 1; i >= 0; i--) {
+      const thisStep = stepIndex;
+      mainTimeline.addLabel(`step-${thisStep}`);
+      mainTimeline.call(() => {
+        currentStepRef.current = thisStep;
+      });
+      stepIndex++;
+
       mainTimeline.add(heapify(arr, n, i));
-      console.log("Current array:", arr);
     }
-
-    // Print the arrayElementsRef and arrayNodeRef arrays for debugging
-    mainTimeline.call(() => {
-      // Update the text content of each array element to match the values in array
-      if (
-        arrayElementsRef.current &&
-        Array.isArray(arrayElementsRef.current) &&
-        Array.isArray(array)
-      ) {
-        arrayElementsRef.current.forEach((el, idx) => {
-          if (el && array[idx] !== undefined) {
-            el.textContent = array[idx].toString();
-          }
-        });
-      }
-
-      // Print the text content of each array element for debugging
-    });
 
     // Update the heap tree label to "Max heap tree" and add to mainTimeline
     if (heapTreeLabelRef.current) {
       mainTimeline.add(() => {
         if (heapTreeLabelRef.current) {
-          heapTreeLabelRef.current.textContent = "Max heap tree";
+          heapTreeLabelRef.current.textContent = isMaxHeap
+            ? "Max heap tree"
+            : "Min heap tree";
         }
       });
       mainTimeline.to(
@@ -1408,20 +1435,15 @@ const HeapSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
       );
     }
 
-    mainTimeline.call(() => {
-      if (arrayElementsRef.current && Array.isArray(arrayElementsRef.current)) {
-        arrayElementsRef.current.forEach((el, idx) => {
-          if (el) {
-            console.log(
-              `arrayElementsRef[${idx}].textContent:`,
-              el.textContent
-            );
-          }
-        });
-      }
-    });
-    // Animate the extraction phase: move the max element (root) to the end, shrink heap, and repeat
     for (let i = n - 1; i > 0; i--) {
+      {
+        const thisStep = stepIndex;
+        mainTimeline.addLabel(`step-${thisStep}`);
+        mainTimeline.call(() => {
+          currentStepRef.current = thisStep;
+        });
+        stepIndex++;
+      }
       // Animate swap of max element (root, index 0) with last element (index i) in the heap tree nodes
       // Highlight both the max (root, index 0) and last element node (index i)
       if (arrayNodeRef.current) {
@@ -1521,19 +1543,114 @@ const HeapSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
           mainTimeline.add(animateEdgeCompress(edge, x1, y1, x2, y2, 0.5));
         }
       }
+      {
+        const thisStep = stepIndex;
+        mainTimeline.addLabel(`step-${thisStep}`);
+        mainTimeline.call(() => {
+          currentStepRef.current = thisStep;
+        });
+        stepIndex++;
+      }
       // Remove the node from arrayNodeRef and the edge from edgeRefs after hiding
       mainTimeline.add(heapify(arr, i, 0));
     }
 
     // Animate the sorted indicator for the first element (index 0)
     mainTimeline.add(animateSortedIndicator(0));
+    {
+      const thisStep = stepIndex;
+      mainTimeline.addLabel(`step-${thisStep}`);
+      mainTimeline.call(() => {
+        currentStepRef.current = thisStep;
+      });
+      stepIndex++;
+    }
+
+    // Animate hiding the first node (index 0) using rotationHideAnimation
+    if (arrayNodeRef.current && arrayNodeRef.current[0]) {
+      mainTimeline.add(
+        rotationHideAnimation(arrayNodeRef.current[0] as HTMLDivElement)
+      );
+    }
+    if (heapTreeLabelRef.current) {
+      mainTimeline.add(
+        gsap.to(heapTreeLabelRef.current, {
+          opacity: 0,
+          duration: 0.5,
+          ease: "power2.in",
+        })
+      );
+    }
+
+    if (arrayElementsRef.current) {
+      const elements = arrayElementsRef.current.filter(Boolean);
+      mainTimeline.add(
+        gsap.to(elements, {
+          // x: 0,
+          y: 0,
+          duration: 1,
+          ease: "power1.inOut",
+          stagger: 0.1,
+        })
+      );
+    }
+
+    totalStepsRef.current = stepIndex;
+    currentStepRef.current = 0;
+    mainTimeline.addLabel("end");
 
     timelineRef.current = mainTimeline;
     // ... (rest of animation logic for edges and other nodes)
   };
-
   const nextStep = (): void => {
-    // Implementation for next step
+    console.log("Current step:", currentStepRef.current);
+    console.log("Total steps:", totalStepsRef.current);
+    if (!timelineRef.current) {
+      playAnimation();
+      if (timelineRef.current) {
+        (timelineRef.current as gsap.core.Timeline).pause();
+        currentStepRef.current = 0;
+        (timelineRef.current as gsap.core.Timeline).play(`step-${0}`);
+        currentStepRef.current = 1;
+        (timelineRef.current as gsap.core.Timeline).addPause(`step-${1}`);
+        wasPausedRef.current = true;
+      }
+      return;
+    }
+
+    if (propsRef.current.isPlaying) {
+      (timelineRef.current as gsap.core.Timeline).pause();
+      currentStepRef.current++;
+      const temp = propsRef.current.speed;
+      timelineRef.current!.timeScale(propsRef.current.speed * 4);
+      (timelineRef.current as gsap.core.Timeline).play();
+      (timelineRef.current as gsap.core.Timeline).addPause(
+        `step-${currentStepRef.current}`,
+        () => {
+          // Reset speed back to original and resume playing using setTimeout
+          // to break out of the current call stack
+          setTimeout(() => {
+            if (timelineRef.current) {
+              timelineRef.current.timeScale(temp);
+              timelineRef.current.play();
+            }
+            wasPausedRef.current = false;
+          }, 0);
+        }
+      );
+    } else {
+      if (currentStepRef.current <= totalStepsRef.current) {
+        (timelineRef.current as gsap.core.Timeline).play();
+        currentStepRef.current++;
+        (timelineRef.current as gsap.core.Timeline).addPause(
+          `step-${currentStepRef.current}`
+        );
+      } else {
+        (timelineRef.current as gsap.core.Timeline).play();
+        (timelineRef.current as gsap.core.Timeline).addPause("end");
+      }
+      wasPausedRef.current = true;
+    }
   };
 
   const pauseAnimation = (): void => {
@@ -1544,7 +1661,26 @@ const HeapSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
   };
 
   const previousStep = (): void => {
-    // Implementation for previous step
+    if (!timelineRef.current) return;
+
+    if (currentStepRef.current > 0) {
+      currentStepRef.current--;
+      const prevLabel =
+        currentStepRef.current === 0
+          ? "step-0"
+          : `step-${currentStepRef.current}`;
+      const temp = propsRef.current.speed;
+      timelineRef.current.timeScale(propsRef.current.speed * 4);
+
+      // Increase the animation speed by increasing the timeScale of the timeline
+      timelineRef.current.reverse();
+      // timelineRef.current.seek(prevLabel);
+      timelineRef.current.pause(prevLabel);
+      if (timelineRef.current) {
+        timelineRef.current.timeScale(temp);
+      }
+      wasPausedRef.current = true;
+    }
   };
 
   // Control handlers

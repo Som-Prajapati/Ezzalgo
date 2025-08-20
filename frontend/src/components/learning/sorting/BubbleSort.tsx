@@ -364,12 +364,10 @@ const BubbleSort: React.FC<SidebarProps> = ({ isOpen, width }) => {
 
       for (let j = 0; j < n - i - 1; j++) {
         // Add label for this step
-        mainTimeline.addLabel(`step-${stepIndex}`, "+=0");
-        // The .call() method in GSAP timelines does not pass the label or stepIndex as an argument.
-        // To ensure the correct value is used, capture the current value in a local variable.
-        // This avoids closure issues with stepIndex in loops.
+
+        const thisStep = stepIndex;
+        mainTimeline.addLabel(`step-${thisStep}`, "+=0");
         {
-          const thisStep = stepIndex;
           mainTimeline.call(() => {
             currentStepRef.current = thisStep;
           });
@@ -447,8 +445,8 @@ const BubbleSort: React.FC<SidebarProps> = ({ isOpen, width }) => {
       // Mark the last element as sorted
       const sortedIndex = n - 1 - i;
       mainTimeline.add(gsap.to({}, { duration: 0.5 }));
-      mainTimeline.addLabel(`step-${stepIndex}`, "+=0");
       const thisStep = stepIndex;
+      mainTimeline.addLabel(`step-${thisStep}`, "+=0");
       mainTimeline.call(() => {
         currentStepRef.current = thisStep;
       });
@@ -457,11 +455,12 @@ const BubbleSort: React.FC<SidebarProps> = ({ isOpen, width }) => {
     }
 
     // Add final label and mark first element as sorted
-    mainTimeline.addLabel(`step-${stepIndex}`);
     const thisStep = stepIndex;
+    mainTimeline.addLabel(`step-${thisStep}`);
     mainTimeline.call(() => {
       currentStepRef.current = thisStep;
     });
+    // stepIndex++
     mainTimeline.add(animateSortedIndicator(0), "+=0.3");
 
     // Hide arrows
