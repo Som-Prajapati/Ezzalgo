@@ -45,9 +45,19 @@ interface SidebarProps {
     | "insertion"
     | "heap"
     | "jump"
+    | "linear"
+    | "binary"
     | "radix";
   onAlgorithmChange?: (
-    algorithm: "bubble" | "selection" | "insertion" | "heap" | "jump" | "radix"
+    algorithm:
+      | "bubble"
+      | "selection"
+      | "insertion"
+      | "heap"
+      | "jump"
+      | "linear"
+      | "binary"
+      | "radix"
   ) => void;
 }
 
@@ -217,6 +227,8 @@ export default function SideContent({
       "heap-sort",
       "jump-search",
       "radix-sort",
+      "linear-search",
+      "binary-search",
     ].includes(item.id);
     const isSelected =
       isAlgorithmItem &&
@@ -226,6 +238,8 @@ export default function SideContent({
         (item.id === "heap-sort" && selectedAlgorithm === "heap") ||
         (item.id === "jump-search" && selectedAlgorithm === "jump") ||
         (item.id === "radix-sort" && selectedAlgorithm === "radix"));
+    (item.id === "linear-search" && selectedAlgorithm === "linear") ||
+      (item.id === "binary-search" && selectedAlgorithm === "binary");
 
     const handleItemClick = () => {
       if (hasChildren) {
@@ -234,7 +248,14 @@ export default function SideContent({
         // Map the menu item IDs to algorithm names
         const algorithmMap: Record<
           string,
-          "bubble" | "selection" | "insertion" | "heap" | "jump" | "radix"
+          | "bubble"
+          | "selection"
+          | "insertion"
+          | "heap"
+          | "jump"
+          | "linear"
+          | "binary"
+          | "radix"
         > = {
           "bubble-sort": "bubble",
           "selection-sort": "selection",
@@ -242,6 +263,8 @@ export default function SideContent({
           "heap-sort": "heap",
           "jump-search": "jump",
           "radix-sort": "radix",
+          "linear-search": "linear",
+          "binary-search": "binary",
         };
         const algorithm = algorithmMap[item.id];
         if (algorithm) {
@@ -308,6 +331,11 @@ export default function SideContent({
               {selectedAlgorithm === "heap" && "Heap Sort"}
               {selectedAlgorithm === "jump" && "Jump Search"}
               {selectedAlgorithm === "radix" && "Radix Sort"}
+              {selectedAlgorithm === "linear" && "Linear Search"}
+              {selectedAlgorithm === "binary" && "Binary Search"}
+              {/* Default title if no algorithm is selected */}
+              {!selectedAlgorithm ||
+                (selectedAlgorithm === "bubble" && "Bubble Sort")}
               {!selectedAlgorithm && "Ezzalgo"}
             </span>
           </div>
@@ -337,7 +365,7 @@ export default function SideContent({
             className="flex h-full bg-white border-r border-slate-200"
             style={{ width: `${width}px` }}
           >
-            <div className="flex-1 flex flex-col min-w-0">
+            <div className="flex-1 flex flex-col min-w-0 ">
               {/* Logo */}
               <div className="p-6 border-b border-slate-200">
                 <h1 className="text-2xl font-bold text-slate-900">Ezzalgo</h1>
@@ -386,7 +414,7 @@ export default function SideContent({
                           display: none;
                         }
                       `}</style>
-                      <div className="space-y-0.5">
+                      <div className="space-y-0.5 ">
                         {filteredMenuItems.map((item) => renderMenuItem(item))}
                       </div>
                     </div>
@@ -396,7 +424,7 @@ export default function SideContent({
                     value="profile"
                     className="flex-1 flex flex-col min-h-0 mt-3"
                   >
-                    <div className="px-4">
+                    <div className="px-4 overflow-y-auto">
                       <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg">
                         <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
                           <User className="w-4 h-4 text-white" />

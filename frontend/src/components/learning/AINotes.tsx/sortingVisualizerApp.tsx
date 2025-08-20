@@ -31,6 +31,8 @@ import SelectionSort from "../sorting/SelectionSort";
 import InsertionSort from "../sorting/InsertionSort";
 import HeapSort from "../sorting/HeapSort";
 import RadixSort from "../sorting/RadixSort";
+import LinearSearch from "../searching/LinearSearch";
+import BinarySearch from "../searching/BinarySearch";
 
 const michroma = Abril_Fatface({
   weight: "400",
@@ -54,8 +56,15 @@ export default function SortingVisualizerApp() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [sidebarWidth, setSidebarWidth] = useState(300);
   const [selectedAlgorithm, setSelectedAlgorithm] = useState<
-    "bubble" | "selection" | "insertion" | "heap" | "jump" | "radix"
-  >("radix");
+    | "bubble"
+    | "selection"
+    | "insertion"
+    | "heap"
+    | "jump"
+    | "linear"
+    | "binary"
+    | "radix"
+  >("heap");
 
   // Control layout specific state
   const [inputWidth, setInputWidth] = useState(256);
@@ -97,7 +106,15 @@ export default function SortingVisualizerApp() {
   };
 
   const handleAlgorithmChange = (
-    algorithm: "bubble" | "selection" | "insertion" | "heap" | "jump" | "radix"
+    algorithm:
+      | "bubble"
+      | "selection"
+      | "insertion"
+      | "heap"
+      | "jump"
+      | "linear"
+      | "binary"
+      | "radix"
   ) => {
     setSelectedAlgorithm(algorithm);
   };
@@ -417,6 +434,16 @@ export default function SortingVisualizerApp() {
         {selectedAlgorithm === "radix" && (
           <div className="flex justify-center items-center flex-1 p-4">
             <RadixSort isOpen={isSidebarOpen} width={sidebarWidth} />
+          </div>
+        )}
+        {selectedAlgorithm === "linear" && (
+          <div className="flex justify-center items-center flex-1 p-4">
+            <LinearSearch isOpen={isSidebarOpen} width={sidebarWidth} />
+          </div>
+        )}
+        {selectedAlgorithm === "binary" && (
+          <div className="flex justify-center items-center flex-1 p-4">
+            <BinarySearch isOpen={isSidebarOpen} width={sidebarWidth} />
           </div>
         )}
         {/* Control Panel - Inline */}
