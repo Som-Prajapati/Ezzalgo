@@ -36,7 +36,7 @@ interface SortingControls {
   onPreviousStep: () => void;
 }
 
-const SortingControls: React.FC<SortingControls> = ({
+const SearchingControls: React.FC<SortingControls> = ({
   isOpen,
   width,
   array,
@@ -92,9 +92,20 @@ const SortingControls: React.FC<SortingControls> = ({
       const newSize = arraySize - 1;
       onArraySizeChange(newSize);
 
-      // Trim the existing array instead of generating new random array
-      const newArray = array.slice(0, newSize);
-      onArrayChange(newArray);
+      // Sort the array according to isAscending before trimming
+      const sortedArray = [...array].sort((a, b) =>
+        isAscending ? a - b : b - a
+      );
+
+      // Trim the sorted array
+      const newArray = sortedArray.slice(0, newSize);
+
+      // Sort again after trimming to maintain order
+      const finalArray = [...newArray].sort((a, b) =>
+        isAscending ? a - b : b - a
+      );
+
+      onArrayChange(finalArray);
     }
   };
 
@@ -103,9 +114,21 @@ const SortingControls: React.FC<SortingControls> = ({
       const newSize = arraySize + 1;
       onArraySizeChange(newSize);
 
-      // Add one new random element to existing array
-      const newArray = [...array, Math.floor(Math.random() * 100) + 1];
-      onArrayChange(newArray);
+      // Sort the array according to isAsecing before adding a new element
+      const sortedArray = [...array].sort((a, b) =>
+        isAscending ? a - b : b - a
+      );
+
+      // Add one new random element
+      const newElement = Math.floor(Math.random() * 100) + 1;
+      const newArray = [...sortedArray, newElement];
+
+      // Sort again after adding the new element
+      const finalArray = [...newArray].sort((a, b) =>
+        isAscending ? a - b : b - a
+      );
+
+      onArrayChange(finalArray);
     }
   };
 
@@ -205,6 +228,7 @@ const SortingControls: React.FC<SortingControls> = ({
 
   // Sort order change handler
   const handleSortOrderChange = (value: string) => {
+    // console.log("som");
     if (value === "asc") {
       onSortOrderChange(true);
     } else if (value === "desc") {
@@ -326,9 +350,13 @@ const SortingControls: React.FC<SortingControls> = ({
       { length: arraySize },
       () => Math.floor(Math.random() * 100) + 1
     );
-    const newArrayString = newArray.join(", ");
+    // Sort the array according to isAscending
+    const sortedArray = [...newArray].sort((a, b) =>
+      isAscending ? a - b : b - a
+    );
+    const newArrayString = sortedArray.join(", ");
     setInputValue(newArrayString);
-    onArrayChange(newArray);
+    onArrayChange(sortedArray);
     setInputError("");
   };
 
@@ -353,9 +381,14 @@ const SortingControls: React.FC<SortingControls> = ({
       return num;
     });
 
-    const newArrayString = newArray.join(", ");
+    // Sort the array according to isAscending
+    const sortedArray = [...newArray].sort((a, b) =>
+      isAscending ? a - b : b - a
+    );
+
+    const newArrayString = sortedArray.join(", ");
     setInputValue(newArrayString);
-    onArrayChange(newArray);
+    onArrayChange(sortedArray);
     setInputError("");
   };
 
@@ -695,9 +728,7 @@ const SortingControls: React.FC<SortingControls> = ({
                 >
                   <Minus className={controlPanelStyles.icon} />
                 </Button>
-                <span className={controlPanelStyles.speedDisplay}>
-                  {speed}x
-                </span>
+                <span className={controlPanelStyles.speedDisplay}>{speed}</span>
                 <Button
                   variant="ghost"
                   size="sm"
@@ -725,12 +756,14 @@ const SortingControls: React.FC<SortingControls> = ({
                     <TabsTrigger
                       value="asc"
                       className={controlPanelStyles.AscDescLabel}
+                      // style={{ zIndex: 100 }}
                     >
                       Asc
                     </TabsTrigger>
                     <TabsTrigger
                       value="desc"
                       className={controlPanelStyles.AscDescLabel}
+                      // style={{ zIndex: 100 }}
                     >
                       Desc
                     </TabsTrigger>
@@ -753,4 +786,4 @@ const SortingControls: React.FC<SortingControls> = ({
   );
 };
 
-export default SortingControls;
+export default SearchingControls;
