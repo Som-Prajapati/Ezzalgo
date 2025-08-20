@@ -9,6 +9,7 @@ import AINotesPage from "@/components/learning/AINotes.tsx/AINotes";
 import SortingVisualizerApp from "@/components/learning/AINotes.tsx/sortingVisualizerApp";
 import SortingVisualizerApp2 from "@/components/learning/AINotes.tsx/sortingVisualizerApp2";
 import SortingControls from "@/components/learning/sorting/SortingControl";
+import Text from "@/components/learning/sorting/text";
 
 export default function Home() {
   return (
@@ -22,12 +23,13 @@ export default function Home() {
       {/* <div>
         <SortingVisualizerApp />
       </div> */}
+      {/* <div>
+        <SortingVisualizerApp />
+      </div> */}
       <div>
         <SortingVisualizerApp />
       </div>
-      {/* <div>
-        <SortingVisualizerApp2 />
-      </div> */}
+      {/* <Text /> */}
       {/* <SelectionSort /> */}
 
       {/* <SortingControls /> */}

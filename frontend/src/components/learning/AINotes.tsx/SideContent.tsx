@@ -39,9 +39,15 @@ interface SidebarProps {
   width: number;
   onWidthChange: (width: number) => void;
   onToggle: () => void;
-  selectedAlgorithm?: "bubble" | "selection" | "insertion" | "heap" | "jump";
+  selectedAlgorithm?:
+    | "bubble"
+    | "selection"
+    | "insertion"
+    | "heap"
+    | "jump"
+    | "radix";
   onAlgorithmChange?: (
-    algorithm: "bubble" | "selection" | "insertion" | "heap" | "jump"
+    algorithm: "bubble" | "selection" | "insertion" | "heap" | "jump" | "radix"
   ) => void;
 }
 
@@ -62,6 +68,7 @@ const menuItems: MenuItem[] = [
       { id: "merge-sort", label: "Merge Sort" },
       { id: "quick-sort", label: "Quick Sort" },
       { id: "heap-sort", label: "Heap Sort" },
+      { id: "radix-sort", label: "Radix Sort" },
     ],
   },
   {
@@ -209,6 +216,7 @@ export default function SideContent({
       "insertion-sort",
       "heap-sort",
       "jump-search",
+      "radix-sort",
     ].includes(item.id);
     const isSelected =
       isAlgorithmItem &&
@@ -216,7 +224,8 @@ export default function SideContent({
         (item.id === "selection-sort" && selectedAlgorithm === "selection") ||
         (item.id === "insertion-sort" && selectedAlgorithm === "insertion") ||
         (item.id === "heap-sort" && selectedAlgorithm === "heap") ||
-        (item.id === "jump-search" && selectedAlgorithm === "jump"));
+        (item.id === "jump-search" && selectedAlgorithm === "jump") ||
+        (item.id === "radix-sort" && selectedAlgorithm === "radix"));
 
     const handleItemClick = () => {
       if (hasChildren) {
@@ -225,13 +234,14 @@ export default function SideContent({
         // Map the menu item IDs to algorithm names
         const algorithmMap: Record<
           string,
-          "bubble" | "selection" | "insertion" | "heap" | "jump"
+          "bubble" | "selection" | "insertion" | "heap" | "jump" | "radix"
         > = {
           "bubble-sort": "bubble",
           "selection-sort": "selection",
           "insertion-sort": "insertion",
           "heap-sort": "heap",
           "jump-search": "jump",
+          "radix-sort": "radix",
         };
         const algorithm = algorithmMap[item.id];
         if (algorithm) {
@@ -297,6 +307,7 @@ export default function SideContent({
               {selectedAlgorithm === "insertion" && "Insertion Sort"}
               {selectedAlgorithm === "heap" && "Heap Sort"}
               {selectedAlgorithm === "jump" && "Jump Search"}
+              {selectedAlgorithm === "radix" && "Radix Sort"}
               {!selectedAlgorithm && "Ezzalgo"}
             </span>
           </div>

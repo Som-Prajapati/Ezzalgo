@@ -30,6 +30,7 @@ import BubbleSort from "../sorting/BubbleSort";
 import SelectionSort from "../sorting/SelectionSort";
 import InsertionSort from "../sorting/InsertionSort";
 import HeapSort from "../sorting/HeapSort";
+import RadixSort from "../sorting/RadixSort";
 
 const michroma = Abril_Fatface({
   weight: "400",
@@ -53,8 +54,8 @@ export default function SortingVisualizerApp() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [sidebarWidth, setSidebarWidth] = useState(300);
   const [selectedAlgorithm, setSelectedAlgorithm] = useState<
-    "bubble" | "selection" | "insertion" | "heap" | "jump"
-  >("heap");
+    "bubble" | "selection" | "insertion" | "heap" | "jump" | "radix"
+  >("radix");
 
   // Control layout specific state
   const [inputWidth, setInputWidth] = useState(256);
@@ -96,7 +97,7 @@ export default function SortingVisualizerApp() {
   };
 
   const handleAlgorithmChange = (
-    algorithm: "bubble" | "selection" | "insertion" | "heap" | "jump"
+    algorithm: "bubble" | "selection" | "insertion" | "heap" | "jump" | "radix"
   ) => {
     setSelectedAlgorithm(algorithm);
   };
@@ -411,6 +412,11 @@ export default function SortingVisualizerApp() {
         {selectedAlgorithm === "jump" && (
           <div className="flex justify-center items-center flex-1 p-4">
             <JumpSearch isOpen={isSidebarOpen} width={sidebarWidth} />
+          </div>
+        )}
+        {selectedAlgorithm === "radix" && (
+          <div className="flex justify-center items-center flex-1 p-4">
+            <RadixSort isOpen={isSidebarOpen} width={sidebarWidth} />
           </div>
         )}
         {/* Control Panel - Inline */}
