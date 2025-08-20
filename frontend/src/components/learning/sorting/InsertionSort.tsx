@@ -533,6 +533,8 @@ const InsertionSort: React.FC<SidebarProps> = ({
         (timelineRef.current as gsap.core.Timeline).play(`step-${0}`);
         currentStepRef.current = 1;
         (timelineRef.current as gsap.core.Timeline).addPause(`step-${1}`);
+        wasPausedRef.current = true;
+
       }
       return;
     }
@@ -671,6 +673,14 @@ const InsertionSort: React.FC<SidebarProps> = ({
         timelineRef.current.timeScale(temp);
       }
       wasPausedRef.current = true;
+      if (propsRef.current.isPlaying) {
+        setTimeout(() => {
+          if (timelineRef.current) {
+            timelineRef.current.play();
+          }
+          wasPausedRef.current = false;
+        }, 100); // Add a 100ms delay before playing
+      }
     }
   };
 
@@ -785,14 +795,14 @@ const InsertionSort: React.FC<SidebarProps> = ({
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  backgroundColor: "#f8f9fa",
+                  backgroundColor: "#ffffffff",
                   border: "2px solid #e9ecef",
                   borderRadius: `${BOX_BORDER_RADIUS}px`,
                   fontSize: `${BOX_FONT_SIZE}px`,
                   fontWeight: "600",
                   color: "#212529",
                   transition: "all 0.3s ease",
-                  boxShadow: "0 2px 8px rgba(0, 0, 0, 0.08)",
+                  boxShadow: "0 4px 8px rgba(0, 0, 0, 0.08)",
                   zIndex: 2,
                 }}
               >

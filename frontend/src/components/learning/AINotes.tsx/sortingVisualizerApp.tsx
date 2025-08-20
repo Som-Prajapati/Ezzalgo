@@ -391,6 +391,12 @@ export default function SortingVisualizerApp() {
           <div className="flex justify-center items-center flex-1 p-4">
             <InsertionSort isOpen={isSidebarOpen} width={sidebarWidth} />
           </div>
+          // <div className="flex justify-center items-center flex-1 p-4">
+          //   <InsertionSort
+          //     isOpen={isSidebarOpen}
+          //     width={sidebarWidth}
+          //   />
+          // </div>
         )}
         {selectedAlgorithm === "selection" && (
           <div className="flex justify-center items-center flex-1 p-4">

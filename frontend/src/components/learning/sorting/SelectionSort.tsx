@@ -576,6 +576,7 @@ const SelectionSort: React.FC<SidebarProps> = ({
         (timelineRef.current as gsap.core.Timeline).play(`step-${0}`);
         currentStepRef.current = 1;
         (timelineRef.current as gsap.core.Timeline).addPause(`step-${1}`);
+        wasPausedRef.current = true;
       }
       return;
     }
@@ -706,7 +707,18 @@ const SelectionSort: React.FC<SidebarProps> = ({
       if (timelineRef.current) {
         timelineRef.current.timeScale(temp);
       }
+
       wasPausedRef.current = true;
+
+      // INSERT_YOUR_CODE
+      if (propsRef.current.isPlaying) {
+        setTimeout(() => {
+          if (timelineRef.current) {
+            timelineRef.current.play();
+          }
+          wasPausedRef.current = false;
+        }, 100); // Add a 100ms delay before playing
+      }
     }
   };
 
