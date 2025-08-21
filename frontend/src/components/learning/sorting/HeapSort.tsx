@@ -111,6 +111,12 @@ const HeapSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
   const propsRef = useRef({ array, speed, isAscending, isPlaying });
   const svgRef = useRef<SVGSVGElement>(null);
   const heapTreeLabelRef = useRef<HTMLDivElement | null>(null);
+  const [currentPseudoCodeLine, setCurrentPseudoCodeLine] = useState(0);
+
+  const [showCodePanel, setShowCodePanel] = useState(false);
+  const tabTitles = ["Selection Sort"] as const;
+  const showPseudoCode = 0;
+  const pseudoCode = ["------- selection sort"];
 
   // Add refs for step management
   const currentStepRef = useRef<number>(0);
@@ -817,6 +823,10 @@ const HeapSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
     const y = TREE_TOP + level * LEVEL_HEIGHT;
 
     return { x: baseX, y };
+  };
+
+  const handleToggleCodePanel = () => {
+    setShowCodePanel(!showCodePanel);
   };
 
   // Function to create a styled node for the heap tree
@@ -1922,6 +1932,12 @@ const HeapSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
         onReset={handleReset}
         onNextStep={handleNextStep}
         onPreviousStep={handlePreviousStep}
+        showCodePanel={showCodePanel}
+        onToggleCodePanel={handleToggleCodePanel}
+        currentLine={currentPseudoCodeLine}
+        tabTitles={[...tabTitles]}
+        showPseudoCode={showPseudoCode}
+        pseudoCode={pseudoCode}
       />
     </div>
   );

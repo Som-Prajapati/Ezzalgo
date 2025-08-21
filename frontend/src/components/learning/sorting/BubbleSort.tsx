@@ -66,6 +66,11 @@ const BubbleSort: React.FC<SidebarProps> = ({ isOpen, width }) => {
   const wasPausedRef = useRef<boolean>(false);
   const propsRef = useRef({ array, speed, isAscending, isPlaying });
   const bubbleRef = useRef<HTMLDivElement>(null);
+  const [currentPseudoCodeLine, setCurrentPseudoCodeLine] = useState(0);
+  const tabTitles = ["Selection Sort"] as const;
+  const showPseudoCode = 0;
+  const pseudoCode = ["------- selection sort"];
+  const [showCodePanel, setShowCodePanel] = useState(false);
 
   // Add refs for step management
   const currentStepRef = useRef<number>(0);
@@ -652,6 +657,11 @@ const BubbleSort: React.FC<SidebarProps> = ({ isOpen, width }) => {
       }
     }
   };
+
+  const handleToggleCodePanel = () => {
+    setShowCodePanel(!showCodePanel);
+  };
+
   // Control handlers
   const handlePlay = (): void => {
     setIsPlaying(true);
@@ -893,6 +903,12 @@ const BubbleSort: React.FC<SidebarProps> = ({ isOpen, width }) => {
         onReset={handleReset}
         onNextStep={handleNextStep}
         onPreviousStep={handlePreviousStep}
+        showCodePanel={showCodePanel}
+        onToggleCodePanel={handleToggleCodePanel}
+        currentLine={currentPseudoCodeLine}
+        tabTitles={[...tabTitles]}
+        showPseudoCode={showPseudoCode}
+        pseudoCode={pseudoCode}
       />
     </div>
   );

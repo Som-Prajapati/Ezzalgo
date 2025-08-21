@@ -74,6 +74,11 @@ const JumpSearch: React.FC<SidebarProps> = ({ isOpen, width }) => {
   const [speed, setSpeed] = useState<number>(1);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [isAscending, setIsAscending] = useState<boolean>(true);
+  const [currentPseudoCodeLine, setCurrentPseudoCodeLine] = useState(0);
+  const tabTitles = ["Selection Sort"] as const;
+  const showPseudoCode = 0;
+  const pseudoCode = ["------- selection sort"];
+  const [showCodePanel, setShowCodePanel] = useState(false);
 
   // Refs for DOM elements
   const containerRef = useRef<HTMLDivElement>(null);
@@ -336,84 +341,10 @@ const JumpSearch: React.FC<SidebarProps> = ({ isOpen, width }) => {
     return timeline;
   };
 
-  // const jumpWithCloudTrail = (
-  //   elementA: HTMLElement,
-  //   elementB: HTMLElement,
-  //   x1: number,
-  //   y1: number,
-  //   x2: number,
-  //   y2: number,
-  //   duration: number = 1
-  // ): gsap.core.Timeline => {
-  //   const timeline = gsap.timeline();
+  const handleToggleCodePanel = () => {
+    setShowCodePanel(!showCodePanel);
+  };
 
-  //   // Set initial position of search icon using timeline
-  //   timeline.set(elementA, { left: SEARCH_LEFT, top: SEARCH_TOP, x: 0, y: 0 });
-
-  //   // Calculate ellipse parameters for upper half-ellipse (arc)
-  //   const cx = (x1 + x2) / 2;
-  //   const arcHeight = Math.max(ARC_HEIGHT, Math.abs(x2 - x1) * 0.5 - 40);
-  //   const cy = (y1 + y2) / 2 - arcHeight;
-  //   const a = Math.abs(x2 - x1) / 2;
-  //   const b = arcHeight;
-
-  //   // Helper to get point on upper half-ellipse for t in [0,1]
-  //   const getEllipsePoint = (t: number) => {
-  //     const theta = Math.PI * (1 + t);
-  //     const x = cx + a * Math.cos(theta) + SEARCH_LEFT;
-  //     const y = cy + b * Math.sin(theta) + SEARCH_TOP * 0.1;
-  //     return { x, y };
-  //   };
-
-  //   // Animate the search icon along the upper half-ellipse arc (no trail/line)
-  //   timeline.to(
-  //     {},
-  //     {
-  //       duration,
-  //       ease: "power1.inOut",
-  //       onUpdate: function (this: gsap.core.Tween) {
-  //         const progress = this.progress();
-  //         const { x, y } = getEllipsePoint(progress);
-  //         elementA.style.left = `${x}px`;
-  //         elementA.style.top = `${y}px`;
-  //       },
-  //     },
-  //     0
-  //   );
-  //   // Animate elementA a bit down and up before the jump
-  //   timeline.to(elementA, {
-  //     y: "+=18",
-  //     duration: 0.18,
-  //     ease: "power1.in",
-  //   });
-  //   timeline.to(elementA, {
-  //     y: 0,
-  //     duration: 0.18,
-  //     ease: "linear",
-  //   });
-
-  //   // When the search icon lands, animate elementB down and up once
-  //   timeline.to(
-  //     elementB,
-  //     {
-  //       y: BOX_HEIGHT * 1.5,
-  //       duration: 0.1,
-  //       ease: "linear",
-  //     },
-  //     "-=0.4"
-  //   );
-  //   timeline.to(
-  //     elementB,
-  //     {
-  //       y: 0,
-  //       duration: 0.1,
-  //       ease: "linear",
-  //     },
-  //     "-=0.3"
-  //   );
-
-  //   return timeline;
-  // };
 
   const playAnimation = (): void => {
     // Handle normal pause case
@@ -1329,6 +1260,12 @@ const JumpSearch: React.FC<SidebarProps> = ({ isOpen, width }) => {
         onReset={handleReset}
         onNextStep={handleNextStep}
         onPreviousStep={handlePreviousStep}
+        showCodePanel={showCodePanel}
+        onToggleCodePanel={handleToggleCodePanel}
+        currentLine={currentPseudoCodeLine}
+        tabTitles={[...tabTitles]}
+        showPseudoCode={showPseudoCode}
+        pseudoCode={pseudoCode}
       />
     </div>
   );

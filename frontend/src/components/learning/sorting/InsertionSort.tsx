@@ -55,6 +55,7 @@ const InsertionSort: React.FC<SidebarProps> = ({
   const [isAscending, setIsAscending] = useState<boolean>(true);
   const [speed, setSpeed] = useState<number>(1);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
+  const [showCodePanel, setShowCodePanel] = useState(false);
 
   // Refs for DOM elements
   const containerRef = useRef<HTMLDivElement>(null);
@@ -65,10 +66,14 @@ const InsertionSort: React.FC<SidebarProps> = ({
   const timelineRef = useRef<gsap.core.Timeline | null>(null);
   const wasPausedRef = useRef<boolean>(false);
   const propsRef = useRef({ array, speed, isAscending, isPlaying });
+  const [currentPseudoCodeLine, setCurrentPseudoCodeLine] = useState(0);
 
   // Add refs for step management
   const currentStepRef = useRef<number>(0);
   const totalStepsRef = useRef<number>(0);
+  const tabTitles = ["Selection Sort"] as const;
+  const showPseudoCode = 0;
+  const pseudoCode = ["------- selection sort"];
 
   const dynamicSizing = getDynamicSizing(array.length);
   const {
@@ -196,6 +201,10 @@ const InsertionSort: React.FC<SidebarProps> = ({
     });
 
     return timeline;
+  };
+
+  const handleToggleCodePanel = () => {
+    setShowCodePanel(!showCodePanel);
   };
 
   // Play animation
@@ -939,6 +948,12 @@ const InsertionSort: React.FC<SidebarProps> = ({
         onReset={handleReset}
         onNextStep={handleNextStep}
         onPreviousStep={handlePreviousStep}
+        showCodePanel={showCodePanel}
+        onToggleCodePanel={handleToggleCodePanel}
+        currentLine={currentPseudoCodeLine}
+        tabTitles={[...tabTitles]}
+        showPseudoCode={showPseudoCode}
+        pseudoCode={pseudoCode}
       />
     </div>
   );
