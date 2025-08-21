@@ -83,6 +83,11 @@ const RadixSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
   const wasPausedRef = useRef<boolean>(false);
   const propsRef = useRef({ array, speed, isAscending, isPlaying });
   const stepDigitPlaceRef = useRef<Map<number, number>>(new Map());
+  const [currentPseudoCodeLine, setCurrentPseudoCodeLine] = useState(0);
+  const [showCodePanel, setShowCodePanel] = useState(false);
+  const tabTitles = ["Selection Sort"] as const;
+  const showPseudoCode = 0;
+  const pseudoCode = ["------- selection sort"];
 
   // Add refs for step management
   const currentStepRef = useRef<number>(0);
@@ -235,7 +240,6 @@ const RadixSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
 
     return timeline;
   };
-
 
   // const highlightDigit = (
   //   element: HTMLElement,
@@ -618,6 +622,10 @@ const RadixSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
 
     return timeline;
   };
+  const handleToggleCodePanel = () => {
+    setShowCodePanel(!showCodePanel);
+  };
+
 
   // Fixed playAnimation function
   const playAnimation = (): void => {
@@ -1302,6 +1310,7 @@ const RadixSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
 
       {/* Controls */}
       <SortingControls
+        limit={150}
         isOpen={isOpen}
         width={width}
         array={array}
@@ -1318,6 +1327,12 @@ const RadixSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
         onReset={handleReset}
         onNextStep={handleNextStep}
         onPreviousStep={handlePreviousStep}
+        showCodePanel={showCodePanel}
+        onToggleCodePanel={handleToggleCodePanel}
+        currentLine={currentPseudoCodeLine}
+        tabTitles={[...tabTitles]}
+        showPseudoCode={showPseudoCode}
+        pseudoCode={pseudoCode}
       />
     </div>
   );

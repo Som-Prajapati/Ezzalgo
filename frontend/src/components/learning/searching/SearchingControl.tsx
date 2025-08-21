@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Settings } from "lucide-react";
+import DraggableCodePanel from "@/components/ui/draggablecard";
 import {
   ChevronRight,
   RotateCcw,
@@ -35,6 +36,12 @@ interface SortingControls {
   onReset: () => void;
   onNextStep: () => void;
   onPreviousStep: () => void;
+  showCodePanel?: boolean;
+  onToggleCodePanel?: () => void;
+  currentLine?: number;
+  tabTitles?: string[];
+  showPseudoCode?: number;
+  pseudoCode?: string[];
 }
 
 const SearchingControls: React.FC<SortingControls> = ({
@@ -55,6 +62,12 @@ const SearchingControls: React.FC<SortingControls> = ({
   onReset,
   onNextStep,
   onPreviousStep,
+  showCodePanel,
+  onToggleCodePanel,
+  currentLine,
+  tabTitles,
+  showPseudoCode,
+  pseudoCode,
 }) => {
   // Sidebar state
   // const [sidebarWidth, setSidebarWidth] = useState(260);
@@ -825,6 +838,15 @@ const SearchingControls: React.FC<SortingControls> = ({
           </div>
         </div>
       </div>
+      {showCodePanel && (
+        <DraggableCodePanel
+          pseudoCode={pseudoCode ? [pseudoCode] : undefined}
+          showPseudoCode={showPseudoCode}
+          tabTitles={tabTitles}
+          showCode={showCodePanel}
+          currentLine={currentLine} // You'll need to track this
+        />
+      )}
     </div>
   );
 };

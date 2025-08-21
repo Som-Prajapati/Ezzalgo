@@ -34,6 +34,7 @@ import HeapSort from "../sorting/HeapSort";
 import RadixSort from "../sorting/RadixSort";
 import LinearSearch from "../searching/LinearSearch";
 import BinarySearch from "../searching/BinarySearch";
+import CountSort from "../sorting/CountSort";
 
 const michroma = Abril_Fatface({
   weight: "400",
@@ -431,7 +432,7 @@ export default function SortingVisualizerApp() {
         {selectedAlgorithm === "interpolation" && (
           <div className="flex justify-center items-center flex-1 p-4">
             <InterpolationSearch isOpen={isSidebarOpen} width={sidebarWidth} />
-            </div>
+          </div>
         )}
         {selectedAlgorithm === "radix" && (
           <div className="flex justify-center items-center flex-1 p-4">
@@ -445,7 +446,7 @@ export default function SortingVisualizerApp() {
         )}
         {selectedAlgorithm === "binary" && (
           <div className="flex justify-center items-center flex-1 p-4">
-            <BinarySearch isOpen={isSidebarOpen} width={sidebarWidth} />
+            <CountSort isOpen={isSidebarOpen} width={sidebarWidth} />
           </div>
         )}
         {/* Control Panel - Inline */}

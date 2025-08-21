@@ -65,10 +65,15 @@ const SelectionSort: React.FC<SidebarProps> = ({
   const timelineRef = useRef<gsap.core.Timeline | null>(null);
   const wasPausedRef = useRef<boolean>(false);
   const propsRef = useRef({ array, speed, isAscending, isPlaying });
+  const tabTitles = ["Selection Sort"] as const;
+  const showPseudoCode = 0;
+  const pseudoCode = ["------- selection sort"];
 
   // Add refs for step management
   const currentStepRef = useRef<number>(0);
   const totalStepsRef = useRef<number>(0);
+  const [showCodePanel, setShowCodePanel] = useState(false);
+  const [currentPseudoCodeLine, setCurrentPseudoCodeLine] = useState(0);
 
   const dynamicSizing = getDynamicSizing(array.length);
   const {
@@ -264,6 +269,10 @@ const SelectionSort: React.FC<SidebarProps> = ({
     });
 
     return timeline;
+  };
+
+  const handleToggleCodePanel = () => {
+    setShowCodePanel(!showCodePanel);
   };
 
   // Play animation
@@ -925,6 +934,7 @@ const SelectionSort: React.FC<SidebarProps> = ({
 
       {/* Controls */}
       <SortingControls
+        limit={150}
         // fix the error
         isOpen={isOpen}
         width={width}
@@ -942,6 +952,12 @@ const SelectionSort: React.FC<SidebarProps> = ({
         onReset={handleReset}
         onNextStep={handleNextStep}
         onPreviousStep={handlePreviousStep}
+        showCodePanel={showCodePanel}
+        onToggleCodePanel={handleToggleCodePanel}
+        currentLine={currentPseudoCodeLine}
+        tabTitles={[...tabTitles]}
+        showPseudoCode={showPseudoCode}
+        pseudoCode={pseudoCode}
       />
     </div>
   );

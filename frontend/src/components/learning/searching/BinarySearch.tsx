@@ -2,6 +2,7 @@
 import React, { useRef, useEffect, useState } from "react";
 import { gsap } from "gsap";
 import SortingControls from "../sorting/SortingControl";
+import SearchingControls from "./SearchingControl";
 
 // In getDynamicSizing function:
 const getDynamicSizing = (arrayLength: number) => {
@@ -35,7 +36,10 @@ interface SidebarProps {
   width: number;
 }
 
-const BinarySearch: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
+const BinarySearch: React.FC<SidebarProps> = ({
+  isOpen,
+  width,
+}: SidebarProps) => {
   // Initial array (must be sorted for binary search)
   const initialArray = [8, 17, 31, 42, 65, 89];
   const [searchValue, setSearchValue] = useState<number>(31);
@@ -54,7 +58,7 @@ const BinarySearch: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) =
   const pointerRefs = useRef({
     low: useRef<HTMLDivElement>(null),
     mid: useRef<HTMLDivElement>(null),
-    high: useRef<HTMLDivElement>(null)
+    high: useRef<HTMLDivElement>(null),
   });
   const timelineRef = useRef<gsap.core.Timeline | null>(null);
   const wasPausedRef = useRef<boolean>(false);
@@ -92,7 +96,8 @@ const BinarySearch: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) =
       scale: 1.1,
       opacity: 1,
       filter: "blur(0px)",
-      boxShadow: "0 0 15px rgba(33, 150, 243, 0.3), 0 2px 12px rgba(33, 150, 243, 0.2)",
+      boxShadow:
+        "0 0 15px rgba(33, 150, 243, 0.3), 0 2px 12px rgba(33, 150, 243, 0.2)",
       duration: 0.5,
       ease: "power2.out",
     });
@@ -134,16 +139,20 @@ const BinarySearch: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) =
 
   const animateNotFound = (): gsap.core.Timeline => {
     const timeline = gsap.timeline();
-    
+
     // Animate all elements to red
     arrayElementsRef.current.forEach((element, index) => {
       if (element) {
-        timeline.to(element, {
-          backgroundColor: "#f8d7da",
-          borderColor: "#f5c6cb",
-          duration: 0.8,
-          ease: "power2.out",
-        }, index * 0.1);
+        timeline.to(
+          element,
+          {
+            backgroundColor: "#f8d7da",
+            borderColor: "#f5c6cb",
+            duration: 0.8,
+            ease: "power2.out",
+          },
+          index * 0.1
+        );
       }
     });
 
@@ -169,13 +178,16 @@ const BinarySearch: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) =
     return timeline;
   };
 
-  const movePointer = (pointer: 'low' | 'mid' | 'high', position: number): gsap.core.Timeline => {
+  const movePointer = (
+    pointer: "low" | "mid" | "high",
+    position: number
+  ): gsap.core.Timeline => {
     const element = pointerRefs.current[pointer].current;
     if (!element) return gsap.timeline();
 
     const timeline = gsap.timeline();
     timeline.to(element, {
-      x: position * (TOTAL_BOX_SPACING),
+      x: position * TOTAL_BOX_SPACING,
       duration: 0.8,
       ease: "power1.inOut",
     });
@@ -216,14 +228,20 @@ const BinarySearch: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) =
     // Binary search algorithm
     let low = 0;
     let high = n - 1;
-    
+
     // Show pointers
     mainTimeline.call(() => {
       if (pointerRefs.current.low.current) {
-        gsap.set(pointerRefs.current.low.current, { opacity: 1, x: low * (TOTAL_BOX_SPACING) });
+        gsap.set(pointerRefs.current.low.current, {
+          opacity: 1,
+          x: low * TOTAL_BOX_SPACING,
+        });
       }
       if (pointerRefs.current.high.current) {
-        gsap.set(pointerRefs.current.high.current, { opacity: 1, x: high * (TOTAL_BOX_SPACING) });
+        gsap.set(pointerRefs.current.high.current, {
+          opacity: 1,
+          x: high * TOTAL_BOX_SPACING,
+        });
       }
       if (pointerRefs.current.mid.current) {
         gsap.set(pointerRefs.current.mid.current, { opacity: 0 });
@@ -234,7 +252,7 @@ const BinarySearch: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) =
 
     while (low <= high) {
       const mid = Math.floor((low + high) / 2);
-      
+
       // Step: Calculate mid
       mainTimeline.addLabel(`step-${stepIndex}`, "+=0.3");
       mainTimeline.call(() => {
@@ -245,13 +263,16 @@ const BinarySearch: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) =
       // Show mid pointer
       mainTimeline.call(() => {
         if (pointerRefs.current.mid.current) {
-          gsap.set(pointerRefs.current.mid.current, { opacity: 1, x: mid * (TOTAL_BOX_SPACING) });
+          gsap.set(pointerRefs.current.mid.current, {
+            opacity: 1,
+            x: mid * TOTAL_BOX_SPACING,
+          });
         }
       });
 
       // Highlight mid element (make it visible)
       mainTimeline.add(highlightCurrentElement(mid), "-=0.2");
-      
+
       // Small pause for comparison
       mainTimeline.to({}, { duration: 0.6 });
 
@@ -259,14 +280,14 @@ const BinarySearch: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) =
       if (arr[mid] === propsRef.current.searchValue) {
         // Mark as found
         mainTimeline.add(animateFoundElement(mid), "-=0.2");
-        
+
         // Animate element to target box
         const element = arrayElementsRef.current[mid];
         if (element && targetBoxRef.current && containerRef.current) {
           mainTimeline.call(() => {
             setFoundIndex(mid);
             setTargetFound(true);
-            
+
             // Create clone for animation
             const clone = element.cloneNode(true) as HTMLDivElement;
             if (foundElementRef.current) {
@@ -280,7 +301,7 @@ const BinarySearch: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) =
 
             // Position clone at element's location
             gsap.set(clone, {
-              position: 'absolute',
+              position: "absolute",
               left: elementRect.left - containerRect.left,
               top: elementRect.top - containerRect.top,
               zIndex: 1000,
@@ -292,8 +313,14 @@ const BinarySearch: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) =
 
             // Animate clone to target position
             gsap.to(clone, {
-              x: (targetRect.left - containerRect.left) - (elementRect.left - containerRect.left),
-              y: (targetRect.top - containerRect.top) - (elementRect.top - containerRect.top),
+              x:
+                targetRect.left -
+                containerRect.left -
+                (elementRect.left - containerRect.left),
+              y:
+                targetRect.top -
+                containerRect.top -
+                (elementRect.top - containerRect.top),
               duration: 1.2,
               ease: "back.out(1.7)",
               onComplete: () => {
@@ -307,10 +334,10 @@ const BinarySearch: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) =
                     backgroundColor: "#d4edda",
                     borderColor: "#c3e6cb",
                     scale: 1.1,
-                    duration: 0.5
+                    duration: 0.5,
                   });
                 }
-              }
+              },
             });
           });
         }
@@ -325,10 +352,10 @@ const BinarySearch: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) =
             mainTimeline.add(blurElement(i));
           }
         });
-        
+
         // Move low pointer
         low = mid + 1;
-        mainTimeline.add(movePointer('low', low));
+        mainTimeline.add(movePointer("low", low));
       } else {
         // Search in the left half
         mainTimeline.call(() => {
@@ -337,12 +364,12 @@ const BinarySearch: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) =
             mainTimeline.add(blurElement(i));
           }
         });
-        
+
         // Move high pointer
         high = mid - 1;
-        mainTimeline.add(movePointer('high', high));
+        mainTimeline.add(movePointer("high", high));
       }
-      
+
       // Hide mid pointer
       mainTimeline.call(() => {
         if (pointerRefs.current.mid.current) {
@@ -354,7 +381,7 @@ const BinarySearch: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) =
     // Element not found
     if (!found) {
       mainTimeline.add(animateNotFound(), "+=0.3");
-      
+
       // Make target box red
       mainTimeline.call(() => {
         if (targetBoxRef.current) {
@@ -362,24 +389,37 @@ const BinarySearch: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) =
             backgroundColor: "#f8d7da",
             borderColor: "#f5c6cb",
             scale: 1.1,
-            duration: 0.8
+            duration: 0.8,
           });
         }
       });
     }
 
     // Hide pointers at the end
-    mainTimeline.call(() => {
-      if (pointerRefs.current.low.current) {
-        gsap.to(pointerRefs.current.low.current, { opacity: 0, duration: 0.5 });
-      }
-      if (pointerRefs.current.high.current) {
-        gsap.to(pointerRefs.current.high.current, { opacity: 0, duration: 0.5 });
-      }
-      if (pointerRefs.current.mid.current) {
-        gsap.to(pointerRefs.current.mid.current, { opacity: 0, duration: 0.5 });
-      }
-    }, [] , "+=0.5");
+    mainTimeline.call(
+      () => {
+        if (pointerRefs.current.low.current) {
+          gsap.to(pointerRefs.current.low.current, {
+            opacity: 0,
+            duration: 0.5,
+          });
+        }
+        if (pointerRefs.current.high.current) {
+          gsap.to(pointerRefs.current.high.current, {
+            opacity: 0,
+            duration: 0.5,
+          });
+        }
+        if (pointerRefs.current.mid.current) {
+          gsap.to(pointerRefs.current.mid.current, {
+            opacity: 0,
+            duration: 0.5,
+          });
+        }
+      },
+      [],
+      "+=0.5"
+    );
 
     totalStepsRef.current = stepIndex;
     mainTimeline.addLabel("end");
@@ -454,11 +494,11 @@ const BinarySearch: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) =
         backgroundColor: "#f8f9fa",
         borderColor: "#e9ecef",
         scale: 1,
-        duration: 0.3
+        duration: 0.3,
       });
     }
     if (foundElementRef.current) {
-      foundElementRef.current.innerHTML = '';
+      foundElementRef.current.innerHTML = "";
     }
     if (timelineRef.current) {
       timelineRef.current.kill();
@@ -627,13 +667,13 @@ const BinarySearch: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) =
           <div
             ref={foundElementRef}
             style={{
-              position: 'absolute',
+              position: "absolute",
               top: 0,
               left: 0,
-              height: '100%',
-              width: '100%',
-              pointerEvents: 'none',
-              zIndex: 999
+              height: "100%",
+              width: "100%",
+              pointerEvents: "none",
+              zIndex: 999,
             }}
           >
             {/* This is where the animated element will be temporarily placed */}
@@ -655,7 +695,7 @@ const BinarySearch: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) =
               transition: "all 0.3s ease",
               boxShadow: "0 2px 8px rgba(0, 0, 0, 0.08)",
               marginBottom: "20px",
-              opacity: 0.7
+              opacity: 0.7,
             }}
           >
             {searchValue}
@@ -706,12 +746,14 @@ const BinarySearch: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) =
           </div>
 
           {/* Pointer Indicators */}
-          <div style={{
-            position: "relative",
-            width: "100%",
-            height: "60px",
-            marginTop: "10px"
-          }}>
+          <div
+            style={{
+              position: "relative",
+              width: "100%",
+              height: "60px",
+              marginTop: "10px",
+            }}
+          >
             {/* Low Pointer */}
             <div
               ref={pointerRefs.current.low}
@@ -724,22 +766,28 @@ const BinarySearch: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) =
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "center",
-                transition: "all 0.3s ease"
+                transition: "all 0.3s ease",
               }}
             >
-              <div style={{
-                width: 0,
-                height: 0,
-                borderLeft: "8px solid transparent",
-                borderRight: "8px solid transparent",
-                borderTop: "12px solid #ff6b6b"
-              }}></div>
-              <span style={{
-                fontSize: "14px",
-                fontWeight: "600",
-                color: "#ff6b6b",
-                marginTop: "4px"
-              }}>Low</span>
+              <div
+                style={{
+                  width: 0,
+                  height: 0,
+                  borderLeft: "8px solid transparent",
+                  borderRight: "8px solid transparent",
+                  borderTop: "12px solid #ff6b6b",
+                }}
+              ></div>
+              <span
+                style={{
+                  fontSize: "14px",
+                  fontWeight: "600",
+                  color: "#ff6b6b",
+                  marginTop: "4px",
+                }}
+              >
+                Low
+              </span>
             </div>
 
             {/* Mid Pointer */}
@@ -754,22 +802,28 @@ const BinarySearch: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) =
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "center",
-                transition: "all 0.3s ease"
+                transition: "all 0.3s ease",
               }}
             >
-              <div style={{
-                width: 0,
-                height: 0,
-                borderLeft: "8px solid transparent",
-                borderRight: "8px solid transparent",
-                borderTop: "12px solid #4ecdc4"
-              }}></div>
-              <span style={{
-                fontSize: "14px",
-                fontWeight: "600",
-                color: "#4ecdc4",
-                marginTop: "4px"
-              }}>Mid</span>
+              <div
+                style={{
+                  width: 0,
+                  height: 0,
+                  borderLeft: "8px solid transparent",
+                  borderRight: "8px solid transparent",
+                  borderTop: "12px solid #4ecdc4",
+                }}
+              ></div>
+              <span
+                style={{
+                  fontSize: "14px",
+                  fontWeight: "600",
+                  color: "#4ecdc4",
+                  marginTop: "4px",
+                }}
+              >
+                Mid
+              </span>
             </div>
 
             {/* High Pointer */}
@@ -784,22 +838,28 @@ const BinarySearch: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) =
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "center",
-                transition: "all 0.3s ease"
+                transition: "all 0.3s ease",
               }}
             >
-              <div style={{
-                width: 0,
-                height: 0,
-                borderLeft: "8px solid transparent",
-                borderRight: "8px solid transparent",
-                borderTop: "12px solid #45b7d1"
-              }}></div>
-              <span style={{
-                fontSize: "14px",
-                fontWeight: "600",
-                color: "#45b7d1",
-                marginTop: "4px"
-              }}>High</span>
+              <div
+                style={{
+                  width: 0,
+                  height: 0,
+                  borderLeft: "8px solid transparent",
+                  borderRight: "8px solid transparent",
+                  borderTop: "12px solid #45b7d1",
+                }}
+              ></div>
+              <span
+                style={{
+                  fontSize: "14px",
+                  fontWeight: "600",
+                  color: "#45b7d1",
+                  marginTop: "4px",
+                }}
+              >
+                High
+              </span>
             </div>
           </div>
 
@@ -827,13 +887,15 @@ const BinarySearch: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) =
           </div>
 
           {/* Search Buttons */}
-          <div style={{
-            display: "flex",
-            gap: "16px",
-            marginTop: "2rem",
-            flexWrap: "wrap",
-            justifyContent: "center"
-          }}>
+          <div
+            style={{
+              display: "flex",
+              gap: "16px",
+              marginTop: "2rem",
+              flexWrap: "wrap",
+              justifyContent: "center",
+            }}
+          >
             <button
               onClick={searchForArrayElement}
               style={{
@@ -849,7 +911,7 @@ const BinarySearch: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) =
                 boxShadow: "0 1px 2px 0 rgb(0 0 0 / 0.05)",
                 display: "flex",
                 alignItems: "center",
-                gap: "8px"
+                gap: "8px",
               }}
               disabled={isSearching}
               onMouseOver={(e) => {
@@ -862,16 +924,28 @@ const BinarySearch: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) =
               }}
               onMouseDown={(e) => {
                 e.currentTarget.style.transform = "scale(0.98)";
-                e.currentTarget.style.boxShadow = "0 0 0 1px hsl(240, 5.9%, 10%)";
+                e.currentTarget.style.boxShadow =
+                  "0 0 0 1px hsl(240, 5.9%, 10%)";
               }}
               onMouseUp={(e) => {
                 e.currentTarget.style.transform = "scale(1)";
-                e.currentTarget.style.boxShadow = "0 1px 2px 0 rgb(0 0 0 / 0.05)";
+                e.currentTarget.style.boxShadow =
+                  "0 1px 2px 0 rgb(0 0 0 / 0.05)";
               }}
             >
-              <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M7.49991 0.876892C3.84222 0.876892 0.877075 3.84204 0.877075 7.49972C0.877075 11.1574 3.84222 14.1226 7.49991 14.1226C11.1576 14.1226 14.1227 11.1574 14.1227 7.49972C14.1227 3.84204 11.1576 0.876892 7.49991 0.876892ZM1.82707 7.49972C1.82707 4.36671 4.36689 1.82689 7.49991 1.82689C10.6329 1.82689 13.1727 4.36671 13.1727 7.49972C13.1727 10.6327 10.6329 13.1726 7.49991 13.1726C4.36689 13.1726 1.82707 10.6327 1.82707 7.49972ZM7.50003 4C7.77617 4 8.00003 4.22386 8.00003 4.5V7.5C8.00003 7.77614 7.77617 8 7.50003 8C7.22389 8 7.00003 7.77614 7.00003 7.5V4.5C7.00003 4.22386 7.22389 4 7.50003 4Z"
-                  fill="currentColor" fillRule="evenodd" clipRule="evenodd"></path>
+              <svg
+                width="15"
+                height="15"
+                viewBox="0 0 15 15"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M7.49991 0.876892C3.84222 0.876892 0.877075 3.84204 0.877075 7.49972C0.877075 11.1574 3.84222 14.1226 7.49991 14.1226C11.1576 14.1226 14.1227 11.1574 14.1227 7.49972C14.1227 3.84204 11.1576 0.876892 7.49991 0.876892ZM1.82707 7.49972C1.82707 4.36671 4.36689 1.82689 7.49991 1.82689C10.6329 1.82689 13.1727 4.36671 13.1727 7.49972C13.1727 10.6327 10.6329 13.1726 7.49991 13.1726C4.36689 13.1726 1.82707 10.6327 1.82707 7.49972ZM7.50003 4C7.77617 4 8.00003 4.22386 8.00003 4.5V7.5C8.00003 7.77614 7.77617 8 7.50003 8C7.22389 8 7.00003 7.77614 7.00003 7.5V4.5C7.00003 4.22386 7.22389 4 7.50003 4Z"
+                  fill="currentColor"
+                  fillRule="evenodd"
+                  clipRule="evenodd"
+                ></path>
               </svg>
               Find in Array
             </button>
@@ -890,7 +964,7 @@ const BinarySearch: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) =
                 boxShadow: "0 1px 2px 0 rgb(0 0 0 / 0.05)",
                 display: "flex",
                 alignItems: "center",
-                gap: "8px"
+                gap: "8px",
               }}
               disabled={isSearching}
               onMouseOver={(e) => {
@@ -903,16 +977,28 @@ const BinarySearch: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) =
               }}
               onMouseDown={(e) => {
                 e.currentTarget.style.transform = "scale(0.98)";
-                e.currentTarget.style.boxShadow = "0 0 0 1px hsl(240, 5.9%, 90%)";
+                e.currentTarget.style.boxShadow =
+                  "0 0 0 1px hsl(240, 5.9%, 90%)";
               }}
               onMouseUp={(e) => {
                 e.currentTarget.style.transform = "scale(1)";
-                e.currentTarget.style.boxShadow = "0 1px 2px 0 rgb(0 0 0 / 0.05)";
+                e.currentTarget.style.boxShadow =
+                  "0 1px 2px 0 rgb(0 0 0 / 0.05)";
               }}
             >
-              <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org2000/svg">
-                <path d="M7.49991 0.876892C3.84222 0.876892 0.877075 3.84204 0.877075 7.49972C0.877075 11.1574 3.84222 14.1226 7.49991 14.1226C11.1576 14.1226 14.1227 11.1574 14.1227 7.49972C14.1227 3.84204 11.1576 0.876892 7.49991 0.876892ZM1.82707 7.49972C1.82707 4.36671 4.36689 1.82689 7.49991 1.82689C10.6329 1.82689 13.1727 4.36671 13.1727 7.49972C13.1727 10.6327 10.6329 13.1726 7.49991 13.1726C4.36689 13.1726 1.82707 10.6327 1.82707 7.49972ZM7.50003 4C7.77617 4 8.00003 4.22386 8.00003 4.5V7.5C8.00003 7.77614 7.77617 8 7.50003 8C7.22389 8 7.00003 7.77614 7.00003 7.5V4.5C7.00003 4.22386 7.22389 4 7.50003 4Z"
-                  fill="currentColor" fillRule="evenodd" clipRule="evenodd"></path>
+              <svg
+                width="15"
+                height="15"
+                viewBox="0 0 15 15"
+                fill="none"
+                xmlns="http://www.w3.org2000/svg"
+              >
+                <path
+                  d="M7.49991 0.876892C3.84222 0.876892 0.877075 3.84204 0.877075 7.49972C0.877075 11.1574 3.84222 14.1226 7.49991 14.1226C11.1576 14.1226 14.1227 11.1574 14.1227 7.49972C14.1227 3.84204 11.1576 0.876892 7.49991 0.876892ZM1.82707 7.49972C1.82707 4.36671 4.36689 1.82689 7.49991 1.82689C10.6329 1.82689 13.1727 4.36671 13.1727 7.49972C13.1727 10.6327 10.6329 13.1726 7.49991 13.1726C4.36689 13.1726 1.82707 10.6327 1.82707 7.49972ZM7.50003 4C7.77617 4 8.00003 4.22386 8.00003 4.5V7.5C8.00003 7.77614 7.77617 8 7.50003 8C7.22389 8 7.00003 7.77614 7.00003 7.5V4.5C7.00003 4.22386 7.22389 4 7.50003 4Z"
+                  fill="currentColor"
+                  fillRule="evenodd"
+                  clipRule="evenodd"
+                ></path>
               </svg>
               Find Outside Array
             </button>
@@ -921,7 +1007,8 @@ const BinarySearch: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) =
       </div>
 
       {/* Controls */}
-      <SortingControls
+      <SearchingControls
+        randomOnly={false}
         isOpen={isOpen}
         width={width}
         array={array}
@@ -931,7 +1018,7 @@ const BinarySearch: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) =
         isPlaying={isPlaying}
         onArrayChange={handleArrayChange}
         onArraySizeChange={handleArraySizeChange}
-        onSortOrderChange={() => { }}
+        onSortOrderChange={() => {}}
         onSpeedChange={handleSpeedChange}
         onPlay={handlePlay}
         onPause={handlePause}
