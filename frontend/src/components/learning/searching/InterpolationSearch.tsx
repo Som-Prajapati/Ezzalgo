@@ -45,7 +45,7 @@ const getDynamicSizing = (arrayLength: number) => {
       IMAGE_WIDTH: 70,
       INDEX_FONT_SIZE: 12,
       INDEX_Y_OFFSET: 70,
-      SEARCH_LEFT: 40 * 1.3,
+      SEARCH_LEFT: 27 * 1.3,
       SEARCH_TOP: -80,
       ARC_HEIGHT: 60,
     };
@@ -264,6 +264,11 @@ const InterpolationSearch: React.FC<SidebarProps> = ({ isOpen, width }) => {
     });
 
     return timeline;
+  };
+
+  // Calculate the center position of an array element
+  const getElementCenterPosition = (index: number) => {
+    return index * TOTAL_BOX_SPACING + BOX_WIDTH / 2;
   };
 
   const showInterpolationFormula = (
@@ -746,8 +751,6 @@ const InterpolationSearch: React.FC<SidebarProps> = ({ isOpen, width }) => {
     setShowCodePanel(!showCodePanel);
   };
   const nextStep = (): void => {
-    console.log("Current step:", currentStepRef.current);
-    console.log("Total steps:", totalStepsRef.current);
     if (!timelineRef.current) {
       playAnimation();
       if (timelineRef.current) {
@@ -770,8 +773,6 @@ const InterpolationSearch: React.FC<SidebarProps> = ({ isOpen, width }) => {
       (timelineRef.current as gsap.core.Timeline).addPause(
         `step-${currentStepRef.current}`,
         () => {
-          // Reset speed back to original and resume playing using setTimeout
-          // to break out of the current call stack
           setTimeout(() => {
             if (timelineRef.current) {
               timelineRef.current.timeScale(temp);
@@ -781,6 +782,7 @@ const InterpolationSearch: React.FC<SidebarProps> = ({ isOpen, width }) => {
           }, 0);
         }
       );
+      // setIsPlaying(false);
     } else {
       if (currentStepRef.current <= totalStepsRef.current) {
         (timelineRef.current as gsap.core.Timeline).play();
@@ -908,7 +910,18 @@ const InterpolationSearch: React.FC<SidebarProps> = ({ isOpen, width }) => {
       if (timelineRef.current) {
         timelineRef.current.timeScale(temp);
       }
+
       wasPausedRef.current = true;
+
+      // INSERT_YOUR_CODE
+      if (propsRef.current.isPlaying) {
+        setTimeout(() => {
+          if (timelineRef.current) {
+            timelineRef.current.play();
+          }
+          wasPausedRef.current = false;
+        }, 100); // Add a 100ms delay before playing
+      }
     }
   };
 
