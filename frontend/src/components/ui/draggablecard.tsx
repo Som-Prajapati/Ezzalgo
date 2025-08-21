@@ -211,12 +211,6 @@ const DraggableCodePanel: React.FC<DraggableCodePanelProps> = ({
               Pseudocode Panel
             </span>
           </div>
-          {/* <button
-            onClick={handleClose}
-            className="p-1 hover:bg-blue-100 rounded transition-colors"
-          >
-            <X className="h-4 w-4 text-gray-600" />
-          </button> */}
         </div>
 
         {/* Tab Navigation - shows when there are multiple tabs */}

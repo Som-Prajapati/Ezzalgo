@@ -83,7 +83,24 @@ const InterpolationSearch: React.FC<SidebarProps> = ({ isOpen, width }) => {
   const [currentPseudoCodeLine, setCurrentPseudoCodeLine] = useState(0);
   const tabTitles = ["Selection Sort"] as const;
   const showPseudoCode = 0;
-  const pseudoCode = ["------- selection sort"];
+  const pseudoCode = [
+    [
+      "low ← 0",
+      "high ← size - 1",
+      "",
+      "while low ≤ high AND target ≥ array[low] AND target ≤ array[high] do",
+      "    pos ← low + ((target - array[low]) * (high - low)) / (array[high] - array[low])",
+      "",
+      "    if array[pos] = target then",
+      "        return array[pos]          // Return the element itself",
+      "    else if array[pos] < target then",
+      "        low ← pos + 1",
+      "    else",
+      "        high ← pos - 1",
+      "",
+      "return null                        // Target not found",
+    ],
+  ];
   const [showCodePanel, setShowCodePanel] = useState(false);
 
   // Add refs for step management
@@ -448,8 +465,7 @@ const InterpolationSearch: React.FC<SidebarProps> = ({ isOpen, width }) => {
           mainTimeline.add(teleportToPosition(searchIconRef.current, 0, 0.8));
         }
         mainTimeline.add(highlightBoxe(0), "+=0.1");
-        mainTimeline.add(removeHighlight(0) , "+=0.3");
-        
+        mainTimeline.add(removeHighlight(0), "+=0.3");
       } else {
         // In descending, icon is already at last index (min), so just highlight it
         if (searchIconRef.current) {
@@ -458,8 +474,7 @@ const InterpolationSearch: React.FC<SidebarProps> = ({ isOpen, width }) => {
           );
         }
         mainTimeline.add(highlightBoxe(n - 1), "+=0.1");
-        mainTimeline.add(removeHighlight(n - 1) , "+=0.3");
-
+        mainTimeline.add(removeHighlight(n - 1), "+=0.3");
       }
       for (let i = 0; i < n; i++) {
         mainTimeline.add(greyOutElement(i), i === 0 ? "+=0.1" : "-=0.2");
@@ -520,16 +535,14 @@ const InterpolationSearch: React.FC<SidebarProps> = ({ isOpen, width }) => {
           );
         }
         mainTimeline.add(highlightBoxe(n - 1), "+=0.1");
-        mainTimeline.add(removeHighlight(n - 1) , "+=0.3");
-
+        mainTimeline.add(removeHighlight(n - 1), "+=0.3");
       } else {
         // In descending, icon is already at index 0 (max), so just highlight it
         if (searchIconRef.current) {
           mainTimeline.add(teleportToPosition(searchIconRef.current, 0, 0.8));
         }
         mainTimeline.add(highlightBoxe(0), "+=0.1");
-        mainTimeline.add(removeHighlight(0) , "+=0.3");
-
+        mainTimeline.add(removeHighlight(0), "+=0.3");
       }
       for (let i = 0; i < n; i++) {
         mainTimeline.add(greyOutElement(i), i === 0 ? "+=0.1" : "-=0.2");
@@ -586,8 +599,7 @@ const InterpolationSearch: React.FC<SidebarProps> = ({ isOpen, width }) => {
 
       // Highlight the element at calculated position
       mainTimeline.add(highlightBoxe(pos), "+=0.2");
-      mainTimeline.add(removeHighlight(pos) , "+=0.3");
-
+      mainTimeline.add(removeHighlight(pos), "+=0.3");
 
       // Check if target is found
       if (arr[pos] === searchTarget) {
@@ -1246,7 +1258,7 @@ const InterpolationSearch: React.FC<SidebarProps> = ({ isOpen, width }) => {
 
       {/* Controls */}
       <SearchingControls
-        randomOnly={ false}
+        randomOnly={false}
         isOpen={isOpen}
         width={width}
         array={array}

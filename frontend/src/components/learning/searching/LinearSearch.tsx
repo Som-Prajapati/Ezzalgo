@@ -81,12 +81,19 @@ const JumpSearch: React.FC<SidebarProps> = ({ isOpen, width }) => {
   const searchIconRef = useRef<HTMLDivElement>(null);
   const timelineRef = useRef<gsap.core.Timeline | null>(null);
   const wasPausedRef = useRef<boolean>(false);
-  // const searchIconRef = useRef<HTMLDivElement>(null);
   const propsRef = useRef({ array, speed, searchTarget, isPlaying });
   const [currentPseudoCodeLine, setCurrentPseudoCodeLine] = useState(0);
-  const tabTitles = ["Selection Sort"] as const;
+  const tabTitles = ["Linear Search"] as const;
   const showPseudoCode = 0;
-  const pseudoCode = ["------- selection sort"];
+  const pseudoCode = [
+    [
+      "for index ← 0 to size - 1 do",
+      "    if array[index] = target then",
+      "        return true             // Found",
+      "",
+      "return false                    // Not found",
+    ],
+  ];
   const [showCodePanel, setShowCodePanel] = useState(false);
 
   // Add refs for step management
@@ -149,6 +156,7 @@ const JumpSearch: React.FC<SidebarProps> = ({ isOpen, width }) => {
   const handleToggleCodePanel = () => {
     setShowCodePanel(!showCodePanel);
   };
+
   const removeHighlight = (index: number): gsap.core.Timeline => {
     const element = arrayElementsRef.current[index];
     if (!element) return gsap.timeline();

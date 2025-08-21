@@ -87,7 +87,7 @@ const RadixSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
   const [showCodePanel, setShowCodePanel] = useState(false);
   const tabTitles = ["Selection Sort"] as const;
   const showPseudoCode = 0;
-  const pseudoCode = ["------- selection sort"];
+  const pseudoCode = [["------- selection sort"]];
 
   // Add refs for step management
   const currentStepRef = useRef<number>(0);
@@ -625,7 +625,6 @@ const RadixSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
   const handleToggleCodePanel = () => {
     setShowCodePanel(!showCodePanel);
   };
-
 
   // Fixed playAnimation function
   const playAnimation = (): void => {

@@ -69,7 +69,7 @@ const BubbleSort: React.FC<SidebarProps> = ({ isOpen, width }) => {
   const [currentPseudoCodeLine, setCurrentPseudoCodeLine] = useState(0);
   const tabTitles = ["Selection Sort"] as const;
   const showPseudoCode = 0;
-  const pseudoCode = ["------- selection sort"];
+  const pseudoCode = [["------- selection sort"]];
   const [showCodePanel, setShowCodePanel] = useState(false);
 
   // Add refs for step management

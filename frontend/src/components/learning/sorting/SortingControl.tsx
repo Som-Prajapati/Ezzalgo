@@ -42,7 +42,7 @@ interface SortingControls {
   currentLine?: number;
   tabTitles?: string[];
   showPseudoCode?: number;
-  pseudoCode?: string[];
+  pseudoCode?: string[][];
 }
 
 const SortingControls: React.FC<SortingControls> = ({
@@ -768,7 +768,7 @@ const SortingControls: React.FC<SortingControls> = ({
       </div>
       {showCodePanel && (
         <DraggableCodePanel
-          pseudoCode={pseudoCode ? [pseudoCode] : undefined}
+          pseudoCode={pseudoCode}
           showPseudoCode={showPseudoCode}
           tabTitles={tabTitles}
           showCode={showCodePanel}

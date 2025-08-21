@@ -88,9 +88,7 @@ interface SidebarProps {
 
 const HeapSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
   // Fixed initial array to prevent hydration mismatch
-  const getFixedInitialArray = () => [
-    42, 17, 89, 31, 65, 8
-  ];
+  const getFixedInitialArray = () => [42, 17, 89, 31, 65, 8];
   const initialArray = getFixedInitialArray();
 
   // State management
@@ -116,7 +114,7 @@ const HeapSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
   const [showCodePanel, setShowCodePanel] = useState(false);
   const tabTitles = ["Selection Sort"] as const;
   const showPseudoCode = 0;
-  const pseudoCode = ["------- selection sort"];
+  const pseudoCode = [["------- selection sort"]];
 
   // Add refs for step management
   const currentStepRef = useRef<number>(0);

@@ -41,7 +41,7 @@ interface SortingControls {
   currentLine?: number;
   tabTitles?: string[];
   showPseudoCode?: number;
-  pseudoCode?: string[];
+  pseudoCode?: string[][];
 }
 
 const SearchingControls: React.FC<SortingControls> = ({
@@ -807,6 +807,7 @@ const SearchingControls: React.FC<SortingControls> = ({
                   variant="outline"
                   size="sm"
                   className={`${controlPanelStyles.codeButton} text-s`}
+                  onClick={onToggleCodePanel} // Add this onClick handler
                 >
                   <Code className={`${controlPanelStyles.icon} mr-1`} />
                   Code
@@ -818,7 +819,7 @@ const SearchingControls: React.FC<SortingControls> = ({
       </div>
       {showCodePanel && (
         <DraggableCodePanel
-          pseudoCode={pseudoCode ? [pseudoCode] : undefined}
+          pseudoCode={pseudoCode}
           showPseudoCode={showPseudoCode}
           tabTitles={tabTitles}
           showCode={showCodePanel}

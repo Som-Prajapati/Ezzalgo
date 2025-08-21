@@ -73,7 +73,7 @@ const InsertionSort: React.FC<SidebarProps> = ({
   const totalStepsRef = useRef<number>(0);
   const tabTitles = ["Selection Sort"] as const;
   const showPseudoCode = 0;
-  const pseudoCode = ["------- selection sort"];
+  const pseudoCode = [["------- selection sort"]];
 
   const dynamicSizing = getDynamicSizing(array.length);
   const {
