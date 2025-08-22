@@ -2,6 +2,7 @@
 import React from "react";
 import { useState, useMemo, useRef, useCallback } from "react";
 import JumpSearch from "../searching/JumpSearch";
+import InterpolationSearch from "../searching/InterpolationSearch";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -30,8 +31,10 @@ import BubbleSort from "../sorting/BubbleSort";
 import SelectionSort from "../sorting/SelectionSort";
 import InsertionSort from "../sorting/InsertionSort";
 import HeapSort from "../sorting/HeapSort";
+import RadixSort from "../sorting/RadixSort";
 import LinearSearch from "../searching/LinearSearch";
 import BinarySearch from "../searching/BinarySearch";
+import CountSort from "../sorting/CountSort";
 
 const michroma = Abril_Fatface({
   weight: "400",
@@ -55,8 +58,16 @@ export default function SortingVisualizerApp() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [sidebarWidth, setSidebarWidth] = useState(300);
   const [selectedAlgorithm, setSelectedAlgorithm] = useState<
-    "bubble" | "selection" | "insertion" | "heap" | "jump" | "linear" | "binary"
-  >("heap");
+    | "bubble"
+    | "selection"
+    | "insertion"
+    | "heap"
+    | "jump"
+    | "linear"
+    | "binary"
+    | "radix"
+    | "interpolation"
+  >("linear");
 
   // Control layout specific state
   const [inputWidth, setInputWidth] = useState(256);
@@ -98,7 +109,16 @@ export default function SortingVisualizerApp() {
   };
 
   const handleAlgorithmChange = (
-    algorithm: "bubble" | "selection" | "insertion" | "heap" | "jump" | "linear" | "binary"
+    algorithm:
+      | "bubble"
+      | "selection"
+      | "insertion"
+      | "heap"
+      | "jump"
+      | "interpolation"
+      | "linear"
+      | "binary"
+      | "radix"
   ) => {
     setSelectedAlgorithm(algorithm);
   };
@@ -393,12 +413,6 @@ export default function SortingVisualizerApp() {
           <div className="flex justify-center items-center flex-1 p-4">
             <InsertionSort isOpen={isSidebarOpen} width={sidebarWidth} />
           </div>
-          // <div className="flex justify-center items-center flex-1 p-4">
-          //   <InsertionSort
-          //     isOpen={isSidebarOpen}
-          //     width={sidebarWidth}
-          //   />
-          // </div>
         )}
         {selectedAlgorithm === "selection" && (
           <div className="flex justify-center items-center flex-1 p-4">
@@ -415,6 +429,16 @@ export default function SortingVisualizerApp() {
             <JumpSearch isOpen={isSidebarOpen} width={sidebarWidth} />
           </div>
         )}
+        {selectedAlgorithm === "interpolation" && (
+          <div className="flex justify-center items-center flex-1 p-4">
+            <InterpolationSearch isOpen={isSidebarOpen} width={sidebarWidth} />
+          </div>
+        )}
+        {selectedAlgorithm === "radix" && (
+          <div className="flex justify-center items-center flex-1 p-4">
+            <RadixSort isOpen={isSidebarOpen} width={sidebarWidth} />
+          </div>
+        )}
         {selectedAlgorithm === "linear" && (
           <div className="flex justify-center items-center flex-1 p-4">
             <LinearSearch isOpen={isSidebarOpen} width={sidebarWidth} />
@@ -422,7 +446,7 @@ export default function SortingVisualizerApp() {
         )}
         {selectedAlgorithm === "binary" && (
           <div className="flex justify-center items-center flex-1 p-4">
-            <BinarySearch isOpen={isSidebarOpen} width={sidebarWidth} />
+            <CountSort isOpen={isSidebarOpen} width={sidebarWidth} />
           </div>
         )}
         {/* Control Panel - Inline */}

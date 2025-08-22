@@ -43,7 +43,7 @@ interface SidebarProps {
 
 const InsertionSort: React.FC<SidebarProps> = ({
   isOpen,
-  width
+  width,
 }: SidebarProps) => {
   // Fixed initial array to prevent hydration mismatch
   const getFixedInitialArray = () => [42, 17, 89, 31, 65, 8];
@@ -55,6 +55,7 @@ const InsertionSort: React.FC<SidebarProps> = ({
   const [isAscending, setIsAscending] = useState<boolean>(true);
   const [speed, setSpeed] = useState<number>(1);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
+  const [showCodePanel, setShowCodePanel] = useState(false);
 
   // Refs for DOM elements
   const containerRef = useRef<HTMLDivElement>(null);
@@ -65,10 +66,14 @@ const InsertionSort: React.FC<SidebarProps> = ({
   const timelineRef = useRef<gsap.core.Timeline | null>(null);
   const wasPausedRef = useRef<boolean>(false);
   const propsRef = useRef({ array, speed, isAscending, isPlaying });
+  const [currentPseudoCodeLine, setCurrentPseudoCodeLine] = useState(0);
 
   // Add refs for step management
   const currentStepRef = useRef<number>(0);
   const totalStepsRef = useRef<number>(0);
+  const tabTitles = ["Selection Sort"] as const;
+  const showPseudoCode = 0;
+  const pseudoCode = [["------- selection sort"]];
 
   const dynamicSizing = getDynamicSizing(array.length);
   const {
@@ -143,25 +148,25 @@ const InsertionSort: React.FC<SidebarProps> = ({
     if (elements.length === 0) return gsap.timeline();
 
     const timeline = gsap.timeline();
-         const shadowConfig = {
-       low: "0 0 10px #ffd700, 0 2px 15px rgba(255, 215, 0, 0.3)",
-       high: "0 0 25px rgb(235, 167, 22), 0 4px 30px rgb(247, 155, 15)",
-     };
+    const shadowConfig = {
+      low: "0 0 10px #ffd700, 0 2px 15px rgba(255, 215, 0, 0.3)",
+      high: "0 0 25px rgb(235, 167, 22), 0 4px 30px rgb(247, 155, 15)",
+    };
 
     const glowShadow = shadowConfig[intensity];
     const originalBoxShadow = "0 2px 8px rgba(0, 0, 0, 0.08)";
-    
-         // Color configurations for different intensities
-     const colorConfig = {
-       low: {
-         backgroundColor: "#fff3cd",
-         borderColor: "orange",
-       },
-       high: {
-         backgroundColor: "rgb(246, 222, 178)",
-         borderColor: "red",
-       },
-     };
+
+    // Color configurations for different intensities
+    const colorConfig = {
+      low: {
+        backgroundColor: "#fff3cd",
+        borderColor: "orange",
+      },
+      high: {
+        backgroundColor: "rgb(246, 222, 178)",
+        borderColor: "red",
+      },
+    };
 
     const highlightColors = colorConfig[intensity];
     const originalColors = {
@@ -196,6 +201,10 @@ const InsertionSort: React.FC<SidebarProps> = ({
     });
 
     return timeline;
+  };
+
+  const handleToggleCodePanel = () => {
+    setShowCodePanel(!showCodePanel);
   };
 
   // Play animation
@@ -534,7 +543,6 @@ const InsertionSort: React.FC<SidebarProps> = ({
         currentStepRef.current = 1;
         (timelineRef.current as gsap.core.Timeline).addPause(`step-${1}`);
         wasPausedRef.current = true;
-
       }
       return;
     }
@@ -923,6 +931,7 @@ const InsertionSort: React.FC<SidebarProps> = ({
 
       {/* Controls */}
       <SortingControls
+        limit={150}
         isOpen={isOpen}
         width={width}
         array={array}
@@ -939,6 +948,12 @@ const InsertionSort: React.FC<SidebarProps> = ({
         onReset={handleReset}
         onNextStep={handleNextStep}
         onPreviousStep={handlePreviousStep}
+        showCodePanel={showCodePanel}
+        onToggleCodePanel={handleToggleCodePanel}
+        currentLine={currentPseudoCodeLine}
+        tabTitles={[...tabTitles]}
+        showPseudoCode={showPseudoCode}
+        pseudoCode={pseudoCode}
       />
     </div>
   );

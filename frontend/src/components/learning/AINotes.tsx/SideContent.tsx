@@ -19,7 +19,7 @@ import { BarChart3, Binary, GitBranch, List } from "lucide-react";
 import Link from "next/link";
 // At the top of your component or in a separate fonts file
 import { Abril_Fatface } from "next/font/google";
-import JumpSearch from "../searching/JumpSearch";
+
 
 const michroma = Abril_Fatface({
   weight: "400",
@@ -39,9 +39,27 @@ interface SidebarProps {
   width: number;
   onWidthChange: (width: number) => void;
   onToggle: () => void;
-  selectedAlgorithm?: "bubble" | "selection" | "insertion" | "heap" | "jump" | "linear" | "binary";
+  selectedAlgorithm?:
+    | "bubble"
+    | "selection"
+    | "insertion"
+    | "heap"
+    | "jump"
+    | "linear"
+    | "binary"
+    | "interpolation"
+    | "radix";
   onAlgorithmChange?: (
-    algorithm: "bubble" | "selection" | "insertion" | "heap" | "jump" | "linear" | "binary"
+    algorithm:
+      | "bubble"
+      | "selection"
+      | "insertion"
+      | "heap"
+      | "jump"
+      | "linear"
+      | "binary"
+      | "interpolation"
+      | "radix"
   ) => void;
 }
 
@@ -62,6 +80,7 @@ const menuItems: MenuItem[] = [
       { id: "merge-sort", label: "Merge Sort" },
       { id: "quick-sort", label: "Quick Sort" },
       { id: "heap-sort", label: "Heap Sort" },
+      { id: "radix-sort", label: "Radix Sort" },
     ],
   },
   {
@@ -209,18 +228,22 @@ export default function SideContent({
       "insertion-sort",
       "heap-sort",
       "jump-search",
+      "radix-sort",
       "linear-search",
+      "interpolation-search",
       "binary-search",
     ].includes(item.id);
     const isSelected =
-      isAlgorithmItem &&
-      ((item.id === "bubble-sort" && selectedAlgorithm === "bubble") ||
-        (item.id === "selection-sort" && selectedAlgorithm === "selection") ||
-        (item.id === "insertion-sort" && selectedAlgorithm === "insertion") ||
-        (item.id === "heap-sort" && selectedAlgorithm === "heap") ||
-        (item.id === "jump-search" && selectedAlgorithm === "jump") ||
-        (item.id === "linear-search" && selectedAlgorithm === "linear") ||
-        (item.id === "binary-search" && selectedAlgorithm === "binary"));
+      (isAlgorithmItem &&
+        ((item.id === "bubble-sort" && selectedAlgorithm === "bubble") ||
+          (item.id === "selection-sort" && selectedAlgorithm === "selection") ||
+          (item.id === "insertion-sort" && selectedAlgorithm === "insertion") ||
+          (item.id === "heap-sort" && selectedAlgorithm === "heap") ||
+          (item.id === "jump-search" && selectedAlgorithm === "jump") ||
+          (item.id === "radix-sort" && selectedAlgorithm === "radix"))) ||
+      (item.id === "linear-search" && selectedAlgorithm === "linear") ||
+      (item.id === "interpolation-search" && selectedAlgorithm === "interpolation") ||
+      (item.id === "binary-search" && selectedAlgorithm === "binary");
 
     const handleItemClick = () => {
       if (hasChildren) {
@@ -229,15 +252,25 @@ export default function SideContent({
         // Map the menu item IDs to algorithm names
         const algorithmMap: Record<
           string,
-          "bubble" | "selection" | "insertion" | "heap" | "jump" | "linear" | "binary"
+          | "bubble"
+          | "selection"
+          | "insertion"
+          | "heap"
+          | "jump"
+          | "linear"
+          | "binary"
+          | "interpolation"
+          | "radix"
         > = {
           "bubble-sort": "bubble",
           "selection-sort": "selection",
           "insertion-sort": "insertion",
           "heap-sort": "heap",
           "jump-search": "jump",
+          "radix-sort": "radix",
+          "interpolation-search": "interpolation",
           "linear-search": "linear",
-          "binary-search": "binary"
+          "binary-search": "binary",
         };
         const algorithm = algorithmMap[item.id];
         if (algorithm) {
@@ -303,7 +336,9 @@ export default function SideContent({
               {selectedAlgorithm === "insertion" && "Insertion Sort"}
               {selectedAlgorithm === "heap" && "Heap Sort"}
               {selectedAlgorithm === "jump" && "Jump Search"}
+              {selectedAlgorithm === "radix" && "Radix Sort"}
               {selectedAlgorithm === "linear" && "Linear Search"}
+              {selectedAlgorithm === "interpolation" && "Interpolation Search"}
               {selectedAlgorithm === "binary" && "Binary Search"}
               {/* Default title if no algorithm is selected */}
               {!selectedAlgorithm ||

@@ -12,6 +12,7 @@ const getDynamicSizing = (arrayLength: number) => {
       BOX_GAP: 16,
       BOX_BORDER_RADIUS: 12,
       BOX_FONT_SIZE: 20,
+      NODE_FONT_SIZE: 16,
       ARROW_SIZE: 8,
       ARROW_FONT_SIZE: 16,
       ECLIPSE_HEIGHT: 80,
@@ -37,11 +38,11 @@ const getDynamicSizing = (arrayLength: number) => {
       BOX_GAP: 8,
       BOX_BORDER_RADIUS: 8,
       BOX_FONT_SIZE: 14,
+      NODE_FONT_SIZE: 14,
       ARROW_SIZE: 6,
       ARROW_FONT_SIZE: 12,
       ECLIPSE_HEIGHT: 60,
       ECLIPSE_HEIGHT_NODE: 30,
-
       TOTAL_BOX_SPACING: 50 + 8,
       ARROW_Y_OFFSET_DOWN: (50 * 2.4) / 2,
       ARROW_X_OFFSET: 50 / 2,
@@ -63,6 +64,7 @@ const getDynamicSizing = (arrayLength: number) => {
       BOX_GAP: 6,
       BOX_BORDER_RADIUS: 6,
       BOX_FONT_SIZE: 12,
+      NODE_FONT_SIZE: 12,
       ARROW_SIZE: 5,
       ARROW_FONT_SIZE: 10,
       ECLIPSE_HEIGHT: 50,
@@ -88,14 +90,12 @@ interface SidebarProps {
 
 const HeapSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
   // Fixed initial array to prevent hydration mismatch
-  const getFixedInitialArray = () => [
-    42, 17, 89, 31, 65, 8, 23, 56, 91, 12, 78, 34, 67, 45, 19, 83,
-  ];
+  const getFixedInitialArray = () => [42, 17, 89, 31, 65, 8];
   const initialArray = getFixedInitialArray();
 
   // State management
   const [array, setArray] = useState<number[]>(initialArray);
-  const [arraySize, setArraySize] = useState<number>(16);
+  const [arraySize, setArraySize] = useState<number>(6);
   const [isAscending, setIsAscending] = useState<boolean>(true);
   const [speed, setSpeed] = useState<number>(1);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
@@ -111,6 +111,12 @@ const HeapSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
   const propsRef = useRef({ array, speed, isAscending, isPlaying });
   const svgRef = useRef<SVGSVGElement>(null);
   const heapTreeLabelRef = useRef<HTMLDivElement | null>(null);
+  const [currentPseudoCodeLine, setCurrentPseudoCodeLine] = useState(0);
+
+  const [showCodePanel, setShowCodePanel] = useState(false);
+  const tabTitles = ["Selection Sort"] as const;
+  const showPseudoCode = 0;
+  const pseudoCode = [["------- selection sort"]];
 
   // Add refs for step management
   const currentStepRef = useRef<number>(0);
@@ -123,6 +129,7 @@ const HeapSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
     BOX_GAP,
     BOX_BORDER_RADIUS,
     BOX_FONT_SIZE,
+    NODE_FONT_SIZE,
     ECLIPSE_HEIGHT,
     TOTAL_BOX_SPACING,
     TOP_OFFSET,
@@ -275,9 +282,9 @@ const HeapSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
       timeline.to(
         node,
         {
-          backgroundColor: "",
-          borderColor: "",
-          boxShadow: "",
+          backgroundColor: "#fff",
+          borderColor: "#007bff",
+          boxShadow: "0 2px 8px rgba(0, 0, 0, 0.08)",
           duration: 0.3,
           ease: "power2.out",
         },
@@ -819,6 +826,10 @@ const HeapSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
     return { x: baseX, y };
   };
 
+  const handleToggleCodePanel = () => {
+    setShowCodePanel(!showCodePanel);
+  };
+
   // Function to create a styled node for the heap tree
   const createHeapNode = (
     value: number,
@@ -840,7 +851,7 @@ const HeapSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
     node.style.alignItems = "center";
     node.style.justifyContent = "center";
     node.style.fontWeight = "bold";
-    node.style.fontSize = `${BOX_FONT_SIZE}px`;
+    node.style.fontSize = `${NODE_FONT_SIZE}px`;
     node.style.boxShadow = "0 2px 8px rgba(0,0,0,0.10)";
     node.style.transition = "all 0.3s ease";
     node.style.zIndex = "2";
@@ -1145,7 +1156,7 @@ const HeapSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
           node,
           {
             backgroundColor: "#e0e0e0",
-            color: "#888",
+            // color: "#888",
             duration: 0.2,
             overwrite: "auto",
           },
@@ -1349,18 +1360,6 @@ const HeapSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
         })
       );
     }
-    // Make the heap tree label visible with a fade-in animation
-    if (heapTreeLabelRef.current) {
-      gsap.set(heapTreeLabelRef.current, { opacity: 0, y: 0 });
-      mainTimeline.add(
-        gsap.to(heapTreeLabelRef.current, {
-          opacity: 1,
-          y: 0,
-          duration: 0.5,
-          ease: "power2.out",
-        })
-      );
-    }
 
     // Remove any previous nodes from DOM (defensive, should be handled in reset)
     if (arrayNodeRef.current) {
@@ -1384,8 +1383,19 @@ const HeapSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
 
     // Store node elements for later reference
     arrayNodeRef.current = [];
-
-    // Add a label for this step using stepIndex, then increment stepIndex
+    mainTimeline.to({}, { duration: 1 }); // Add a 1 second delay
+    // Make the heap tree label visible with a fade-in animation
+    if (heapTreeLabelRef.current) {
+      gsap.set(heapTreeLabelRef.current, { opacity: 0, y: 0 });
+      mainTimeline.add(
+        gsap.to(heapTreeLabelRef.current, {
+          opacity: 1,
+          y: 0,
+          duration: 0.5,
+          ease: "power2.out",
+        })
+      );
+    }
 
     // Create all nodes for the heap tree
     for (let i = 0; i < n; i++) {
@@ -1679,8 +1689,29 @@ const HeapSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
       if (timelineRef.current) {
         timelineRef.current.timeScale(temp);
       }
+
       wasPausedRef.current = true;
+
+      // INSERT_YOUR_CODE
+      if (propsRef.current.isPlaying) {
+        setTimeout(() => {
+          if (timelineRef.current) {
+            timelineRef.current.play();
+          }
+          wasPausedRef.current = false;
+        }, 100); // Add a 100ms delay before playing
+      }
     }
+
+  // INSERT_YOUR_CODE
+  // When at step 0, set all heap edges' opacity to 0
+  if (currentStepRef.current === 0 && edgeRefs.current) {
+    edgeRefs.current.forEach((edge) => {
+      if (edge instanceof SVGLineElement) {
+        edge.setAttribute("opacity", "0");
+      }
+    });
+  }
   };
 
   // Control handlers
@@ -1869,7 +1900,7 @@ const HeapSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
         style={{
           position: "absolute",
           left: isOpen ? `calc(50% + ${width / 2}px)` : "50%",
-          top: "22%",
+          top: "27%",
           transform: "translateX(-50%)",
           fontFamily: "system-ui, -apple-system, sans-serif",
           fontSize: "18px",
@@ -1893,9 +1924,9 @@ const HeapSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
           transform: "translateX(-50%)",
           width: "70%",
           height: array.length > 9 ? "60%" : "50%",
-          border: "2px solid #e9ecef",
+          // border: "2px solid #e9ecef",
           borderRadius: "8px",
-          backgroundColor: "#ffffff",
+          // backgroundColor: "#ffffff",
           pointerEvents: "none",
           opacity: 1,
         }}
@@ -1905,6 +1936,7 @@ const HeapSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
 
       {/* Controls */}
       <SortingControls
+        limit={150}
         isOpen={isOpen}
         width={width}
         array={array}
@@ -1921,6 +1953,12 @@ const HeapSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
         onReset={handleReset}
         onNextStep={handleNextStep}
         onPreviousStep={handlePreviousStep}
+        showCodePanel={showCodePanel}
+        onToggleCodePanel={handleToggleCodePanel}
+        currentLine={currentPseudoCodeLine}
+        tabTitles={[...tabTitles]}
+        showPseudoCode={showPseudoCode}
+        pseudoCode={pseudoCode}
       />
     </div>
   );

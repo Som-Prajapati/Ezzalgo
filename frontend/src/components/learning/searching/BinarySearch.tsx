@@ -36,7 +36,10 @@ interface SidebarProps {
   width: number;
 }
 
-const BinarySearch: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
+const BinarySearch: React.FC<SidebarProps> = ({
+  isOpen,
+  width,
+}: SidebarProps) => {
   // Initial array (must be sorted for binary search)
   const initialArray = [8, 17, 31, 42, 65, 89];
   const [searchValue, setSearchValue] = useState<number>(65);
@@ -55,7 +58,7 @@ const BinarySearch: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) =
   const pointerRefs = useRef({
     low: useRef<HTMLDivElement>(null),
     mid: useRef<HTMLDivElement>(null),
-    high: useRef<HTMLDivElement>(null)
+    high: useRef<HTMLDivElement>(null),
   });
   const timelineRef = useRef<gsap.core.Timeline | null>(null);
   const wasPausedRef = useRef<boolean>(false);
@@ -410,7 +413,7 @@ const playAnimation = (): void => {
             backgroundColor: "#f8d7da",
             borderColor: "#f5c6cb",
             scale: 1.1,
-            duration: 0.8
+            duration: 0.8,
           });
         }
       }, [], `step-${currentStep}+=1.0`);
@@ -766,13 +769,13 @@ const resetAnimation = (): void => {
           <div
             ref={foundElementRef}
             style={{
-              position: 'absolute',
+              position: "absolute",
               top: 0,
               left: 0,
-              height: '100%',
-              width: '100%',
-              pointerEvents: 'none',
-              zIndex: 999
+              height: "100%",
+              width: "100%",
+              pointerEvents: "none",
+              zIndex: 999,
             }}
           >
             {/* This is where the animated element will be temporarily placed */}
@@ -794,7 +797,7 @@ const resetAnimation = (): void => {
               transition: "all 0.3s ease",
               boxShadow: "0 2px 8px rgba(0, 0, 0, 0.08)",
               marginBottom: "20px",
-              opacity: 0.7
+              opacity: 0.7,
             }}
           >
             {searchValue}
@@ -866,19 +869,25 @@ const resetAnimation = (): void => {
                 // y: 100
               }}
             >
-              <div style={{
-                width: 0,
-                height: 0,
-                borderLeft: "8px solid transparent",
-                borderRight: "8px solid transparent",
-                borderTop: "12px solid #ff6b6b"
-              }}></div>
-              <span style={{
-                fontSize: "14px",
-                fontWeight: "600",
-                color: "#ff6b6b",
-                marginTop: "4px"
-              }}>Low</span>
+              <div
+                style={{
+                  width: 0,
+                  height: 0,
+                  borderLeft: "8px solid transparent",
+                  borderRight: "8px solid transparent",
+                  borderTop: "12px solid #ff6b6b",
+                }}
+              ></div>
+              <span
+                style={{
+                  fontSize: "14px",
+                  fontWeight: "600",
+                  color: "#ff6b6b",
+                  marginTop: "4px",
+                }}
+              >
+                Low
+              </span>
             </div>
 
             {/* Mid Pointer */}
@@ -897,19 +906,25 @@ const resetAnimation = (): void => {
                 // y: 100
               }}
             >
-              <div style={{
-                width: 0,
-                height: 0,
-                borderLeft: "8px solid transparent",
-                borderRight: "8px solid transparent",
-                borderTop: "12px solid #4ecdc4"
-              }}></div>
-              <span style={{
-                fontSize: "14px",
-                fontWeight: "600",
-                color: "#4ecdc4",
-                marginTop: "4px"
-              }}>Mid</span>
+              <div
+                style={{
+                  width: 0,
+                  height: 0,
+                  borderLeft: "8px solid transparent",
+                  borderRight: "8px solid transparent",
+                  borderTop: "12px solid #4ecdc4",
+                }}
+              ></div>
+              <span
+                style={{
+                  fontSize: "14px",
+                  fontWeight: "600",
+                  color: "#4ecdc4",
+                  marginTop: "4px",
+                }}
+              >
+                Mid
+              </span>
             </div>
 
             {/* High Pointer */}
@@ -928,19 +943,25 @@ const resetAnimation = (): void => {
                 // y: 100
               }}
             >
-              <div style={{
-                width: 0,
-                height: 0,
-                borderLeft: "8px solid transparent",
-                borderRight: "8px solid transparent",
-                borderTop: "12px solid #45b7d1"
-              }}></div>
-              <span style={{
-                fontSize: "14px",
-                fontWeight: "600",
-                color: "#45b7d1",
-                marginTop: "4px"
-              }}>High</span>
+              <div
+                style={{
+                  width: 0,
+                  height: 0,
+                  borderLeft: "8px solid transparent",
+                  borderRight: "8px solid transparent",
+                  borderTop: "12px solid #45b7d1",
+                }}
+              ></div>
+              <span
+                style={{
+                  fontSize: "14px",
+                  fontWeight: "600",
+                  color: "#45b7d1",
+                  marginTop: "4px",
+                }}
+              >
+                High
+              </span>
             </div>
           </div>
 
@@ -968,13 +989,15 @@ const resetAnimation = (): void => {
           </div>
 
           {/* Search Buttons */}
-          <div style={{
-            display: "flex",
-            gap: "16px",
-            marginTop: "2rem",
-            flexWrap: "wrap",
-            justifyContent: "center"
-          }}>
+          <div
+            style={{
+              display: "flex",
+              gap: "16px",
+              marginTop: "2rem",
+              flexWrap: "wrap",
+              justifyContent: "center",
+            }}
+          >
             <button
               onClick={searchForArrayElement}
               style={{
@@ -990,7 +1013,7 @@ const resetAnimation = (): void => {
                 boxShadow: "0 1px 2px 0 rgb(0 0 0 / 0.05)",
                 display: "flex",
                 alignItems: "center",
-                gap: "8px"
+                gap: "8px",
               }}
               disabled={isSearching}
               onMouseOver={(e) => {
@@ -1003,16 +1026,28 @@ const resetAnimation = (): void => {
               }}
               onMouseDown={(e) => {
                 e.currentTarget.style.transform = "scale(0.98)";
-                e.currentTarget.style.boxShadow = "0 0 0 1px hsl(240, 5.9%, 10%)";
+                e.currentTarget.style.boxShadow =
+                  "0 0 0 1px hsl(240, 5.9%, 10%)";
               }}
               onMouseUp={(e) => {
                 e.currentTarget.style.transform = "scale(1)";
-                e.currentTarget.style.boxShadow = "0 1px 2px 0 rgb(0 0 0 / 0.05)";
+                e.currentTarget.style.boxShadow =
+                  "0 1px 2px 0 rgb(0 0 0 / 0.05)";
               }}
             >
-              <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M7.49991 0.876892C3.84222 0.876892 0.877075 3.84204 0.877075 7.49972C0.877075 11.1574 3.84222 14.1226 7.49991 14.1226C11.1576 14.1226 14.1227 11.1574 14.1227 7.49972C14.1227 3.84204 11.1576 0.876892 7.49991 0.876892ZM1.82707 7.49972C1.82707 4.36671 4.36689 1.82689 7.49991 1.82689C10.6329 1.82689 13.1727 4.36671 13.1727 7.49972C13.1727 10.6327 10.6329 13.1726 7.49991 13.1726C4.36689 13.1726 1.82707 10.6327 1.82707 7.49972ZM7.50003 4C7.77617 4 8.00003 4.22386 8.00003 4.5V7.5C8.00003 7.77614 7.77617 8 7.50003 8C7.22389 8 7.00003 7.77614 7.00003 7.5V4.5C7.00003 4.22386 7.22389 4 7.50003 4Z"
-                  fill="currentColor" fillRule="evenodd" clipRule="evenodd"></path>
+              <svg
+                width="15"
+                height="15"
+                viewBox="0 0 15 15"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M7.49991 0.876892C3.84222 0.876892 0.877075 3.84204 0.877075 7.49972C0.877075 11.1574 3.84222 14.1226 7.49991 14.1226C11.1576 14.1226 14.1227 11.1574 14.1227 7.49972C14.1227 3.84204 11.1576 0.876892 7.49991 0.876892ZM1.82707 7.49972C1.82707 4.36671 4.36689 1.82689 7.49991 1.82689C10.6329 1.82689 13.1727 4.36671 13.1727 7.49972C13.1727 10.6327 10.6329 13.1726 7.49991 13.1726C4.36689 13.1726 1.82707 10.6327 1.82707 7.49972ZM7.50003 4C7.77617 4 8.00003 4.22386 8.00003 4.5V7.5C8.00003 7.77614 7.77617 8 7.50003 8C7.22389 8 7.00003 7.77614 7.00003 7.5V4.5C7.00003 4.22386 7.22389 4 7.50003 4Z"
+                  fill="currentColor"
+                  fillRule="evenodd"
+                  clipRule="evenodd"
+                ></path>
               </svg>
               Find in Array
             </button>
@@ -1031,7 +1066,7 @@ const resetAnimation = (): void => {
                 boxShadow: "0 1px 2px 0 rgb(0 0 0 / 0.05)",
                 display: "flex",
                 alignItems: "center",
-                gap: "8px"
+                gap: "8px",
               }}
               disabled={isSearching}
               onMouseOver={(e) => {
@@ -1044,11 +1079,13 @@ const resetAnimation = (): void => {
               }}
               onMouseDown={(e) => {
                 e.currentTarget.style.transform = "scale(0.98)";
-                e.currentTarget.style.boxShadow = "0 0 0 1px hsl(240, 5.9%, 90%)";
+                e.currentTarget.style.boxShadow =
+                  "0 0 0 1px hsl(240, 5.9%, 90%)";
               }}
               onMouseUp={(e) => {
                 e.currentTarget.style.transform = "scale(1)";
-                e.currentTarget.style.boxShadow = "0 1px 2px 0 rgb(0 0 0 / 0.05)";
+                e.currentTarget.style.boxShadow =
+                  "0 1px 2px 0 rgb(0 0 0 / 0.05)";
               }}
             >
               <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -1072,7 +1109,7 @@ const resetAnimation = (): void => {
         isPlaying={isPlaying}
         onArrayChange={handleArrayChange}
         onArraySizeChange={handleArraySizeChange}
-        onSortOrderChange={() => { }}
+        onSortOrderChange={() => {}}
         onSpeedChange={handleSpeedChange}
         onPlay={handlePlay}
         onPause={handlePause}
