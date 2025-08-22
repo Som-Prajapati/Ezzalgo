@@ -39,7 +39,7 @@ interface SidebarProps {
 const BinarySearch: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
   // Initial array (must be sorted for binary search)
   const initialArray = [8, 17, 31, 42, 65, 89];
-  const [searchValue, setSearchValue] = useState<number>(31);
+  const [searchValue, setSearchValue] = useState<number>(65);
   const [foundIndex, setFoundIndex] = useState<number>(-1);
 
   // State management
