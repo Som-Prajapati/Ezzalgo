@@ -43,11 +43,11 @@ const getDynamicSizing = (arrayLength: number) => {
       TOTAL_BOX_SPACING: 55 + 10,
       ARROW_Y_OFFSET_DOWN: (55 * 2.4) / 2,
       ARROW_X_OFFSET: 55 / 2,
-      IMAGE_HEIGHT: 200,
-      IMAGE_WIDTH: 200,
+      IMAGE_HEIGHT: 70,
+      IMAGE_WIDTH: 70,
       INDEX_FONT_SIZE: 12,
       INDEX_Y_OFFSET: 70,
-      SEARCH_LEFT: 40 * 1.3,
+      SEARCH_LEFT: 27 * 1.3,
       SEARCH_TOP: -80,
       ARC_HEIGHT: 60,
     };
@@ -81,8 +81,20 @@ const JumpSearch: React.FC<SidebarProps> = ({ isOpen, width }) => {
   const searchIconRef = useRef<HTMLDivElement>(null);
   const timelineRef = useRef<gsap.core.Timeline | null>(null);
   const wasPausedRef = useRef<boolean>(false);
-  // const searchIconRef = useRef<HTMLDivElement>(null);
   const propsRef = useRef({ array, speed, searchTarget, isPlaying });
+  const [currentPseudoCodeLine, setCurrentPseudoCodeLine] = useState(0);
+  const tabTitles = ["Linear Search"] as const;
+  const showPseudoCode = 0;
+  const pseudoCode = [
+    [
+      "for index ← 0 to size - 1 do",
+      "    if array[index] = target then",
+      "        return true             // Found",
+      "",
+      "return false                    // Not found",
+    ],
+  ];
+  const [showCodePanel, setShowCodePanel] = useState(false);
 
   // Add refs for step management
   const currentStepRef = useRef<number>(0);
@@ -140,6 +152,9 @@ const JumpSearch: React.FC<SidebarProps> = ({ isOpen, width }) => {
     });
 
     return timeline;
+  };
+  const handleToggleCodePanel = () => {
+    setShowCodePanel(!showCodePanel);
   };
 
   const removeHighlight = (index: number): gsap.core.Timeline => {
@@ -470,9 +485,8 @@ const JumpSearch: React.FC<SidebarProps> = ({ isOpen, width }) => {
 
     timelineRef.current = mainTimeline;
   };
+
   const nextStep = (): void => {
-    console.log("Current step:", currentStepRef.current);
-    console.log("Total steps:", totalStepsRef.current);
     if (!timelineRef.current) {
       playAnimation();
       if (timelineRef.current) {
@@ -495,8 +509,6 @@ const JumpSearch: React.FC<SidebarProps> = ({ isOpen, width }) => {
       (timelineRef.current as gsap.core.Timeline).addPause(
         `step-${currentStepRef.current}`,
         () => {
-          // Reset speed back to original and resume playing using setTimeout
-          // to break out of the current call stack
           setTimeout(() => {
             if (timelineRef.current) {
               timelineRef.current.timeScale(temp);
@@ -506,6 +518,7 @@ const JumpSearch: React.FC<SidebarProps> = ({ isOpen, width }) => {
           }, 0);
         }
       );
+      // setIsPlaying(false);
     } else {
       if (currentStepRef.current <= totalStepsRef.current) {
         (timelineRef.current as gsap.core.Timeline).play();
@@ -620,7 +633,18 @@ const JumpSearch: React.FC<SidebarProps> = ({ isOpen, width }) => {
       if (timelineRef.current) {
         timelineRef.current.timeScale(temp);
       }
+
       wasPausedRef.current = true;
+
+      // INSERT_YOUR_CODE
+      if (propsRef.current.isPlaying) {
+        setTimeout(() => {
+          if (timelineRef.current) {
+            timelineRef.current.play();
+          }
+          wasPausedRef.current = false;
+        }, 100); // Add a 100ms delay before playing
+      }
     }
   };
 
@@ -887,6 +911,12 @@ const JumpSearch: React.FC<SidebarProps> = ({ isOpen, width }) => {
         onReset={handleReset}
         onNextStep={handleNextStep}
         onPreviousStep={handlePreviousStep}
+        showCodePanel={showCodePanel}
+        onToggleCodePanel={handleToggleCodePanel}
+        currentLine={currentPseudoCodeLine}
+        tabTitles={[...tabTitles]}
+        showPseudoCode={showPseudoCode}
+        pseudoCode={pseudoCode}
       />
     </div>
   );

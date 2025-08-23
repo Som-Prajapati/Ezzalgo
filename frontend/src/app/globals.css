@@ -130,3 +130,12 @@
     transform: rotate(360deg);
   }
 }
+
+/* Add to your global styles or component */
+.draggable-code-panel {
+  z-index: 1001 !important;
+}
+
+.floating-controls {
+  z-index: 1000;
+}

@@ -45,7 +45,7 @@ const getDynamicSizing = (arrayLength: number) => {
       IMAGE_WIDTH: 70,
       INDEX_FONT_SIZE: 12,
       INDEX_Y_OFFSET: 70,
-      SEARCH_LEFT: 40 * 1.3,
+      SEARCH_LEFT: 27 * 1.3,
       SEARCH_TOP: -80,
       ARC_HEIGHT: 60,
     };
@@ -80,6 +80,28 @@ const InterpolationSearch: React.FC<SidebarProps> = ({ isOpen, width }) => {
   const timelineRef = useRef<gsap.core.Timeline | null>(null);
   const wasPausedRef = useRef<boolean>(false);
   const propsRef = useRef({ array, speed, searchTarget, isPlaying });
+  const [currentPseudoCodeLine, setCurrentPseudoCodeLine] = useState(0);
+  const tabTitles = ["Selection Sort"] as const;
+  const showPseudoCode = 0;
+  const pseudoCode = [
+    [
+      "low ← 0",
+      "high ← size - 1",
+      "",
+      "while low ≤ high AND target ≥ array[low] AND target ≤ array[high] do",
+      "    pos ← low + ((target - array[low]) * (high - low)) / (array[high] - array[low])",
+      "",
+      "    if array[pos] = target then",
+      "        return array[pos]          // Return the element itself",
+      "    else if array[pos] < target then",
+      "        low ← pos + 1",
+      "    else",
+      "        high ← pos - 1",
+      "",
+      "return null                        // Target not found",
+    ],
+  ];
+  const [showCodePanel, setShowCodePanel] = useState(false);
 
   // Add refs for step management
   const currentStepRef = useRef<number>(0);
@@ -242,6 +264,11 @@ const InterpolationSearch: React.FC<SidebarProps> = ({ isOpen, width }) => {
     });
 
     return timeline;
+  };
+
+  // Calculate the center position of an array element
+  const getElementCenterPosition = (index: number) => {
+    return index * TOTAL_BOX_SPACING + BOX_WIDTH / 2;
   };
 
   const showInterpolationFormula = (
@@ -443,8 +470,7 @@ const InterpolationSearch: React.FC<SidebarProps> = ({ isOpen, width }) => {
           mainTimeline.add(teleportToPosition(searchIconRef.current, 0, 0.8));
         }
         mainTimeline.add(highlightBoxe(0), "+=0.1");
-        mainTimeline.add(removeHighlight(0) , "+=0.3");
-        
+        mainTimeline.add(removeHighlight(0), "+=0.3");
       } else {
         // In descending, icon is already at last index (min), so just highlight it
         if (searchIconRef.current) {
@@ -453,8 +479,7 @@ const InterpolationSearch: React.FC<SidebarProps> = ({ isOpen, width }) => {
           );
         }
         mainTimeline.add(highlightBoxe(n - 1), "+=0.1");
-        mainTimeline.add(removeHighlight(n - 1) , "+=0.3");
-
+        mainTimeline.add(removeHighlight(n - 1), "+=0.3");
       }
       for (let i = 0; i < n; i++) {
         mainTimeline.add(greyOutElement(i), i === 0 ? "+=0.1" : "-=0.2");
@@ -515,16 +540,14 @@ const InterpolationSearch: React.FC<SidebarProps> = ({ isOpen, width }) => {
           );
         }
         mainTimeline.add(highlightBoxe(n - 1), "+=0.1");
-        mainTimeline.add(removeHighlight(n - 1) , "+=0.3");
-
+        mainTimeline.add(removeHighlight(n - 1), "+=0.3");
       } else {
         // In descending, icon is already at index 0 (max), so just highlight it
         if (searchIconRef.current) {
           mainTimeline.add(teleportToPosition(searchIconRef.current, 0, 0.8));
         }
         mainTimeline.add(highlightBoxe(0), "+=0.1");
-        mainTimeline.add(removeHighlight(0) , "+=0.3");
-
+        mainTimeline.add(removeHighlight(0), "+=0.3");
       }
       for (let i = 0; i < n; i++) {
         mainTimeline.add(greyOutElement(i), i === 0 ? "+=0.1" : "-=0.2");
@@ -581,8 +604,7 @@ const InterpolationSearch: React.FC<SidebarProps> = ({ isOpen, width }) => {
 
       // Highlight the element at calculated position
       mainTimeline.add(highlightBoxe(pos), "+=0.2");
-      mainTimeline.add(removeHighlight(pos) , "+=0.3");
-
+      mainTimeline.add(removeHighlight(pos), "+=0.3");
 
       // Check if target is found
       if (arr[pos] === searchTarget) {
@@ -725,9 +747,10 @@ const InterpolationSearch: React.FC<SidebarProps> = ({ isOpen, width }) => {
     timelineRef.current = mainTimeline;
   };
 
+  const handleToggleCodePanel = () => {
+    setShowCodePanel(!showCodePanel);
+  };
   const nextStep = (): void => {
-    console.log("Current step:", currentStepRef.current);
-    console.log("Total steps:", totalStepsRef.current);
     if (!timelineRef.current) {
       playAnimation();
       if (timelineRef.current) {
@@ -750,8 +773,6 @@ const InterpolationSearch: React.FC<SidebarProps> = ({ isOpen, width }) => {
       (timelineRef.current as gsap.core.Timeline).addPause(
         `step-${currentStepRef.current}`,
         () => {
-          // Reset speed back to original and resume playing using setTimeout
-          // to break out of the current call stack
           setTimeout(() => {
             if (timelineRef.current) {
               timelineRef.current.timeScale(temp);
@@ -761,6 +782,7 @@ const InterpolationSearch: React.FC<SidebarProps> = ({ isOpen, width }) => {
           }, 0);
         }
       );
+      // setIsPlaying(false);
     } else {
       if (currentStepRef.current <= totalStepsRef.current) {
         (timelineRef.current as gsap.core.Timeline).play();
@@ -888,7 +910,18 @@ const InterpolationSearch: React.FC<SidebarProps> = ({ isOpen, width }) => {
       if (timelineRef.current) {
         timelineRef.current.timeScale(temp);
       }
+
       wasPausedRef.current = true;
+
+      // INSERT_YOUR_CODE
+      if (propsRef.current.isPlaying) {
+        setTimeout(() => {
+          if (timelineRef.current) {
+            timelineRef.current.play();
+          }
+          wasPausedRef.current = false;
+        }, 100); // Add a 100ms delay before playing
+      }
     }
   };
 
@@ -1238,6 +1271,7 @@ const InterpolationSearch: React.FC<SidebarProps> = ({ isOpen, width }) => {
 
       {/* Controls */}
       <SearchingControls
+        randomOnly={false}
         isOpen={isOpen}
         width={width}
         array={array}
@@ -1254,6 +1288,12 @@ const InterpolationSearch: React.FC<SidebarProps> = ({ isOpen, width }) => {
         onReset={handleReset}
         onNextStep={handleNextStep}
         onPreviousStep={handlePreviousStep}
+        showCodePanel={showCodePanel}
+        onToggleCodePanel={handleToggleCodePanel}
+        currentLine={currentPseudoCodeLine}
+        tabTitles={[...tabTitles]}
+        showPseudoCode={showPseudoCode}
+        pseudoCode={pseudoCode}
       />
     </div>
   );

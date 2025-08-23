@@ -70,6 +70,11 @@ const CountSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
   const [isAscending, setIsAscending] = useState<boolean>(true);
   const [speed, setSpeed] = useState<number>(1);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
+  const [currentPseudoCodeLine, setCurrentPseudoCodeLine] = useState(0);
+  const tabTitles = ["Selection Sort"] as const;
+  const showPseudoCode = 0;
+  const pseudoCode = [["------- selection sort"]];
+  const [showCodePanel, setShowCodePanel] = useState(false);
 
   const highlightStateRef = useRef<
     Map<number, { elementIndex: number; type: string }>
@@ -1088,8 +1093,9 @@ const CountSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
     // Note: Removed the countLabelRef array reset as countLabelRef is a DOM element ref, not an array
     // The count array logic is handled within the animation, not stored in refs
   };
-  // const nextStep = (): void => {
-  //   console.log("currentStepRef.current:", currentStepRef.current);
+  const handleToggleCodePanel = () => {
+    setShowCodePanel(!showCodePanel);
+  };
 
   //   if (!timelineRef.current) {
   //     playAnimation();
@@ -1559,6 +1565,12 @@ const CountSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
         onReset={handleReset}
         onNextStep={handleNextStep}
         onPreviousStep={handlePreviousStep}
+        showCodePanel={showCodePanel}
+        onToggleCodePanel={handleToggleCodePanel}
+        currentLine={currentPseudoCodeLine}
+        tabTitles={[...tabTitles]}
+        showPseudoCode={showPseudoCode}
+        pseudoCode={pseudoCode}
       />
     </div>
   );
