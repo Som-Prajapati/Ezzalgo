@@ -120,10 +120,7 @@ export default function SideContent({
   const [dragStartX, setDragStartX] = useState(0);
   const [dragStartWidth, setDragStartWidth] = useState(0);
   const [activeTab, setActiveTab] = useState("docs");
-  const [expandedItems, setExpandedItems] = useState<string[]>([
-    "sorting-algorithms",
-    "trees",
-  ]);
+  const [expandedItem, setExpandedItem] = useState<string | null>("sorting-algorithms");
   const [searchQuery, setSearchQuery] = useState("");
 
   // Filter menu items based on search
@@ -151,11 +148,40 @@ export default function SideContent({
     };
     return filterItems(menuItems);
   }, [searchQuery]);
+  // Auto-expand dropdown when searching for algorithms
+  useEffect(() => {
+    if (searchQuery) {
+      // Find which parent dropdown contains the search result
+      const findParentWithMatchingChild = (items: MenuItem[]): string | null => {
+        for (const item of items) {
+          if (item.children) {
+            const hasMatchingChild = item.children.some(child =>
+              child.label.toLowerCase().includes(searchQuery.toLowerCase())
+            );
+            if (hasMatchingChild) {
+              return item.id;
+            }
+          }
+        }
+        return null;
+      };
+      
+      const parentToExpand = findParentWithMatchingChild(menuItems);
+      if (parentToExpand) {
+        setExpandedItem(parentToExpand);
+      }
+    }
+  }, [searchQuery]);
 
-  const toggleExpanded = (item: string) => {
-    setExpandedItems((prev) =>
-      prev.includes(item) ? prev.filter((i) => i !== item) : [...prev, item]
-    );
+  const toggleExpanded = (itemId: string) => {
+    setExpandedItem(prev => {
+      // If clicking on the currently expanded item, collapse it
+      if (prev === itemId) {
+        return null;
+      }
+      // Otherwise, expand the clicked item (and collapse any other)
+      return itemId;
+    });
   };
 
   // Sidebar drag handlers
@@ -218,7 +244,7 @@ export default function SideContent({
   }, [isDragging, dragStartX, dragStartWidth]);
 
   const renderMenuItem = (item: MenuItem, level = 0) => {
-    const isExpanded = expandedItems.includes(item.id);
+    const isExpanded = expandedItem === item.id;
     const hasChildren = item.children && item.children.length > 0;
 
     // Check if this is a sorting algorithm item
@@ -279,11 +305,20 @@ export default function SideContent({
       }
     };
 
+    // This code defines the rendering of a single menu item (and its children, if any) in a sidebar navigation menu.
+    // It visually represents each item, handles selection highlighting, expansion/collapse for items with children,
+    // and triggers the appropriate click handler for navigation or expansion.
+
+    // The menu item is indented based on its nesting level, shows an icon if present, and displays a chevron
+    // for expandable items. If the item is selected, it is highlighted. If the item has children and is expanded,
+    // it recursively renders its children.
+
     return (
-      <div key={item.id} className="select-none">
+      <div key={item.id} className="select-none" >
         <div
-          className={`flex items-center justify-between px-2 py-1.5 rounded cursor-pointer group ${
+          className={`flex items-center justify-between px-2 py-1.5 rounded cursor-pointer group  \ ${
             isSelected ? "bg-blue-100 text-blue-700" : "hover:bg-slate-100"
+            
           }`}
           style={{ paddingLeft: `${8 + level * 16}px` }}
           onClick={handleItemClick}
@@ -319,15 +354,24 @@ export default function SideContent({
   };
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full" >
       {/* Navbar - always present */}
-      <div className="absolute inset-0 z-0">
-        <header className="h-16 flex items-center justify-between px-8 relative z-10">
-          <div className="flex items-center gap-4">
+      <div className="absolute inset-0 z-0" style={{ position: "fixed" }}>
+        {isOpen ? (
+        <header className="h-16 flex items-center justify-between px-8 relative z-10 " >
+
+
+          <div className="flex items-center gap-4 " >
             {/* Sidebar toggle button */}
           </div>
           {/* Center - Dynamic Algorithm title */}
-          <div className="absolute left-1/2 transform -translate-x-1/2 flex items-center gap-4">
+          <div
+            className="absolute flex items-center gap-4"
+            style={{
+              left: `calc(50% + ${width / 2}px)`,
+              transform: "translateX(-50%)"
+            }}
+          >
             <span
               className={`text-xl font-extrabold text-gray-900 ${michroma.className}`}
             >
@@ -361,7 +405,47 @@ export default function SideContent({
               </div>
             </div>
           </div>
-        </header>
+        </header>):(
+        <header className="h-16 flex items-center justify-between px-8 relative z-10" >
+          <div className="flex items-center gap-4 " >
+            {/* Sidebar toggle button */}
+          </div>
+          {/* Center - Dynamic Algorithm title */}
+          <div className="absolute left-1/2 transform -translate-x-1/2 flex items-center gap-4" style={{ position: "fixed" }}>
+            <span
+              className={`text-xl font-extrabold text-gray-900 ${michroma.className}`}
+            >
+              {selectedAlgorithm === "selection" && "Selection Sort"}
+              {selectedAlgorithm === "bubble" && "Bubble Sort"}
+              {selectedAlgorithm === "insertion" && "Insertion Sort"}
+              {selectedAlgorithm === "heap" && "Heap Sort"}
+              {selectedAlgorithm === "jump" && "Jump Search"}
+              {selectedAlgorithm === "radix" && "Radix Sort"}
+              {selectedAlgorithm === "linear" && "Linear Search"}
+              {selectedAlgorithm === "interpolation" && "Interpolation Search"}
+              {selectedAlgorithm === "binary" && "Binary Search"}
+              {/* Default title if no algorithm is selected */}
+              {!selectedAlgorithm ||
+                (selectedAlgorithm === "bubble" && "Bubble Sort")}
+              {!selectedAlgorithm && "Ezzalgo"}
+            </span>
+          </div>
+          {/* Right side - buttons and user avatar */}
+          <div className="flex items-center gap-4">
+            <button className="relative inline-flex h-9 w-28 rounded-lg overflow-hidden p-[1px] focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50">
+              <span className="absolute inset-[-1000%] animate-[spin_2s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,#8B5CF6_0%,#F59E0B_50%,#EF4444_75%,#8B5CF6_100%)]" />
+              <span className="inline-flex h-full w-full cursor-pointer rounded-lg items-center justify-center bg-white px-3 py-1 text-sm font-medium text-black backdrop-blur-3xl hover:bg-zinc-100">
+                Beast Mode
+              </span>
+            </button>
+            <div className="underline flex justify-end items-center gap-1">
+              <span>Arjun</span>
+              <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center">
+                <User className="h-4 w-4 text-white" />
+              </div>
+            </div>
+          </div>
+        </header>)}
       </div>
 
       {/* Content area with sidebar */}
@@ -370,9 +454,9 @@ export default function SideContent({
         {isOpen ? (
           <div
             className="flex h-full bg-white border-r border-slate-200"
-            style={{ width: `${width}px` }}
+            style={{ width: `${width}px`, minWidth: 0, overflow: "hidden" }}
           >
-            <div className="flex-1 flex flex-col min-w-0 ">
+            <div className="flex-1 flex flex-col min-w-0 h-full  ">
               {/* Logo */}
               <div className="p-6 border-b border-slate-200">
                 <h1 className="text-2xl font-bold text-slate-900">Ezzalgo</h1>
@@ -384,14 +468,19 @@ export default function SideContent({
                   onValueChange={setActiveTab}
                   className="flex-1 flex flex-col min-h-0"
                 >
-                  <TabsList className="grid w-50 grid-cols-2 mx-4 mt-3">
-                    <TabsTrigger value="docs" className="text-xs">
-                      Docs
-                    </TabsTrigger>
-                    <TabsTrigger value="profile" className="text-xs">
-                      Profile
-                    </TabsTrigger>
-                  </TabsList>
+                  <div className="w-full flex justify-center mt-2 mb-0">
+                    <TabsList
+                      className="grid grid-cols-2"
+                      style={{ width: `${width - 65}px`, minWidth: 0, transition: "width 0.2s" }} // 32px for mx-4 padding
+                    >
+                      <TabsTrigger value="docs" className="text-xs">
+                        Docs
+                      </TabsTrigger>
+                      <TabsTrigger value="profile" className="text-xs">
+                        Profile
+                      </TabsTrigger>
+                    </TabsList>
+                  </div>
 
                   <TabsContent
                     value="docs"
@@ -410,21 +499,33 @@ export default function SideContent({
                     </div>
 
                     <div
-                      className="flex-1 overflow-y-auto px-2 scrollbar-hide"
+                      className="flex-1 px-2 custom-scrollbar"
                       style={{
-                        scrollbarWidth: "none",
-                        msOverflowStyle: "none",
+                        overflowY: expandedItem ? "auto" : "hidden",
+                        maxHeight: "calc(100vh - 220px)", // adjust as needed for your layout
                       }}
                     >
-                      <style jsx>{`
-                        .scrollbar-hide::-webkit-scrollbar {
-                          display: none;
-                        }
-                      `}</style>
                       <div className="space-y-0.5 ">
                         {filteredMenuItems.map((item) => renderMenuItem(item))}
                       </div>
                     </div>
+                    <style jsx global>{`
+                      .custom-scrollbar {
+                        scrollbar-width: thin;
+                        scrollbar-color: #a0aec0 #f1f5f9;
+                      }
+                      .custom-scrollbar::-webkit-scrollbar {
+                        width: 8px;
+                        background: #f1f5f9;
+                      }
+                      .custom-scrollbar::-webkit-scrollbar-thumb {
+                        background: #a0aec0;
+                        border-radius: 4px;
+                      }
+                      .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+                        background: #718096;
+                      }
+                    `}</style>
                   </TabsContent>
 
                   <TabsContent
@@ -460,7 +561,10 @@ export default function SideContent({
               </div>
             </div>
           </div>
-        ) : (
+        
+       
+        ) 
+        : (
           <div
             className="w-3 bg-gray-300 hover:bg-blue-500 cursor-pointer transition-all duration-300 flex items-center justify-center group"
             onClick={handleClosedSidebarClick}

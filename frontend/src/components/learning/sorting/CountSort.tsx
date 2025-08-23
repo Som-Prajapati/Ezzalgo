@@ -138,13 +138,11 @@ const CountSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
   };
 
   // Sorted indicator animation
-  const animateSortedIndicator = (
-    indices: number | number[]
-  ): gsap.core.Timeline => {
-    const targetIndices = Array.isArray(indices) ? indices : [indices];
-    const elements = targetIndices
-      .map((index) => arrayElementsRef.current[index])
-      .filter((el): el is HTMLDivElement => el instanceof HTMLDivElement);
+  const animateSortedIndicator = (sortedArray: number[]): gsap.core.Timeline => {
+    // Animate ALL array elements to a distinct "sorted" color to denote the sorted array
+    const elements = arrayElementsRef.current.filter(
+      (el): el is HTMLDivElement => el instanceof HTMLDivElement
+    );
 
     if (elements.length === 0) return gsap.timeline();
 
@@ -164,12 +162,13 @@ const CountSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
     });
 
     elements.forEach((element) => {
-      // Then, animate the green color
+      // Animate the sorted color for all elements to denote sorted array (green)
       timeline.to(
         element,
         {
-          backgroundColor: "#d4edda",
-          borderColor: "#c3e6cb",
+          backgroundColor: "#4caf50", // green background for sorted array
+          borderColor: "#388e3c",     // darker green border for sorted array
+          color: "#fff",              // white text for contrast
           duration: 0.5,
           ease: "power1.inOut",
         },
@@ -183,7 +182,7 @@ const CountSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
   // Highlight element
   const highlightElement = (
     element: HTMLElement,
-    color: string = "#ffeb3b"
+    color: string="#e3f2fd"
   ): gsap.core.Timeline => {
     const timeline = gsap.timeline();
     const elementIndex = arrayElementsRef.current.indexOf(
@@ -201,6 +200,7 @@ const CountSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
         opacity: 1,
         scale: 1.05,
         backgroundColor: color,
+        borderColor:"rgb(240, 158, 75)",
         duration: 0.15,
         ease: "power2.out",
         onStart: () => {
@@ -247,9 +247,11 @@ const CountSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
     if (!countElement) return gsap.timeline();
 
     const timeline = gsap.timeline();
+    // INSERT_YOUR_CODE
+    
 
     timeline.to(countElement, {
-      backgroundColor: "#f0ad4e",
+      backgroundColor: "rgb(168, 230, 233)",
       scale: 1.1,
       duration: 0.3,
       ease: "power1.inOut",
@@ -404,7 +406,139 @@ const CountSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
 
     return tl;
   }
+  // INSERT_YOUR_CODE
+  
+  function slideCountElementToArrayElement(
+    value: number,
+    arrayIdx: number
+  ): gsap.core.Timeline {
+   const countEl = countElementsRef.current[value];
+  const arrayEl = arrayElementsRef.current[arrayIdx];
+  if (!countEl || !arrayEl) return gsap.timeline();
 
+  // Get the container's position for relative positioning
+  
+  const countRect = countEl.getBoundingClientRect();
+  const arrayRect = arrayEl.getBoundingClientRect();
+
+  // Calculate positions relative to the container
+  
+
+  // Calculate the offset needed to move from count element to array element
+  const dx = countRect.right- arrayRect.left;
+  const dy = countRect.bottom - arrayRect.bottom;
+
+  // Animate: make the array element appear to emerge from the count element
+  const tl = gsap.timeline();
+    // Set arrayEl to be at the countEl position and invisible
+    tl.set(arrayEl, {
+      x: dx,
+      y: dy,
+      opacity: 0,
+      zIndex: 10,
+    });
+
+    // Use slideElementTo to animate to (0, -ARRAY_OFFSET_Y) and fade in
+    tl.to(
+      arrayEl,
+      {
+        x: 0,
+        y: -ARRAY_OFFSET_Y,
+        opacity: 1,
+        duration: 0.8,
+        ease: "power1.inOut",
+      }
+    );
+    // tl.to(
+    //   arrayEl,
+    //   {
+    //     y: 200,
+    //     opacity: 1,
+    //     duration: 0.4,
+    //     ease: "power2.out",
+    //   }
+    // );
+
+    // Optionally, fade out the count element for a nice effect
+    // tl.to(
+    //   countEl,
+    //   {
+    //     opacity: 0.5,
+    //     duration: 0.3,
+    //     ease: "power2.out",
+    //   },
+    //   "-=0.5"
+    // );
+    // Restore zIndex
+    tl.set(arrayEl, { zIndex: "auto" });
+
+    return tl;
+  }
+
+
+  const resetElementsForSortedIndicator = (): gsap.core.Timeline => {
+    const timeline = gsap.timeline();
+    const allElements = arrayElementsRef.current.filter(
+      (el): el is HTMLDivElement => el instanceof HTMLDivElement
+    );
+  
+    if (allElements.length === 0) return timeline;
+  
+    // Force all elements to the exact same state
+    timeline.set(allElements, {
+      scale: 1,
+      opacity: 1,
+      zIndex: "auto",
+      backgroundColor: "#f8f9fa",  // Reset to base gray
+      borderColor: "#e9ecef",      // Reset to base border
+      color: "#212529",            // Reset to base text color
+      boxShadow: "0 2px 8px rgba(0, 0, 0, 0.08)", // Reset shadow
+    });
+  
+    return timeline;
+  };
+  const hideCountArray = (): gsap.core.Timeline => {
+    const timeline = gsap.timeline();
+  
+    // Fade out all count elements (the dash boxes with numbers)
+    const countElements = countElementsRef.current.filter(Boolean);
+    if (countElements.length > 0) {
+      timeline.to(countElements, {
+        opacity: 0,
+        y: 20, // Slide down slightly as they fade
+        duration: 0.6,
+        ease: "power2.inOut",
+        stagger: 0.03, // Small stagger for smooth effect
+      });
+    }
+  
+    // Fade out count element indices (the numbers below each dash)
+    const countIndexElements = countElementsIndexRef.current.filter(Boolean);
+    if (countIndexElements.length > 0) {
+      timeline.to(countIndexElements, {
+        opacity: 0,
+        y: 10,
+        duration: 0.5,
+        ease: "power2.inOut",
+        stagger: 0.02,
+      }, "-=0.4"); // Start while count elements are still fading
+    }
+  
+    // Fade out the "Count Array" label
+    if (countLabelRef.current) {
+      timeline.to(countLabelRef.current, {
+        opacity: 0,
+        y: 15,
+        duration: 0.5,
+        ease: "power2.inOut",
+      }, "-=0.3"); // Start while other elements are fading
+    }
+  
+    return timeline;
+  };
+  
+  
+  
   const playAnimation = (): void => {
     // Handle normal pause case
     if (wasPausedRef.current && timelineRef.current) {
@@ -412,22 +546,22 @@ const CountSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
       wasPausedRef.current = false;
       return;
     }
-
+  
     // Handle case when there is no timeline - create new timeline
     resetAnimation();
-
+  
     const arr = [...array];
     const n = arr.length;
     const mainTimeline = gsap.timeline();
     mainTimeline.timeScale(propsRef.current.speed);
     currentStepRef.current = 0;
-
+  
     // Add initial label
     mainTimeline.addLabel("step-0");
     mainTimeline.call(() => {
       currentStepRef.current = 0;
     });
-
+  
     // Make all array elements slide to the top using slideElementTo with a stagger of 0.1
     arrayElementsRef.current.forEach((element, idx) => {
       if (element) {
@@ -437,14 +571,14 @@ const CountSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
         );
       }
     });
-
+  
     // Fade in all countElementsRef elements (opacity 0 -> 1)
     mainTimeline.to(countElementsRef.current.filter(Boolean), {
       opacity: 1,
       duration: 0.4,
       ease: "power2.out",
     });
-
+  
     mainTimeline.to(
       Array.from(
         containerRef.current?.querySelectorAll(
@@ -458,6 +592,7 @@ const CountSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
         ease: "power2.out",
       }
     );
+  
     // Fade in "Count Array" label
     mainTimeline.to(
       containerRef.current?.querySelectorAll(
@@ -469,36 +604,26 @@ const CountSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
         ease: "power2.out",
       }
     );
-
+  
     const max = Math.max(...array);
-    // let min = Math.min(...array);
     const count = new Array(max - 0 + 1).fill(0);
-
+  
+    // PHASE 1: Count elements
     for (let i = 0; i < arr.length; i++) {
       count[arr[i]]++;
       const count_increment = count[arr[i]];
-      // INSERT_YOUR_CODE
+      
       if (arrayElementsRef.current[i]) {
-        // mainTimeline.add(
-        //   highlightElement(arrayElementsRef.current[i]!, "blue")
-        // );
-
-        // mainTimeline.add(highlightCountElement(arr[i]));
-
+        mainTimeline.add(
+          highlightElement(arrayElementsRef.current[i]!)
+        );
+  
         mainTimeline.add(slideArrayElementToCountElement(i, arr[i]));
-        // INSERT_YOUR_CODE
-        // mainTimeline.add(removeElementHighlight(arrayElementsRef.current[i]!));
-        // mainTimeline.add(
-        //   highlightElement(arrayElementsRef.current[i]!, "blue")
-        // );
-
-        // INSERT_YOUR_CODE
-        // Update the value in the count array visually and update the countElementsRef
+        
+        // Update the value in the count array visually
         mainTimeline.add(() => {
-          // Update the count value in the DOM
           const countElement = countElementsRef.current[arr[i]];
           if (countElement) {
-            // Find the value display (assume it's the last child div)
             const valueDiv = countElement.querySelector("div:last-child");
             if (valueDiv) {
               valueDiv.textContent = count_increment.toString();
@@ -506,79 +631,373 @@ const CountSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
           }
         });
       }
-
-      // mainTimeline.add(() => {
-      //   const thisValue = count[arr[i]];
-      //   updateCountValue(array[i], thisValue);
-      // }, ">");
-
-      // const newArrayElementsOrder: (HTMLDivElement | null)[] = [];
-      // for (let i = 0; i < array.length; i++) {
-      //   // Find the element whose textContent matches array[i] and hasn't been used yet
-      //   let foundIdx = -1;
-      //   for (let j = 0; j < arrayElementsRef.current.length; j++) {
-      //     if (
-      //       arrayElementsRef.current[j] &&
-      //       parseInt(arrayElementsRef.current[j]!.textContent || "0") ===
-      //         array[i] &&
-      //       !newArrayElementsOrder.includes(arrayElementsRef.current[j])
-      //     ) {
-      //       foundIdx = j;
-      //       break;
-      //     }
-      //   }
-      //   if (foundIdx !== -1) {
-      //     newArrayElementsOrder.push(arrayElementsRef.current[foundIdx]);
-      //   } else {
-      //     newArrayElementsOrder.push(null);
-      //   }
-      // }
-      // arrayElementsRef.current = newArrayElementsOrder;
     }
-
-    // let sortedIdx = 0;
-    // for (let i = 0; i < count.length; i++) {
-    //   while (count[i] > 0) {
-    //     array[sortedIdx++] = i;
-    //     count[i]--;
-    //   }
-    // }
-
+  
+    // PHASE 2: Reconstruct sorted array
+    // Pre-calculate the sorted positions to avoid modifying count during animation
+    const sortedPositions: Array<{ value: number; position: number }> = [];
+    let sortedIdx = 0;
+    
+    // Build the sorted positions array without modifying count
+    for (let value = 0; value < count.length; value++) {
+      for (let instanceCount = 0; instanceCount < count[value]; instanceCount++) {
+        sortedPositions.push({ value, position: sortedIdx });
+        sortedIdx++;
+      }
+    }
+  
+    // Now animate each element to its sorted position
+    sortedPositions.forEach(({ value, position }, animationIndex) => {
+      mainTimeline.add(slideCountElementToArrayElement(value, position));
+      
+      // Update the array element's content
+      mainTimeline.add(() => {
+        const arrayEl = arrayElementsRef.current[position];
+        if (arrayEl) {
+          arrayEl.textContent = value.toString();
+        }
+      });
+  
+      // Update count display (decrement visually)
+      mainTimeline.add(() => {
+        const countElement = countElementsRef.current[value];
+        if (countElement) {
+          const valueDiv = countElement.querySelector("div:last-child");
+          if (valueDiv) {
+            const currentCount = parseInt(valueDiv.textContent || "0");
+            if (currentCount > 0) {
+              valueDiv.textContent = (currentCount - 1).toString();
+            }
+          }
+        }
+      });
+    });
+  
+    // Small pause before reset
+    mainTimeline.to({}, { duration: 0.3 });
+   
+    
+    // Reset all elements to consistent state
+    mainTimeline.add(resetElementsForSortedIndicator());
+    
+    // Another small pause after reset
+    mainTimeline.to({}, { duration: 0.2 });
+     // Hide count array as we prepare to show final sorted array
+  mainTimeline.add(hideCountArray());
+  
+    // Final animation: show all elements are sorted (NOW they'll all be the same color)
+   
+    mainTimeline.add(animateSortedIndicator(
+      Array.from({ length: array.length }, (_, i) => i)
+    ));
+  
     timelineRef.current = mainTimeline;
+  
   };
+  
+  // const playAnimation = (): void => {
+  //   // Handle normal pause case
+  //   if (wasPausedRef.current && timelineRef.current) {
+  //     timelineRef.current.play();
+  //     wasPausedRef.current = false;
+  //     return;
+  //   }
+  
+  //   // Handle case when there is no timeline - create new timeline
+  //   resetAnimation();
+  
+  //   const arr = [...array];
+  //   const n = arr.length;
+  //   const mainTimeline = gsap.timeline();
+  //   mainTimeline.timeScale(propsRef.current.speed);
+  //   currentStepRef.current = 0;
+  
+  //   // Add initial label
+  //   mainTimeline.addLabel("step-0");
+  //   mainTimeline.call(() => {
+  //     currentStepRef.current = 0;
+  //   });
+  
+  //   // Make all array elements slide to the top using slideElementTo with a stagger of 0.1
+  //   arrayElementsRef.current.forEach((element, idx) => {
+  //     if (element) {
+  //       mainTimeline.add(
+  //         slideElementTo(element, 0, -ARRAY_OFFSET_Y),
+  //         idx * 0.1
+  //       );
+  //     }
+  //   });
+  
+  //   // Fade in all countElementsRef elements (opacity 0 -> 1)
+  //   mainTimeline.to(countElementsRef.current.filter(Boolean), {
+  //     opacity: 1,
+  //     duration: 0.4,
+  //     ease: "power2.out",
+  //   });
+  
+  //   mainTimeline.to(
+  //     Array.from(
+  //       containerRef.current?.querySelectorAll(
+  //         ".count-container > div > div > div:last-child"
+  //       ) || []
+  //     ),
+  //     {
+  //       opacity: 1,
+  //       duration: 0.4,
+  //       stagger: 0.05,
+  //       ease: "power2.out",
+  //     }
+  //   );
+  
+  //   // Fade in "Count Array" label
+  //   mainTimeline.to(
+  //     containerRef.current?.querySelectorAll(
+  //       ".count-container > div:last-child"
+  //     ) || [],
+  //     {
+  //       opacity: 1,
+  //       duration: 0.4,
+  //       ease: "power2.out",
+  //     }
+  //   );
+  
+  //   const max = Math.max(...array);
+  //   const count = new Array(max - 0 + 1).fill(0);
+  
+  //   // PHASE 1: Count elements
+  //   for (let i = 0; i < arr.length; i++) {
+  //     count[arr[i]]++;
+  //     const count_increment = count[arr[i]];
+      
+  //     if (arrayElementsRef.current[i]) {
+  //       mainTimeline.add(
+  //         highlightElement(arrayElementsRef.current[i]!)
+  //       );
+  
+  //       mainTimeline.add(slideArrayElementToCountElement(i, arr[i]));
+        
+  //       // Update the value in the count array visually
+  //       mainTimeline.add(() => {
+  //         const countElement = countElementsRef.current[arr[i]];
+  //         if (countElement) {
+  //           const valueDiv = countElement.querySelector("div:last-child");
+  //           if (valueDiv) {
+  //             valueDiv.textContent = count_increment.toString();
+  //           }
+  //         }
+  //       });
+  //     }
+  //   }
+  
+  //   // PHASE 2: Reconstruct sorted array
+  //   // PHASE 2: Reconstruct sorted array - IMPROVED VERSION
+  //   let sortedIdx = 0;
+    
+  //   // Process each value from 0 to max (left to right in count array)
+  //   for (let dashValue = 0; dashValue < count.length; dashValue++) {
+  //     const elementsInThisDash = count[dashValue];
+      
+  //     if (elementsInThisDash > 0) {
+  //       // Highlight the current dash being processed
+  //       mainTimeline.add(highlightCountElement(dashValue));
+        
+  //       // Add a small delay to emphasize which dash we're processing
+  //       mainTimeline.to({}, { duration: 0.3 });
+        
+  //       // Process each element in this dash sequentially
+  //       for (let elementIndex = 0; elementIndex < elementsInThisDash; elementIndex++) {
+  //         // Animate element emerging from this specific dash
+  //         mainTimeline.add(slideCountElementToArrayElement(dashValue, sortedIdx));
+          
+  //         // Update the array element's content and position
+  //         mainTimeline.call(() => {
+  //           const arrayEl = arrayElementsRef.current[sortedIdx];
+  //           if (arrayEl) {
+  //             arrayEl.textContent = dashValue.toString();
+  //           }
+  //         });
+    
+  //         // Visually decrement the count in the dash
+  //         mainTimeline.call(() => {
+  //           const countElement = countElementsRef.current[dashValue];
+  //           if (countElement) {
+  //             const valueDiv = countElement.querySelector("div:last-child");
+  //             if (valueDiv) {
+  //               const currentCount = parseInt(valueDiv.textContent || "0");
+  //               if (currentCount > 0) {
+  //                 valueDiv.textContent = (currentCount - 1).toString();
+  //               }
+  //             }
+  //           }
+  //         });
+    
+  //         // Small delay between elements from the same dash
+  //         mainTimeline.to({}, { duration: 0.1 });
+          
+  //         sortedIdx++;
+  //       }
+        
+  //       // Remove highlight from current dash and add pause before next dash
+  //       mainTimeline.add(removeCountElementHighlight(dashValue));
+  //       mainTimeline.to({}, { duration: 0.2 });
+  //     }
+  //   }
+  
+  //   // // Final step: Show sorted state
+  //   // mainTimeline.add(() => {
+  //   //   // Update the actual array state with the final sorted array
+  //   //   const newSortedArray: number[] = [];
+  //   //   for (let value = 0; value < count.length; value++) {
+  //   //     for (let i = 0; i < count[value]; i++) {
+  //   //       newSortedArray.push(value);
+  //   //     }
+  //   //   }
+  //   //   setArray(newSortedArray);
+  //   // });
+  
+  //   // // Animate final sorted indicator
+  //   // mainTimeline.add(animateSortedIndicator(
+  //   //   Array.from({ length: array.length }, (_, i) => i)
+  //   // ));
+  
+  //   timelineRef.current = mainTimeline;
+  // };
+  
+  
+  // const resetAnimation = (): void => {
+  //   // Kill any existing timeline
+  //   if (timelineRef.current) {
+  //     timelineRef.current.kill();
+  //     timelineRef.current = null;
+  //   }
 
+  //   // Reset all array elements to original state and restore original order and position
+  //   if (arrayElementsRef.current) {
+  //     arrayElementsRef.current.forEach((element, idx) => {
+  //       if (element) {
+  //         // Calculate the original position for each element
+  //         // We assume that each array element is absolutely positioned relative to a container,
+  //         // and that their original position is their default (x: 0, y: 0) plus the vertical offset (ARRAY_OFFSET_Y)
+  //         gsap.set(element, {
+  //           x: 0,
+  //           y: 0,
+  //           rotation: 0,
+  //           opacity: 1,
+  //           scale: 1,
+  //           backgroundColor: "#f8f9fa",
+  //           borderColor: "#e9ecef",
+  //           boxShadow: "0 2px 8px rgba(0, 0, 0, 0.08)",
+  //           zIndex: "auto",
+  //         });
+  //         // Restore the original value in case it was changed
+  //         element.textContent = array[idx]?.toString();
+  //       }
+  //     });
+
+  //     // Restore original array order based on the original array prop
+  //     // This version handles duplicates by matching both value and DOM order
+  //     const originalOrder: (HTMLDivElement | null)[] = new Array(
+  //       array.length
+  //     ).fill(null);
+  //     const used = new Array(array.length).fill(false);
+
+  //     arrayElementsRef.current.forEach((element) => {
+  //       if (element) {
+  //         const value = parseInt(element.textContent || "0");
+  //         // Find the first unused index in array with this value
+  //         for (let i = 0; i < array.length; i++) {
+  //           if (!used[i] && array[i] === value) {
+  //             originalOrder[i] = element;
+  //             used[i] = true;
+  //             break;
+  //           }
+  //         }
+  //       }
+  //     });
+  //     arrayElementsRef.current = originalOrder;
+  //   }
+
+  //   // Reset count elements' opacity and their displayed values to 0
+  //   if (countElementsRef.current) {
+  //     countElementsRef.current.forEach((element) => {
+  //       if (element) {
+  //         gsap.set(element, { opacity: 0 });
+  //         // Also reset the displayed count value to 0
+  //         // Assume the value is in the last child div
+  //         const valueDiv = element.querySelector("div:last-child");
+  //         if (valueDiv) {
+  //           valueDiv.textContent = "0";
+  //         }
+  //       }
+  //     });
+  //   }
+
+  //   // Reset countElementsIndexRef
+  //   if (countElementsIndexRef.current) {
+  //     countElementsIndexRef.current.forEach((element) => {
+  //       if (element) {
+  //         gsap.set(element, { opacity: 0 });
+  //       }
+  //     });
+  //   }
+  //   // Reset countLabelRef
+  //   if (countLabelRef.current) {
+  //     gsap.set(countLabelRef.current, { opacity: 0 });
+  //   }
+
+  //   // Also reset the count array values to 0 if it exists
+  //   if (countLabelRef && countLabelRef.current && Array.isArray(countLabelRef.current)) {
+  //     for (let i = 0; i < countLabelRef.current.length; i++) {
+  //       countLabelRef.current[i] = 0;
+  //     }
+  //   }
+
+  //   wasPausedRef.current = false;
+  //   currentStepRef.current = 0;
+  // };
+
+  // 1. Add these step functions
   const resetAnimation = (): void => {
     // Kill any existing timeline
     if (timelineRef.current) {
       timelineRef.current.kill();
       timelineRef.current = null;
     }
-
-    // Reset all array elements to original state and restore original order
+  
+    // Reset all array elements to original state and restore original order and position
     if (arrayElementsRef.current) {
-      arrayElementsRef.current.forEach((element) => {
+      arrayElementsRef.current.forEach((element, idx) => {
         if (element) {
+          // Reset to original state with proper positioning
           gsap.set(element, {
             x: 0,
-            y: 0,
+            y: 0, // Ground level, not elevated
             rotation: 0,
             opacity: 1,
             scale: 1,
             backgroundColor: "#f8f9fa",
             borderColor: "#e9ecef",
+            color: "#212529", // Add text color reset
             boxShadow: "0 2px 8px rgba(0, 0, 0, 0.08)",
             zIndex: "auto",
+            clearProps: "transform", // Clear any transform properties
           });
+          
+          // Restore the original value from the array prop
+          if (array[idx] !== undefined) {
+            element.textContent = array[idx].toString();
+          }
         }
       });
-
+  
       // Restore original array order based on the original array prop
       // This version handles duplicates by matching both value and DOM order
       const originalOrder: (HTMLDivElement | null)[] = new Array(
         array.length
       ).fill(null);
       const used = new Array(array.length).fill(false);
-
+  
+      // Map elements back to their original positions
       arrayElementsRef.current.forEach((element) => {
         if (element) {
           const value = parseInt(element.textContent || "0");
@@ -592,116 +1011,256 @@ const CountSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
           }
         }
       });
+      
+      // Update the ref with the restored order
       arrayElementsRef.current = originalOrder;
     }
-
+  
+    // Reset count elements' opacity and their displayed values to 0
     if (countElementsRef.current) {
       countElementsRef.current.forEach((element) => {
         if (element) {
-          gsap.set(element, { opacity: 0 });
+          gsap.set(element, { 
+            opacity: 0,
+            y: 0, // Reset any vertical offset
+            scale: 1, // Reset scale
+            backgroundColor: "transparent", // Reset background
+            clearProps: "transform" // Clear transforms
+          });
+          
+          // Reset the displayed count value to 0
+          const valueDiv = element.querySelector("div:last-child");
+          if (valueDiv) {
+            valueDiv.textContent = "0";
+          }
         }
       });
     }
-
-    // INSERT_YOUR_CODE
-    // Reset countElementsIndexRef
+  
+    // Reset countElementsIndexRef (the index labels under count dashes)
     if (countElementsIndexRef.current) {
       countElementsIndexRef.current.forEach((element) => {
         if (element) {
-          gsap.set(element, { opacity: 0 });
+          gsap.set(element, { 
+            opacity: 0,
+            y: 0, // Reset position
+            clearProps: "transform"
+          });
         }
       });
     }
-    // Reset countLabelRef
+  
+    // Reset countLabelRef (the "Count Array" label)
     if (countLabelRef.current) {
-      gsap.set(countLabelRef.current, { opacity: 0 });
+      gsap.set(countLabelRef.current, { 
+        opacity: 0,
+        y: 0, // Reset position
+        clearProps: "transform"
+      });
     }
-
+  
+    // Clear the step indicator
+    if (stepIndicatorRef.current) {
+      gsap.set(stepIndicatorRef.current, {
+        opacity: 0,
+        y: -10,
+        clearProps: "transform"
+      });
+      stepIndicatorRef.current.textContent = "";
+    }
+  
+    // Reset current element arrow if it exists
+    if (currentElementArrowRef.current) {
+      gsap.set(currentElementArrowRef.current, {
+        opacity: 0,
+        clearProps: "transform"
+      });
+    }
+  
+    // Reset highlight state map
+    highlightStateRef.current.clear();
+  
+    // Reset control states
     wasPausedRef.current = false;
     currentStepRef.current = 0;
+    totalStepsRef.current = 0;
+  
+    // Note: Removed the countLabelRef array reset as countLabelRef is a DOM element ref, not an array
+    // The count array logic is handled within the animation, not stored in refs
   };
+  // const nextStep = (): void => {
+  //   console.log("currentStepRef.current:", currentStepRef.current);
 
-  // 1. Add these step functions
+  //   if (!timelineRef.current) {
+  //     playAnimation();
+  //     return;
+  //   }
+
+  //   if (propsRef.current.isPlaying) {
+  //     (timelineRef.current as gsap.core.Timeline).pause();
+  //     console.log("currentStepRef.current:", currentStepRef.current);
+  //     currentStepRef.current++;
+  //     console.log("currentStepRef.current:", currentStepRef.current);
+
+  //     const temp = propsRef.current.speed;
+  //     timelineRef.current!.timeScale(propsRef.current.speed * 4);
+  //     (timelineRef.current as gsap.core.Timeline).play();
+  //     (timelineRef.current as gsap.core.Timeline).addPause(
+  //       `step-${currentStepRef.current}`,
+  //       () => {
+  //         setTimeout(() => {
+  //           if (timelineRef.current) {
+  //             timelineRef.current.timeScale(temp);
+  //             timelineRef.current.play();
+  //           }
+  //           wasPausedRef.current = false;
+  //         }, 0);
+  //       }
+  //     );
+  //   } else {
+  //     console.log(
+  //       "currentStepRef.current:",
+  //       currentStepRef.current,
+  //       "totalStepsRef.current:",
+  //       totalStepsRef.current
+  //     );
+  //     if (currentStepRef.current <= totalStepsRef.current) {
+  //       (timelineRef.current as gsap.core.Timeline).play();
+  //       console.log("currentStepRef.current:", currentStepRef.current);
+
+  //       currentStepRef.current++;
+  //       console.log("currentStepRef.current:", currentStepRef.current);
+
+  //       (timelineRef.current as gsap.core.Timeline).addPause(
+  //         `step-${currentStepRef.current}`
+  //       );
+  //     } else {
+  //       (timelineRef.current as gsap.core.Timeline).play();
+  //       (timelineRef.current as gsap.core.Timeline).addPause("end");
+  //     }
+  //     wasPausedRef.current = true;
+  //   }
+  // };
+  /**
+   * Advances the animation to the next logical step in the Count Sort process.
+   * This function should implement the logic for stepping through the algorithm,
+   * not just fast-forwarding the timeline.
+   */
   const nextStep = (): void => {
-    console.log("currentStepRef.current:", currentStepRef.current);
-
     if (!timelineRef.current) {
+      // If no timeline exists, play the animation to the end immediately
       playAnimation();
+      if (timelineRef.current) {
+        (timelineRef.current as gsap.core.Timeline).pause();
+        // Jump to the "end" label if it exists
+        (timelineRef.current as gsap.core.Timeline).play("end");
+        currentStepRef.current = totalStepsRef.current + 1;
+        (timelineRef.current as gsap.core.Timeline).addPause("end");
+        wasPausedRef.current = true;
+      }
       return;
     }
 
-    if (propsRef.current.isPlaying) {
-      (timelineRef.current as gsap.core.Timeline).pause();
-      console.log("currentStepRef.current:", currentStepRef.current);
-      currentStepRef.current++;
-      console.log("currentStepRef.current:", currentStepRef.current);
-
-      const temp = propsRef.current.speed;
-      timelineRef.current!.timeScale(propsRef.current.speed * 4);
-      (timelineRef.current as gsap.core.Timeline).play();
-      (timelineRef.current as gsap.core.Timeline).addPause(
-        `step-${currentStepRef.current}`,
-        () => {
-          setTimeout(() => {
-            if (timelineRef.current) {
-              timelineRef.current.timeScale(temp);
-              timelineRef.current.play();
-            }
-            wasPausedRef.current = false;
-          }, 0);
-        }
-      );
-    } else {
-      console.log(
-        "currentStepRef.current:",
-        currentStepRef.current,
-        "totalStepsRef.current:",
-        totalStepsRef.current
-      );
-      if (currentStepRef.current <= totalStepsRef.current) {
-        (timelineRef.current as gsap.core.Timeline).play();
-        console.log("currentStepRef.current:", currentStepRef.current);
-
-        currentStepRef.current++;
-        console.log("currentStepRef.current:", currentStepRef.current);
-
-        (timelineRef.current as gsap.core.Timeline).addPause(
-          `step-${currentStepRef.current}`
-        );
-      } else {
-        (timelineRef.current as gsap.core.Timeline).play();
-        (timelineRef.current as gsap.core.Timeline).addPause("end");
-      }
-      wasPausedRef.current = true;
+    // If already at or past the end, do nothing
+    if (currentStepRef.current > totalStepsRef.current) {
+      return;
     }
+
+    // Play the timeline to the "end" label and pause
+    timelineRef.current.play("end");
+    currentStepRef.current = totalStepsRef.current + 1;
+    timelineRef.current.addPause("end");
+    wasPausedRef.current = true;
   };
+  
+  // const previousStep = (): void => {
+  //   if (!timelineRef.current) return;
 
+  //   if (currentStepRef.current > 0) {
+  //     currentStepRef.current--;
+  //     const prevLabel =
+  //       currentStepRef.current === 0
+  //         ? "step-0"
+  //         : `step-${currentStepRef.current}`;
+  //     const temp = propsRef.current.speed;
+  //     timelineRef.current.timeScale(propsRef.current.speed * 4);
+
+  //     timelineRef.current.reverse();
+  //     timelineRef.current.pause(prevLabel);
+  //     if (timelineRef.current) {
+  //       timelineRef.current.timeScale(temp);
+  //     }
+  //     wasPausedRef.current = true;
+  //     if (propsRef.current.isPlaying) {
+  //       setTimeout(() => {
+  //         if (timelineRef.current) {
+  //           timelineRef.current.play();
+  //         }
+  //         wasPausedRef.current = false;
+  //       }, 100);
+  //     }
+  //   }
+  // };
   const previousStep = (): void => {
-    if (!timelineRef.current) return;
-
-    if (currentStepRef.current > 0) {
-      currentStepRef.current--;
-      const prevLabel =
-        currentStepRef.current === 0
-          ? "step-0"
-          : `step-${currentStepRef.current}`;
-      const temp = propsRef.current.speed;
-      timelineRef.current.timeScale(propsRef.current.speed * 4);
-
+    if (!timelineRef.current) {
+      // If no timeline exists, do nothing
+      return;
+    }
+  
+    // Can't go before the beginning
+    if (currentStepRef.current <= 0) {
+      return;
+    }
+  
+    // Decrement the current step
+    currentStepRef.current--;
+    
+    // Store current speed to restore later
+    const originalSpeed = propsRef.current.speed;
+    
+    // Speed up the reverse animation for quick navigation
+    timelineRef.current.timeScale(originalSpeed * 4);
+    
+    // Determine the target label to go to
+    const targetLabel = currentStepRef.current === 0 ? "step-0" : `step-${currentStepRef.current}`;
+    
+    // If we're currently playing, we need to handle it differently
+    if (propsRef.current.isPlaying && !wasPausedRef.current) {
+      // Currently playing forward - pause and reverse
+      timelineRef.current.pause();
+      
+      // Reverse to the target step
       timelineRef.current.reverse();
-      timelineRef.current.pause(prevLabel);
-      if (timelineRef.current) {
-        timelineRef.current.timeScale(temp);
-      }
-      wasPausedRef.current = true;
-      if (propsRef.current.isPlaying) {
-        setTimeout(() => {
-          if (timelineRef.current) {
-            timelineRef.current.play();
-          }
-          wasPausedRef.current = false;
-        }, 100);
-      }
+      timelineRef.current.addPause(targetLabel, () => {
+        // Restore original speed
+        if (timelineRef.current) {
+          timelineRef.current.timeScale(originalSpeed);
+          // Resume playing forward from this point
+          timelineRef.current.play();
+        }
+        wasPausedRef.current = false;
+      });
+    } else {
+      // Currently paused or in step mode
+      // Reverse to the target step
+      timelineRef.current.reverse();
+      timelineRef.current.addPause(targetLabel, () => {
+        // Restore original speed
+        if (timelineRef.current) {
+          timelineRef.current.timeScale(originalSpeed);
+        }
+        wasPausedRef.current = true;
+        
+        // If we were originally playing, resume after a brief moment
+        if (propsRef.current.isPlaying) {
+          setTimeout(() => {
+            if (timelineRef.current && propsRef.current.isPlaying) {
+              timelineRef.current.play();
+              wasPausedRef.current = false;
+            }
+          }, 100);
+        }
+      });
     }
   };
 
@@ -983,7 +1542,7 @@ const CountSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
 
       {/* Controls */}
       <SortingControls
-        limit={16}
+        limit={12}
         isOpen={isOpen}
         width={width}
         array={array}
