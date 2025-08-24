@@ -74,10 +74,33 @@ const JumpSearch: React.FC<SidebarProps> = ({ isOpen, width }) => {
   const [speed, setSpeed] = useState<number>(1);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [isAscending, setIsAscending] = useState<boolean>(true);
-  const [currentPseudoCodeLine, setCurrentPseudoCodeLine] = useState(0);
+  const [currentPseudoCodeLine, setCurrentPseudoCodeLine] = useState<
+    number | number[]
+  >(0);
   const tabTitles = ["Selection Sort"] as const;
   const showPseudoCode = 0;
-  const pseudoCode = [["------- selection sort"]];
+  const pseudoCode = [
+    [
+      "step ← jumpSize",
+      "prev ← 0",
+      "",
+      "while array[min(step, size) - 1] < target do",
+      "    prev ← step",
+      "    step ← step + jumpSize",
+      "",
+      "    if array[i] = target then",
+      "        return array[i]        // Return the element itself",
+      "",
+      "    if prev ≥ size then",
+      "        return null          // Target not found",
+      "",
+      "for i ← prev to (min(step, size) - 1) do",
+      "    if array[i] = target then",
+      "        return array[i]        // Return the element itself",
+      "",
+      "return null            // Target not found",
+    ],
+  ];
   const [showCodePanel, setShowCodePanel] = useState(false);
 
   // Refs for DOM elements
@@ -345,7 +368,6 @@ const JumpSearch: React.FC<SidebarProps> = ({ isOpen, width }) => {
     setShowCodePanel(!showCodePanel);
   };
 
-
   const playAnimation = (): void => {
     // Handle normal pause case
     if (wasPausedRef.current && timelineRef.current) {
@@ -373,7 +395,9 @@ const JumpSearch: React.FC<SidebarProps> = ({ isOpen, width }) => {
     mainTimeline.addLabel("step-0");
     mainTimeline.call(() => {
       currentStepRef.current = 0;
+      setCurrentPseudoCodeLine([0, 1]);
     });
+    mainTimeline.add(gsap.to({}, { duration: 0.3 }));
 
     // Jump search algorithm with proper step tracking
     let prev = 0;
@@ -381,9 +405,21 @@ const JumpSearch: React.FC<SidebarProps> = ({ isOpen, width }) => {
 
     // Check if the element at index 'prev' is equal to the search target
     if (arr[prev] === searchTarget) {
+      // Show while condition first
+      mainTimeline.call(() => {
+        setCurrentPseudoCodeLine(3); // Highlight "while array[min(step, size) - 1] < target do"
+      });
+
       // Highlight the element at 'prev' as found
       mainTimeline.add(highlightBoxe(prev), "+=0.2");
+      mainTimeline.call(() => {
+        setCurrentPseudoCodeLine(7); // Highlight "if"
+      });
       mainTimeline.add(removeHighlight(prev), "+=0.5");
+
+      // mainTimeline.call(() => {
+
+      // });
 
       mainTimeline.add(animateSortedIndicator(prev), "-=0.2");
       // Add label and step tracking for this found step
@@ -391,13 +427,26 @@ const JumpSearch: React.FC<SidebarProps> = ({ isOpen, width }) => {
       mainTimeline.addLabel(`step-${thisStep}`, "+=0.4");
       mainTimeline.call(() => {
         currentStepRef.current = thisStep;
+        setCurrentPseudoCodeLine(8); // Highlight "found"
       });
       stepIndex++;
       // No need to continue, target found
       // Optionally, you could break or return here if in a loop
     } else {
+      // Show while condition
+      mainTimeline.call(() => {
+        setCurrentPseudoCodeLine(3); // Highlight "while array[min(step, size) - 1] < target do"
+      });
+      mainTimeline.add(gsap.to({}, { duration: 0.3 }));
+
       if (jump >= n) {
         currentPos = n - 1;
+
+        // Show while condition
+        mainTimeline.call(() => {
+          setCurrentPseudoCodeLine(3); // Highlight "while array[min(step, size) - 1] < target do"
+        });
+        mainTimeline.add(gsap.to({}, { duration: 0.3 }));
 
         // Animate the search icon jumping directly to the last element
         if (
@@ -416,6 +465,10 @@ const JumpSearch: React.FC<SidebarProps> = ({ isOpen, width }) => {
             const x2 = currentPos * TOTAL_BOX_SPACING;
             const y2 = endBox.top - containerRect.top;
 
+            mainTimeline.call(() => {
+              setCurrentPseudoCodeLine([4, 5]); // Highlight "jump"
+            });
+
             mainTimeline.add(
               jumpWithCloudTrail(
                 searchIconRef.current,
@@ -433,6 +486,11 @@ const JumpSearch: React.FC<SidebarProps> = ({ isOpen, width }) => {
 
         // Highlight the last element
         mainTimeline.add(highlightBoxe(currentPos), "+=0.2");
+
+        mainTimeline.call(() => {
+          setCurrentPseudoCodeLine(7); // Highlight "if"
+        });
+
         mainTimeline.add(removeHighlight(currentPos), "+=0.5");
 
         const thisStep = stepIndex;
@@ -444,6 +502,9 @@ const JumpSearch: React.FC<SidebarProps> = ({ isOpen, width }) => {
 
         // Check if the last element is our target
         if (arr[currentPos] === searchTarget) {
+          mainTimeline.call(() => {
+            setCurrentPseudoCodeLine(8); // "return array[i]"
+          });
           mainTimeline.add(animateSortedIndicator(currentPos), "-=0.2");
         } else {
           // Grey out the last element and start linear search backwards
@@ -452,6 +513,12 @@ const JumpSearch: React.FC<SidebarProps> = ({ isOpen, width }) => {
           // Start linear search from second-to-last element
           let linearSearchPos = currentPos - 1;
           prev = currentPos; // Set prev to last element for linear search reference
+
+          // Show transition to linear search
+          mainTimeline.call(() => {
+            setCurrentPseudoCodeLine(13); // "for i ← prev to (min(step, size) - 1) do"
+          });
+          mainTimeline.add(gsap.to({}, { duration: 0.3 }));
 
           // Add a brief pause to show transition to linear search
           mainTimeline.add("+=0.3");
@@ -462,6 +529,7 @@ const JumpSearch: React.FC<SidebarProps> = ({ isOpen, width }) => {
             mainTimeline.addLabel(`step-${thisLinearStep}`);
             mainTimeline.call(() => {
               currentStepRef.current = thisLinearStep;
+              setCurrentPseudoCodeLine(13); // "for i ← prev to (min(step, size) - 1) do"
             });
             stepIndex++;
 
@@ -484,10 +552,17 @@ const JumpSearch: React.FC<SidebarProps> = ({ isOpen, width }) => {
 
             // Highlight the element being checked in linear search
             mainTimeline.add(highlightBoxe(linearSearchPos), "+=0.2");
+            // Show comparison in pseudo code
+            mainTimeline.call(() => {
+              setCurrentPseudoCodeLine(14); // "if array[i] = target then"
+            });
             mainTimeline.add(removeHighlight(linearSearchPos), "+=0.5");
 
             // Check if we found the target
             if (arr[linearSearchPos] === searchTarget) {
+              mainTimeline.call(() => {
+                setCurrentPseudoCodeLine(15); // "return array[i]"
+              });
               mainTimeline.add(
                 animateSortedIndicator(linearSearchPos),
                 "+=0.1"
@@ -500,8 +575,19 @@ const JumpSearch: React.FC<SidebarProps> = ({ isOpen, width }) => {
             linearSearchPos--;
             mainTimeline.add("+=0.1");
           }
+          // If target not found
+          if (linearSearchPos < 0) {
+            mainTimeline.call(() => {
+              setCurrentPseudoCodeLine(17); // "return null            // Target not found"
+            });
+          }
         }
       } else {
+        // Show while condition
+        mainTimeline.call(() => {
+          setCurrentPseudoCodeLine(3); // "while array[min(step, size) - 1] < target do"
+        });
+
         while (currentPos < n) {
           // Check if we found the target
           if (arr[currentPos] === searchTarget) {
@@ -526,6 +612,11 @@ const JumpSearch: React.FC<SidebarProps> = ({ isOpen, width }) => {
                 const x2 = currentPos * TOTAL_BOX_SPACING;
                 const y2 = currBox.top - containerRect.top;
 
+                // Show jump condition
+                mainTimeline.call(() => {
+                  setCurrentPseudoCodeLine([4, 5]); // "jump"
+                });
+
                 // Animate the search icon jumping with cloud trail
                 mainTimeline.add(
                   jumpWithCloudTrail(
@@ -546,7 +637,16 @@ const JumpSearch: React.FC<SidebarProps> = ({ isOpen, width }) => {
 
             // Highlight the found elem+nt
             mainTimeline.add(highlightBoxe(currentPos), "+=0.2");
+            // Show if condition
+            mainTimeline.call(() => {
+              setCurrentPseudoCodeLine(7); // "if"
+            });
             mainTimeline.add(removeHighlight(currentPos), "+=0.5");
+
+            // Show found condition
+            mainTimeline.call(() => {
+              setCurrentPseudoCodeLine(8); // "found"
+            });
 
             // Add the sorted indicator animation for the found element
             mainTimeline.add(animateSortedIndicator(currentPos), "-=0.2");
@@ -588,6 +688,11 @@ const JumpSearch: React.FC<SidebarProps> = ({ isOpen, width }) => {
                 const x2 = currentPos * TOTAL_BOX_SPACING;
                 const y2 = currBox.top - containerRect.top;
 
+                // Show jump condition
+                mainTimeline.call(() => {
+                  setCurrentPseudoCodeLine([4, 5]); // "jump"
+                });
+
                 // Animate the search icon jumping with cloud trail
                 mainTimeline.add(
                   jumpWithCloudTrail(
@@ -606,6 +711,11 @@ const JumpSearch: React.FC<SidebarProps> = ({ isOpen, width }) => {
 
             // Highlight the element that has overshot the target
             mainTimeline.add(highlightBoxe(currentPos), "+=0.2");
+            // Show if condition
+            mainTimeline.call(() => {
+              setCurrentPseudoCodeLine(7); // "if"
+            });
+
             mainTimeline.add(removeHighlight(currentPos), "+=0.5");
 
             // Grey out this element since it has overshot the target
@@ -643,6 +753,11 @@ const JumpSearch: React.FC<SidebarProps> = ({ isOpen, width }) => {
               const x2 = currentPos * TOTAL_BOX_SPACING;
               const y2 = currBox.top - containerRect.top;
 
+              // Show jump condition
+              mainTimeline.call(() => {
+                setCurrentPseudoCodeLine([4, 5]); // "jump"
+              });
+
               // Animate the search icon jumping with cloud trail
               mainTimeline.add(
                 jumpWithCloudTrail(
@@ -661,6 +776,10 @@ const JumpSearch: React.FC<SidebarProps> = ({ isOpen, width }) => {
 
           // Highlight the element being checked at current position
           mainTimeline.add(highlightBoxe(currentPos), "+=0.2");
+          // Show if condition
+          mainTimeline.call(() => {
+            setCurrentPseudoCodeLine(7); // "if"
+          });
           mainTimeline.add(removeHighlight(currentPos), "+=0.5");
 
           // Add label and step tracking for this jump
@@ -673,6 +792,9 @@ const JumpSearch: React.FC<SidebarProps> = ({ isOpen, width }) => {
 
           // Check if we found the target
           if (arr[currentPos] === searchTarget) {
+            mainTimeline.call(() => {
+              setCurrentPseudoCodeLine(8); // "found"
+            });
             // Add the sorted indicator animation for the found element
             mainTimeline.add(animateSortedIndicator(currentPos), "-=0.2");
             // Target found - break out of the loop
@@ -697,12 +819,22 @@ const JumpSearch: React.FC<SidebarProps> = ({ isOpen, width }) => {
           // Calculate next jump position
           let nextPos = currentPos + jump;
 
+          // Check boundary condition in pseudo code
+          mainTimeline.call(() => {
+            setCurrentPseudoCodeLine(10); // "if prev ≥ size then"
+          });
+          mainTimeline.add(gsap.to({}, { duration: 0.3 }));
+
           // Handle boundary case - if jump goes out of bounds, set to last element
           if (nextPos >= n) {
             nextPos = n - 1;
 
             // If we're already at the last element, target not found - break
             if (currentPos === nextPos) {
+              mainTimeline.call(() => {
+                setCurrentPseudoCodeLine(11); // "return null // Target not found"
+              });
+              mainTimeline.add(gsap.to({}, { duration: 0.3 }));
               break;
             }
           }
@@ -715,6 +847,12 @@ const JumpSearch: React.FC<SidebarProps> = ({ isOpen, width }) => {
 
       if (arr[currentPos] !== searchTarget) {
         let linearSearchPos = currentPos - 1;
+
+        // Show transition to linear search
+        mainTimeline.call(() => {
+          setCurrentPseudoCodeLine(13); // "for i ← prev to (min(step, size) - 1) do"
+        });
+        mainTimeline.add(gsap.to({}, { duration: 0.3 }));
 
         // Add a brief pause to show transition from jump to linear search
         mainTimeline.add("+=0.3");
@@ -743,6 +881,10 @@ const JumpSearch: React.FC<SidebarProps> = ({ isOpen, width }) => {
               // Calculate target position for the search icon
               const targetX = linearSearchPos * TOTAL_BOX_SPACING;
 
+              mainTimeline.call(() => {
+                setCurrentPseudoCodeLine(13); // "for"
+              });
+
               // Slide the search icon to this position
               mainTimeline.add(
                 slideElementTo(
@@ -758,10 +900,18 @@ const JumpSearch: React.FC<SidebarProps> = ({ isOpen, width }) => {
 
           // Highlight the element being checked in linear search
           mainTimeline.add(highlightBoxe(linearSearchPos), "+=0.2");
+          // Show comparison in pseudo code
+          mainTimeline.call(() => {
+            setCurrentPseudoCodeLine(14); // "if array[i] = target then"
+          });
+
           mainTimeline.add(removeHighlight(linearSearchPos), "+=0.5");
 
           // Check if we found the target
           if (arr[linearSearchPos] === searchTarget) {
+            mainTimeline.call(() => {
+              setCurrentPseudoCodeLine(15); // "return array[i]        // Return the element itself"
+            });
             // Target found during linear search!
             // Add the sorted indicator animation for the found eleme-t
             mainTimeline.add(animateSortedIndicator(linearSearchPos), "-=0.2");
@@ -800,6 +950,7 @@ const JumpSearch: React.FC<SidebarProps> = ({ isOpen, width }) => {
             );
           } else {
             console.log(`Target ${searchTarget} not found in array`);
+            setCurrentPseudoCodeLine(17); // "return null            // Target not found"
           }
         });
       }

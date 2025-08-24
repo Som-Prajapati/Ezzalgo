@@ -19,6 +19,7 @@ const getDynamicSizing = (arrayLength: number) => {
       TOTAL_BOX_SPACING: 80 + 14,
       ARROW_Y_OFFSET_DOWN: (80 * 2.4) / 2,
       ARROW_X_OFFSET: 80 / 2,
+      ARROW_X_OFFSET2: 80 / 2 - 15,
       IMAGE_HEIGHT: 260,
       IMAGE_WIDTH: 260,
     };
@@ -34,6 +35,7 @@ const getDynamicSizing = (arrayLength: number) => {
       TOTAL_BOX_SPACING: 55 + 10,
       ARROW_Y_OFFSET_DOWN: (55 * 2.4) / 2,
       ARROW_X_OFFSET: 55 / 2,
+      ARROW_X_OFFSET2: 55 / 2 - 15,
       IMAGE_HEIGHT: 200,
       IMAGE_WIDTH: 200,
     };
@@ -69,7 +71,18 @@ const BubbleSort: React.FC<SidebarProps> = ({ isOpen, width }) => {
   const [currentPseudoCodeLine, setCurrentPseudoCodeLine] = useState(0);
   const tabTitles = ["Selection Sort"] as const;
   const showPseudoCode = 0;
-  const pseudoCode = [["------- selection sort"]];
+  const pseudoCode = [
+    [
+      "for i ← 0 to (size - 1) do",
+      "",
+      "   for j ← 0 to (size - i - 2) do",
+      "",
+      "        if array[j] > array[j + 1] then",
+      "            swap array[j] and array[j + 1]",
+      "",
+      "return array",
+    ],
+  ];
   const [showCodePanel, setShowCodePanel] = useState(false);
 
   // Add refs for step management
@@ -87,6 +100,7 @@ const BubbleSort: React.FC<SidebarProps> = ({ isOpen, width }) => {
     TOTAL_BOX_SPACING,
     ARROW_Y_OFFSET_DOWN,
     ARROW_X_OFFSET,
+    ARROW_X_OFFSET2,
     IMAGE_HEIGHT,
     IMAGE_WIDTH,
   } = dynamicSizing;
@@ -296,6 +310,7 @@ const BubbleSort: React.FC<SidebarProps> = ({ isOpen, width }) => {
     mainTimeline.addLabel("step-0");
     mainTimeline.call(() => {
       currentStepRef.current = 0;
+      setCurrentPseudoCodeLine(0); // Start with outer for loop
     });
 
     // Show and position arrows with slide down animation
@@ -322,7 +337,7 @@ const BubbleSort: React.FC<SidebarProps> = ({ isOpen, width }) => {
           gsap.fromTo(
             jArrowRef.current,
             {
-              x: ARROW_X_OFFSET + TOTAL_BOX_SPACING,
+              x: ARROW_X_OFFSET2 + TOTAL_BOX_SPACING,
               y: 0,
               opacity: 0,
               zIndex: -1,
@@ -343,12 +358,19 @@ const BubbleSort: React.FC<SidebarProps> = ({ isOpen, width }) => {
 
     // Bubble sort algorithm animation with labels
     for (let i = 0; i < n - 1; i++) {
+      if (i > 0) {
+        mainTimeline.call(() => {
+          setCurrentPseudoCodeLine(0); // Highlight "for i ← 0 to (size - 1) do"
+        });
+        mainTimeline.add(gsap.to({}, { duration: 0.3 })); // Small pause to show outer for loop
+      }
+
       if (iArrowRef.current && jArrowRef.current) {
         if (i !== 0) {
           mainTimeline.add(
             slideElementTo(
               jArrowRef.current,
-              TOTAL_BOX_SPACING + ARROW_X_OFFSET,
+              TOTAL_BOX_SPACING + ARROW_X_OFFSET2,
               `+=0`,
               0.3
             ),
@@ -367,14 +389,26 @@ const BubbleSort: React.FC<SidebarProps> = ({ isOpen, width }) => {
         }
       }
 
-      for (let j = 0; j < n - i - 1; j++) {
-        // Add label for this step
+      mainTimeline.call(() => {
+        setCurrentPseudoCodeLine(2); // Highlight "for j ← 0 to (size - i - 2) do"
+      });
+      mainTimeline.add(gsap.to({}, { duration: 0.3 })); // Pause to show inner for loop
 
+      for (let j = 0; j < n - i - 1; j++) {
+        if (j > 0) {
+          mainTimeline.call(() => {
+            setCurrentPseudoCodeLine(2); // Highlight "for j ← 0 to (size - i - 2) do"
+          });
+          mainTimeline.add(gsap.to({}, { duration: 0.2 })); // Small pause
+        }
+
+        // Add label for this step
         const thisStep = stepIndex;
         mainTimeline.addLabel(`step-${thisStep}`, "+=0");
         {
           mainTimeline.call(() => {
             currentStepRef.current = thisStep;
+            setCurrentPseudoCodeLine(4); // Highlight "if array[j] > array[j + 1] then"
           });
         }
 
@@ -389,6 +423,10 @@ const BubbleSort: React.FC<SidebarProps> = ({ isOpen, width }) => {
           : arr[j] < arr[j + 1];
 
         if (shouldSwap) {
+          mainTimeline.call(() => {
+            setCurrentPseudoCodeLine(5); // Highlight "swap array[j] and array[j + 1]"
+          });
+
           const temp = arr[j];
           arr[j] = arr[j + 1];
           arr[j + 1] = temp;
@@ -487,6 +525,12 @@ const BubbleSort: React.FC<SidebarProps> = ({ isOpen, width }) => {
         "-=0.5"
       );
     }
+
+    // Final return statement
+    mainTimeline.call(() => {
+      setCurrentPseudoCodeLine(7); // Highlight "return array"
+    });
+
     totalStepsRef.current = stepIndex;
     mainTimeline.addLabel("end");
 
@@ -841,7 +885,7 @@ const BubbleSort: React.FC<SidebarProps> = ({ isOpen, width }) => {
                   marginTop: "4px",
                 }}
               >
-                i
+                j
               </div>
             </div>
 
@@ -877,7 +921,7 @@ const BubbleSort: React.FC<SidebarProps> = ({ isOpen, width }) => {
                   marginTop: "4px",
                 }}
               >
-                j
+                j + 1
               </div>
             </div>
           </div>

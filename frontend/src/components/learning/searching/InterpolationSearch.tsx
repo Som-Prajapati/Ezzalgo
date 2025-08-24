@@ -80,7 +80,9 @@ const InterpolationSearch: React.FC<SidebarProps> = ({ isOpen, width }) => {
   const timelineRef = useRef<gsap.core.Timeline | null>(null);
   const wasPausedRef = useRef<boolean>(false);
   const propsRef = useRef({ array, speed, searchTarget, isPlaying });
-  const [currentPseudoCodeLine, setCurrentPseudoCodeLine] = useState(0);
+  const [currentPseudoCodeLine, setCurrentPseudoCodeLine] = useState<
+    number | number[]
+  >(0);
   const tabTitles = ["Selection Sort"] as const;
   const showPseudoCode = 0;
   const pseudoCode = [
@@ -93,12 +95,14 @@ const InterpolationSearch: React.FC<SidebarProps> = ({ isOpen, width }) => {
       "",
       "    if array[pos] = target then",
       "        return array[pos]          // Return the element itself",
+      "",
       "    else if array[pos] < target then",
       "        low ← pos + 1",
+      "",
       "    else",
       "        high ← pos - 1",
       "",
-      "return null                        // Target not found",
+      "return null              // Target not found",
     ],
   ];
   const [showCodePanel, setShowCodePanel] = useState(false);
@@ -378,6 +382,7 @@ const InterpolationSearch: React.FC<SidebarProps> = ({ isOpen, width }) => {
     mainTimeline.addLabel("step-0");
     mainTimeline.call(() => {
       currentStepRef.current = 0;
+      setCurrentPseudoCodeLine([0, 1]); // Highlight "low ← 0" and "high ← size - 1"
     });
 
     // Interpolation search algorithm implementation
@@ -439,6 +444,11 @@ const InterpolationSearch: React.FC<SidebarProps> = ({ isOpen, width }) => {
       : searchTarget < arr[high];
 
     if (lessThanMin) {
+      // Highlight while loop condition check (target out of bounds)
+      mainTimeline.call(() => {
+        setCurrentPseudoCodeLine(3); // Highlight "while low ≤ high AND target ≥ array[low] AND target ≤ array[high] do"
+      });
+
       // Calculate interpolation position for the out-of-bounds target
       const pos = calculateInterpolationPosition(
         isAscending ? low : high,
@@ -447,6 +457,12 @@ const InterpolationSearch: React.FC<SidebarProps> = ({ isOpen, width }) => {
         isAscending ? arr[low] : arr[high],
         isAscending ? arr[high] : arr[low]
       );
+      mainTimeline.add(gsap.to({}, { duration: 0.2 }));
+
+      // Highlight interpolation formula calculation
+      mainTimeline.call(() => {
+        setCurrentPseudoCodeLine(4); // Highlight "pos ← low + ((target - array[low]) * (high - low)) / (array[high] - array[low])"
+      });
 
       // Show interpolation formula calculation (even though it's out of bounds)
       if (containerRef.current?.querySelector(".interpolation-formula")) {
@@ -469,6 +485,25 @@ const InterpolationSearch: React.FC<SidebarProps> = ({ isOpen, width }) => {
         if (searchIconRef.current) {
           mainTimeline.add(teleportToPosition(searchIconRef.current, 0, 0.8));
         }
+        // Add highlight for if/else if/else checks before return null
+        // Highlight "if array[pos] == target then"
+        mainTimeline.call(() => {
+          setCurrentPseudoCodeLine(6);
+        });
+        mainTimeline.add(gsap.to({}, { duration: 0.2 }));
+
+        // Highlight "else if array[pos] < target then"
+        mainTimeline.call(() => {
+          setCurrentPseudoCodeLine(9);
+        });
+        mainTimeline.add(gsap.to({}, { duration: 0.2 }));
+
+        // Highlight "else"
+        mainTimeline.call(() => {
+          setCurrentPseudoCodeLine(12);
+        });
+        mainTimeline.add(gsap.to({}, { duration: 0.2 }));
+
         mainTimeline.add(highlightBoxe(0), "+=0.1");
         mainTimeline.add(removeHighlight(0), "+=0.3");
       } else {
@@ -478,12 +513,36 @@ const InterpolationSearch: React.FC<SidebarProps> = ({ isOpen, width }) => {
             teleportToPosition(searchIconRef.current, n - 1, 0.8)
           );
         }
+        // Add highlight for if/else if/else checks before return null
+        // Highlight "if array[pos] == target then"
+        mainTimeline.call(() => {
+          setCurrentPseudoCodeLine(6);
+        });
+        mainTimeline.add(gsap.to({}, { duration: 0.2 }));
+
+        // Highlight "else if array[pos] < target then"
+        mainTimeline.call(() => {
+          setCurrentPseudoCodeLine(9);
+        });
+        mainTimeline.add(gsap.to({}, { duration: 0.2 }));
+
+        // Highlight "else"
+        mainTimeline.call(() => {
+          setCurrentPseudoCodeLine(12);
+        });
+        mainTimeline.add(gsap.to({}, { duration: 0.2 }));
+
         mainTimeline.add(highlightBoxe(n - 1), "+=0.1");
         mainTimeline.add(removeHighlight(n - 1), "+=0.3");
       }
       for (let i = 0; i < n; i++) {
         mainTimeline.add(greyOutElement(i), i === 0 ? "+=0.1" : "-=0.2");
       }
+
+      // Highlight return null for early exit
+      mainTimeline.call(() => {
+        setCurrentPseudoCodeLine(15); // Highlight "return null"
+      });
 
       const finalStep = stepIndex;
       mainTimeline.call(() => {
@@ -507,6 +566,11 @@ const InterpolationSearch: React.FC<SidebarProps> = ({ isOpen, width }) => {
       : searchTarget > arr[low];
 
     if (greaterThanMax) {
+      // Highlight while loop condition check (target out of bounds)
+      mainTimeline.call(() => {
+        setCurrentPseudoCodeLine(3); // Highlight "while low ≤ high AND target ≥ array[low] AND target ≤ array[high] do"
+      });
+
       // Calculate interpolation position for the out-of-bounds target
       const pos = calculateInterpolationPosition(
         isAscending ? low : high,
@@ -515,6 +579,13 @@ const InterpolationSearch: React.FC<SidebarProps> = ({ isOpen, width }) => {
         isAscending ? arr[low] : arr[high],
         isAscending ? arr[high] : arr[low]
       );
+
+      mainTimeline.add(gsap.to({}, { duration: 0.2 }));
+
+      // Highlight interpolation formula calculation
+      mainTimeline.call(() => {
+        setCurrentPseudoCodeLine(4); // Highlight "pos ← low + ((target - array[low]) * (high - low)) / (array[high] - array[low])"
+      });
 
       // Show interpolation formula calculation (even though it's out of bounds)
       if (containerRef.current?.querySelector(".interpolation-formula")) {
@@ -539,6 +610,26 @@ const InterpolationSearch: React.FC<SidebarProps> = ({ isOpen, width }) => {
             teleportToPosition(searchIconRef.current, n - 1, 0.8)
           );
         }
+
+        // Add highlight for if/else if/else checks before return null
+        // Highlight "if array[pos] == target then"
+        mainTimeline.call(() => {
+          setCurrentPseudoCodeLine(6);
+        });
+        mainTimeline.add(gsap.to({}, { duration: 0.2 }));
+
+        // Highlight "else if array[pos] < target then"
+        mainTimeline.call(() => {
+          setCurrentPseudoCodeLine(9);
+        });
+        mainTimeline.add(gsap.to({}, { duration: 0.2 }));
+
+        // Highlight "else"
+        mainTimeline.call(() => {
+          setCurrentPseudoCodeLine(12);
+        });
+        mainTimeline.add(gsap.to({}, { duration: 0.2 }));
+
         mainTimeline.add(highlightBoxe(n - 1), "+=0.1");
         mainTimeline.add(removeHighlight(n - 1), "+=0.3");
       } else {
@@ -546,6 +637,24 @@ const InterpolationSearch: React.FC<SidebarProps> = ({ isOpen, width }) => {
         if (searchIconRef.current) {
           mainTimeline.add(teleportToPosition(searchIconRef.current, 0, 0.8));
         }
+        // Add highlight for if/else if/else checks before return null
+        // Highlight "if array[pos] == target then"
+        mainTimeline.call(() => {
+          setCurrentPseudoCodeLine(6);
+        });
+        mainTimeline.add(gsap.to({}, { duration: 0.2 }));
+
+        // Highlight "else if array[pos] < target then"
+        mainTimeline.call(() => {
+          setCurrentPseudoCodeLine(9);
+        });
+        mainTimeline.add(gsap.to({}, { duration: 0.2 }));
+
+        // Highlight "else"
+        mainTimeline.call(() => {
+          setCurrentPseudoCodeLine(12);
+        });
+        mainTimeline.add(gsap.to({}, { duration: 0.2 }));
         mainTimeline.add(highlightBoxe(0), "+=0.1");
         mainTimeline.add(removeHighlight(0), "+=0.3");
       }
@@ -553,10 +662,15 @@ const InterpolationSearch: React.FC<SidebarProps> = ({ isOpen, width }) => {
         mainTimeline.add(greyOutElement(i), i === 0 ? "+=0.1" : "-=0.2");
       }
 
+      // Highlight return null for early exit
+      mainTimeline.call(() => {
+        setCurrentPseudoCodeLine(15); // Highlight "return null"
+      });
+
       const finalStep = stepIndex;
       mainTimeline.call(() => {
         currentStepRef.current = finalStep;
-        console.log(`Target ${searchTarget} is greater than max; not found`);
+        // console.log(`Target ${searchTarget} is greater than max; not found`);
       });
 
       totalStepsRef.current = stepIndex - 1;
@@ -569,7 +683,18 @@ const InterpolationSearch: React.FC<SidebarProps> = ({ isOpen, width }) => {
       return;
     }
 
+    mainTimeline.call(() => {
+      setCurrentPseudoCodeLine(3); // Highlight "while "
+    });
+
+    mainTimeline.add(gsap.to({}, { duration: 0.3 })); // Small pause to show for loop
+
     while (low <= high && targetWithinBounds(low, high)) {
+      // Highlight while loop condition
+      mainTimeline.call(() => {
+        setCurrentPseudoCodeLine(3); // Highlight "while low ≤ high AND target ≥ array[low] AND target ≤ array[high] do"
+      });
+
       // Calculate interpolation position
       const pos = calculateInterpolationPosition(
         low,
@@ -579,6 +704,12 @@ const InterpolationSearch: React.FC<SidebarProps> = ({ isOpen, width }) => {
         arr[high]
       );
       console.log(pos);
+
+      // Highlight interpolation formula calculation
+      mainTimeline.call(() => {
+        setCurrentPseudoCodeLine(4); // Highlight "pos ← low + ((target - array[low]) * (high - low)) / (array[high] - array[low])"
+      });
+
       // Show interpolation formula calculation
       if (containerRef.current?.querySelector(".interpolation-formula")) {
         mainTimeline.add(
@@ -604,6 +735,12 @@ const InterpolationSearch: React.FC<SidebarProps> = ({ isOpen, width }) => {
 
       // Highlight the element at calculated position
       mainTimeline.add(highlightBoxe(pos), "+=0.2");
+
+      // Highlight the "if" condition line to show it's being checked
+      mainTimeline.call(() => {
+        setCurrentPseudoCodeLine(6); // Highlight "if array[pos] = target then"
+      });
+
       mainTimeline.add(removeHighlight(pos), "+=0.3");
 
       // Check if target is found
@@ -611,6 +748,12 @@ const InterpolationSearch: React.FC<SidebarProps> = ({ isOpen, width }) => {
         // Target found - show success animation
         mainTimeline.add(animateSortedIndicator(pos), "+=0.1");
         found = true;
+
+        // Highlight return statement
+        mainTimeline.call(() => {
+          setCurrentPseudoCodeLine(7); // Highlight "return array[pos]"
+        });
+
         // Add step tracking
         const thisStep = stepIndex;
         mainTimeline.addLabel(`step-${thisStep}`);
@@ -624,12 +767,23 @@ const InterpolationSearch: React.FC<SidebarProps> = ({ isOpen, width }) => {
       // Target not found at current position - narrow the search space
       if (isAscending) {
         if (arr[pos] < searchTarget) {
+          // Highlight else if condition
+          mainTimeline.call(() => {
+            setCurrentPseudoCodeLine(9); // Highlight "else if array[pos] < target then"
+          });
+
           // Target is in the upper half (to the right)
           for (let i = low; i <= pos; i++) {
             mainTimeline.add(greyOutElement(i), i === low ? "+=0.1" : "-=0.2");
           }
 
           low = pos + 1;
+
+          // Highlight low update
+          mainTimeline.call(() => {
+            setCurrentPseudoCodeLine(10); // Highlight "low ← pos + 1"
+          });
+
           if (lowArrowRef.current) {
             mainTimeline.add(
               slideElementTo(
@@ -648,11 +802,22 @@ const InterpolationSearch: React.FC<SidebarProps> = ({ isOpen, width }) => {
             stepIndex++;
           }
         } else {
+          // Highlight "else" line to show it's being checked
+          mainTimeline.call(() => {
+            setCurrentPseudoCodeLine(12); // Highlight "else"
+          });
+
           // Target is in the lower half (to the left)
           for (let i = pos; i <= high; i++) {
             mainTimeline.add(greyOutElement(i), i === pos ? "+=0.1" : "-=0.2");
           }
           high = pos - 1;
+
+          // Highlight high update
+          mainTimeline.call(() => {
+            setCurrentPseudoCodeLine(13); // Highlight "high ← pos - 1"
+          });
+
           if (highArrowRef.current) {
             mainTimeline.add(
               slideElementTo(
@@ -673,11 +838,22 @@ const InterpolationSearch: React.FC<SidebarProps> = ({ isOpen, width }) => {
         }
       } else {
         if (arr[pos] > searchTarget) {
+          // Highlight else if condition for descending order
+          mainTimeline.call(() => {
+            setCurrentPseudoCodeLine(9); // Highlight "else if array[pos] < target then" (but for descending)
+          });
+
           // Descending: target is to the right
           for (let i = low; i <= pos; i++) {
             mainTimeline.add(greyOutElement(i), i === low ? "+=0.1" : "-=0.2");
           }
           low = pos + 1;
+
+          // Highlight low update
+          mainTimeline.call(() => {
+            setCurrentPseudoCodeLine(10); // Highlight "low ← pos + 1"
+          });
+
           if (lowArrowRef.current) {
             mainTimeline.add(
               slideElementTo(
@@ -696,11 +872,22 @@ const InterpolationSearch: React.FC<SidebarProps> = ({ isOpen, width }) => {
             stepIndex++;
           }
         } else {
+          // Highlight else condition for descending order
+          mainTimeline.call(() => {
+            setCurrentPseudoCodeLine(12); // Highlight "else"
+          });
+
           // Descending: target is to the left
           for (let i = pos; i <= high; i++) {
             mainTimeline.add(greyOutElement(i), i === pos ? "+=0.1" : "-=0.2");
           }
           high = pos - 1;
+
+          // Highlight high update
+          mainTimeline.call(() => {
+            setCurrentPseudoCodeLine(13); // Highlight "high ← pos - 1"
+          });
+
           if (highArrowRef.current) {
             mainTimeline.add(
               slideElementTo(
@@ -727,6 +914,11 @@ const InterpolationSearch: React.FC<SidebarProps> = ({ isOpen, width }) => {
 
     // If target not found (loop ended without finding target)
     if (!found) {
+      // Highlight return null statement
+      mainTimeline.call(() => {
+        setCurrentPseudoCodeLine(15); // Highlight "return null"
+      });
+
       // Add final step for "not found" case
       const finalStep = stepIndex;
       mainTimeline.call(() => {
@@ -889,6 +1081,7 @@ const InterpolationSearch: React.FC<SidebarProps> = ({ isOpen, width }) => {
     // Reset all state variables
     wasPausedRef.current = false;
     currentStepRef.current = 0;
+    setCurrentPseudoCodeLine(0); // Reset pseudo code highlighting
   };
 
   const previousStep = (): void => {

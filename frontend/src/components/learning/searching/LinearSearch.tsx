@@ -87,8 +87,8 @@ const JumpSearch: React.FC<SidebarProps> = ({ isOpen, width }) => {
   const showPseudoCode = 0;
   const pseudoCode = [
     [
-      "for index ← 0 to size - 1 do",
-      "    if array[index] = target then",
+      "for i ← 0 to (size - 1) do",
+      "    if array[i] = target then",
       "        return true             // Found",
       "",
       "return false                    // Not found",
@@ -432,6 +432,9 @@ const JumpSearch: React.FC<SidebarProps> = ({ isOpen, width }) => {
 
     // Simple linear search animation
     for (let i = 0; i < n; i++) {
+      mainTimeline.call(() => {
+        setCurrentPseudoCodeLine(0);
+      });
       if (searchIconRef.current && i != 0 && arrayElementsRef.current[i]) {
         mainTimeline.add(
           slideElementTo(
@@ -447,6 +450,10 @@ const JumpSearch: React.FC<SidebarProps> = ({ isOpen, width }) => {
       // Fade in the text of the current array element after moving the search icon
       mainTimeline.add(fadeInBoxText(i, 0.6), "-=0.2");
 
+      mainTimeline.call(() => {
+        setCurrentPseudoCodeLine(1);
+      });
+
       // Highlight the current box
       mainTimeline.add(highlightBoxe(i), "-=0.2");
       mainTimeline.add(removeHighlight(i), "+=0.5");
@@ -454,6 +461,9 @@ const JumpSearch: React.FC<SidebarProps> = ({ isOpen, width }) => {
       // Move the search icon above the current box
 
       if (arr[i] === searchTarget) {
+        mainTimeline.call(() => {
+          setCurrentPseudoCodeLine(2);
+        });
         mainTimeline.add(animateSortedIndicator(i));
         const thisStep = stepIndex;
         mainTimeline.addLabel(`step-${thisStep}`);
@@ -473,6 +483,12 @@ const JumpSearch: React.FC<SidebarProps> = ({ isOpen, width }) => {
       });
       stepIndex++;
     }
+    mainTimeline.call(() => {
+      // Prevent advancing to line 3 if currentPseudoCodeLine is 2
+      if (currentPseudoCodeLine !== 2) {
+        setCurrentPseudoCodeLine(4);
+      }
+    });
 
     // Set total steps and add final timeline actions
     totalStepsRef.current = stepIndex - 1;

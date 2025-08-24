@@ -38,7 +38,7 @@ interface SortingControls {
   onPreviousStep: () => void;
   showCodePanel?: boolean;
   onToggleCodePanel?: () => void;
-  currentLine?: number;
+  currentLine?: number | number[];
   tabTitles?: string[];
   showPseudoCode?: number;
   pseudoCode?: string[][];
@@ -207,8 +207,8 @@ const SearchingControls: React.FC<SortingControls> = ({
 
   // Speed change handlers
   const handleSpeedDecrease = () => {
-    if (speed > 0.5) {
-      const newSpeed = Math.max(0.5, speed - 0.5);
+    if (speed > 0.25) {
+      const newSpeed = Math.max(0.25, speed - 0.5);
       currentSpeedRef.current = newSpeed;
       onSpeedChange(newSpeed);
     }
@@ -216,7 +216,7 @@ const SearchingControls: React.FC<SortingControls> = ({
 
   const handleSpeedIncrease = () => {
     if (speed < 10) {
-      const newSpeed = Math.min(10, speed + 0.5);
+      const newSpeed = Math.min(10, (speed==0.25) ? (speed+0.25) :  (speed+ 0.5));
       currentSpeedRef.current = newSpeed;
       onSpeedChange(newSpeed);
     }
@@ -225,26 +225,26 @@ const SearchingControls: React.FC<SortingControls> = ({
   // Continuous speed change handlers
   const startContinuousSpeedDecrease = () => {
     speedIntervalRef.current = setInterval(() => {
-      if (currentSpeedRef.current > 0.5) {
-        const newSpeed = Math.max(0.5, currentSpeedRef.current - 0.5);
+      if (currentSpeedRef.current > 0.25) {
+        const newSpeed = Math.max(0.25, currentSpeedRef.current - 0.5);
         currentSpeedRef.current = newSpeed;
         onSpeedChange(newSpeed);
       } else {
         stopContinuousSpeed();
       }
-    }, 200);
+    }, 300);
   };
 
   const startContinuousSpeedIncrease = () => {
     speedIntervalRef.current = setInterval(() => {
       if (currentSpeedRef.current < 10) {
-        const newSpeed = Math.min(10, currentSpeedRef.current + 0.5);
+        const newSpeed = Math.min(10, (currentSpeedRef.current==0.25) ? (currentSpeedRef.current+0.25) :  (currentSpeedRef.current+ 0.5));
         currentSpeedRef.current = newSpeed;
         onSpeedChange(newSpeed);
       } else {
         stopContinuousSpeed();
       }
-    }, 200);
+    }, 300);
   };
 
   const stopContinuousSpeed = () => {
@@ -767,7 +767,7 @@ const SearchingControls: React.FC<SortingControls> = ({
                   size="sm"
                   className={controlPanelStyles.speedPlusButton}
                   style={{ padding: 0 }} // ← Add this
-                  disabled={speed <= 0.5}
+                  disabled={speed <= 0.25}
                   onClick={handleSpeedDecrease}
                   onMouseDown={startContinuousSpeedDecrease}
                   onMouseUp={stopContinuousSpeed}
@@ -830,7 +830,9 @@ const SearchingControls: React.FC<SortingControls> = ({
                   variant="outline"
                   size="sm"
                   className={`${controlPanelStyles.codeButton} text-s`}
+                  onClick={onToggleCodePanel}
                 >
+
                   <Code className={`${controlPanelStyles.icon} mr-1`} />
                   Code
                 </Button>

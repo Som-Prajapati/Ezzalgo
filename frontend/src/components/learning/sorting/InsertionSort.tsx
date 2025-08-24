@@ -66,14 +66,30 @@ const InsertionSort: React.FC<SidebarProps> = ({
   const timelineRef = useRef<gsap.core.Timeline | null>(null);
   const wasPausedRef = useRef<boolean>(false);
   const propsRef = useRef({ array, speed, isAscending, isPlaying });
-  const [currentPseudoCodeLine, setCurrentPseudoCodeLine] = useState(0);
+  const [currentPseudoCodeLine, setCurrentPseudoCodeLine] = useState<
+    number | number[]
+  >(0);
 
   // Add refs for step management
   const currentStepRef = useRef<number>(0);
   const totalStepsRef = useRef<number>(0);
   const tabTitles = ["Selection Sort"] as const;
   const showPseudoCode = 0;
-  const pseudoCode = [["------- selection sort"]];
+  const pseudoCode = [
+    [
+      "for i ← 1 to (size - 1) do",
+      "    key ← array[i]",
+      "    j ← i - 1",
+      "",
+      "    while j ≥ 0 AND array[j] > key do",
+      "        array[j + 1] ← array[j]",
+      "        j ← j - 1",
+      "",
+      "    array[j + 1] ← key",
+      "",
+      "return array",
+    ],
+  ];
 
   const dynamicSizing = getDynamicSizing(array.length);
   const {
@@ -228,6 +244,7 @@ const InsertionSort: React.FC<SidebarProps> = ({
     mainTimeline.addLabel("step-0");
     mainTimeline.call(() => {
       currentStepRef.current = 0;
+      setCurrentPseudoCodeLine(0);
     });
 
     // Show and position arrows with slide down animation
@@ -299,7 +316,21 @@ const InsertionSort: React.FC<SidebarProps> = ({
 
     // Insertion sort algorithm with labels
     for (let i = 1; i < n; i++) {
+      // If this is not the first iteration, show the for loop first
+      if (i > 1) {
+        mainTimeline.call(() => {
+          setCurrentPseudoCodeLine(0); // Highlight "for i ← 1 to (size - 1) do"
+        });
+        mainTimeline.add(gsap.to({}, { duration: 0.3 })); // Small pause to show for loop
+      }
+
+      // Highlight "key ← array[i]" FIRST
+      mainTimeline.call(() => {
+        setCurrentPseudoCodeLine([1, 2]); // Highlight "key ← array[i]"
+      });
+
       const key = arr[i];
+
       let j = i - 1;
 
       // Add label for this step
@@ -375,6 +406,12 @@ const InsertionSort: React.FC<SidebarProps> = ({
           "-=0.6"
         );
       }
+      mainTimeline.call(() => {
+        setCurrentPseudoCodeLine(4); // Highlight "while j ≥ 0 AND array[j] > key do"
+      });
+
+      // Add a small pause to show the while condition
+      mainTimeline.add(gsap.to({}, { duration: 0.3 }));
 
       while (j >= 0 && (isAscending ? arr[j] > key : arr[j] < key)) {
         // Add label for shift step
@@ -383,6 +420,7 @@ const InsertionSort: React.FC<SidebarProps> = ({
           const thisStep = stepIndex;
           mainTimeline.call(() => {
             currentStepRef.current = thisStep;
+            setCurrentPseudoCodeLine(5);
           });
         }
         stepIndex++;
@@ -392,6 +430,8 @@ const InsertionSort: React.FC<SidebarProps> = ({
 
         arr[j + 1] = arr[j];
         j = j - 1;
+
+        mainTimeline.add(gsap.to({}, { duration: 0.3 }));
 
         if (
           keyArrowRef.current &&
@@ -415,6 +455,11 @@ const InsertionSort: React.FC<SidebarProps> = ({
             slideElementTo(jBox, `+=${TOTAL_BOX_SPACING}`, 0, 0.3),
             "-=0.6"
           );
+
+          mainTimeline.call(() => {
+            setCurrentPseudoCodeLine(6); // Highlight "j ← j - 1"
+          });
+
           mainTimeline.add(
             slideElementTo(
               jArrowRef.current,
@@ -442,6 +487,13 @@ const InsertionSort: React.FC<SidebarProps> = ({
         }
       }
 
+      mainTimeline.add(gsap.to({}, { duration: 0.3 }));
+
+      // Check while condition again for next iteration (if there will be one)
+      mainTimeline.call(() => {
+        setCurrentPseudoCodeLine(4); // Highlight "while j ≥ 0 AND array[j] > key do"
+      });
+
       arr[j + 1] = key;
       // Instead of checking i !== 1, check if the y position of element 0 is not 0
       const elem0 = arrayElementsRef.current[0] as HTMLElement | undefined;
@@ -454,6 +506,7 @@ const InsertionSort: React.FC<SidebarProps> = ({
       mainTimeline.addLabel(`step-${stepIndex}`, "-=0.1");
       mainTimeline.call(() => {
         currentStepRef.current = i;
+        setCurrentPseudoCodeLine(8);
       });
       stepIndex++;
 
@@ -478,8 +531,6 @@ const InsertionSort: React.FC<SidebarProps> = ({
           mainTimeline.add(slideElementTo(keyBox, "+=0", 0, 0.3), "-=0.6");
         }
       }
-
-      // Don't mark elements as sorted during the process - only at the end
     }
 
     // Hide arrows
@@ -521,6 +572,10 @@ const InsertionSort: React.FC<SidebarProps> = ({
       animateSortedIndicator([...Array(arr.length).keys()]),
       "-=0.5"
     );
+
+    mainTimeline.call(() => {
+      setCurrentPseudoCodeLine(10); // Highlight "return array"
+    });
 
     totalStepsRef.current = stepIndex;
     mainTimeline.addLabel("end");
