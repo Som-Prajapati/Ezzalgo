@@ -1371,3 +1371,5 @@ const calculateAndShowMidPointer = (stepNumber: number): void => {
 };
 
 export default BinarySearch;
+
+//helo helo
