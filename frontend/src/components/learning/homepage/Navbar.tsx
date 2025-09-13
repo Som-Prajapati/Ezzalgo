@@ -1,71 +1,146 @@
 "use client"
-import React, { useState } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { useSession, signIn, signOut } from "next-auth/react"
 import Link from 'next/link'
-import { useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 
 const Navbar = () => {
   const { data: session } = useSession()
   const [showDropdown, setShowDropdown] = useState(false)
+  const dropdownRef = useRef<HTMLDivElement>(null)
+  const router = useRouter()
 
-//   useEffect(() => {
-//     const handleScroll = () => {
-//       const navbar = document.querySelector('nav')
-//       if (window.scrollY > 50) {
-//         navbar.classList.add('scrolled')
-//       } else {
-//         navbar.classList.remove('scrolled')
-//       }
-//     }
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event : any) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowDropdown(false)
+      }
+    }
 
-//     window.addEventListener('scroll', handleScroll)
-//     return () => window.removeEventListener('scroll', handleScroll)
-//   }, [])
-  console.log(session?.user?.name)
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+  // Handle keyboard navigation
+  const handleKeyDown = (event : any) => {
+    if (event.key === 'Escape') {
+      setShowDropdown(false)
+    }
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault()
+      setShowDropdown(!showDropdown)
+    }
+  }
+
+  const handleLogout = (e : any) => {
+    e.preventDefault()
+    signOut()
+    setShowDropdown(false)
+  }
+
+  console.log(session?.user?.name, session?.user?.email, session?.user?.image)
+
   return (
-    <>
-      <nav className='navbar bg-gradient-to-r from-bg-#09090b bg-zinc-800 text-white flex justify-between px-5 h-12 sticky top-0 z-10 items-center'>
-        <Link href="/" >
-          <div className="logo font-bold text-lg flex justify-center items-center z-50">
-            Ezzalgo
-          </div>
-        </Link>
-        <div className='relative'>
-          {session && <>
-          <div className='text-white hover:opacity-80 rounded-full font-medium p-1 w-[3em]'>
-              <img className='w-full rounded-full cursor-pointer'
-              onClick={() => { setShowDropdown(!showDropdown) }}
-              onBlur={() => {
-                setTimeout(() => { setShowDropdown(false) }, 500)
-              }}
-              id="dropdownDividerButton"
-              src={`${session?.user?.image}`} alt="" />
-            </div>
-            <div id="dropdownDivider" className={`z-10 ${showDropdown ? "" : "hidden"} absolute top-[45px] right-[0px] bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700 dark:divide-gray-600`}>
-              <ul className="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdownDividerButton">
-                <li>
-                  <Link href="/mysettings" className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">{session?.user?.name}</Link>
-                </li>
-              </ul>
-              <div className="py-2">
-                <Link onClick={() => signOut()} href={"/"} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-auto dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white" >Log Out</Link>
-              </div>
-            </div>
-          </>}
-        </div>
-        {!session &&
-          // <Link href={"/login"}>
 
-          <button onClick={() => signIn()} type="button" className="text-white bg-gradient-to-br from-purple-600 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2 text-center flex justify-center items-center">Login</button>
-          // {/* </Link> */}
-        }
-      </nav>
-    </>
+    <nav className="fixed w-full bg-transparent bg-opacity-90 backdrop-blur-sm z-10 py-2 px-6 shadow-sm">
+      <div className="max-w-7xl mx-auto flex justify-between items-center">
+        <div className="flex items-center space-x-2">
+          {/* <div className="w-8 h-8 bg-indigo-600 rounded-md"></div> */}
+          <span className="text-xl font-bold text-gray-900">EzzAlgo</span>
+        </div>
+        <div className="hidden md:flex space-x-8 items-center">
+            <Link href="/algorithm" className="text-gray-700 font-medium hover:text-indigo-600 transition-colors relative group">
+            Learn
+            <span className="absolute left-0 bottom-0 w-0 h-0.5 bg-indigo-600 transition-all duration-300 group-hover:w-full"></span>
+            </Link>
+            <Link href="#practice" className="text-gray-700 font-medium hover:text-indigo-600 transition-colors relative group">
+            Practice
+            <span className="absolute left-0 bottom-0 w-0 h-0.5 bg-indigo-600 transition-all duration-300 group-hover:w-full"></span>
+            </Link>
+            <Link href="#progress" className="text-gray-700 font-medium hover:text-indigo-600 transition-colors relative group">
+            Progress
+            <span className="absolute left-0 bottom-0 w-0 h-0.5 bg-indigo-600 transition-all duration-300 group-hover:w-full"></span>
+            </Link>
+          {/* </div> */}
+        
+        <div className='relative' ref={dropdownRef}>
+          {session ? (
+            <>
+              <button
+                className='text-gray-700 hover:opacity-80 rounded-full font-medium p-1 w-10 h-10 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all'
+                onClick={() => setShowDropdown(!showDropdown)}
+                onKeyDown={handleKeyDown}
+                aria-expanded={showDropdown}
+                aria-haspopup="true"
+                aria-label={`User menu for ${session?.user?.name || 'User'}`}
+              >
+                {session?.user?.image ? (
+                  <img 
+                    className='w-full rounded-full h-full object-cover'
+                    src={session?.user?.image} 
+                    alt={`${session?.user?.name || 'User'} profile picture`}
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.style.display = 'none';
+                      target.nextElementSibling?.classList.remove('hidden');
+                    }}
+                  />
+                ) : null}
+                <div className={`w-full h-full rounded-full bg-gray-500 flex items-center justify-center text-white font-bold text-sm ${session?.user?.image ? 'hidden' : ''}`}>
+                  {session?.user?.name?.charAt(0)?.toUpperCase() || 'U'}
+                </div>
+              </button>
+              
+              <div 
+                className={`z-10 ${showDropdown ? "block" : "hidden"} absolute top-14 right-0 bg-white divide-y divide-gray-100 rounded-lg shadow-lg w-44 dark:bg-gray-700 dark:divide-gray-600 border border-gray-200 dark:border-gray-600`}
+                role="menu"
+                aria-orientation="vertical"
+              >
+                <ul className="py-2 text-sm text-gray-700 dark:text-gray-200" role="none">
+                  <li role="none">
+                    <Link 
+                      href="/mysettings" 
+                      className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white transition-colors focus:outline-none focus:bg-gray-100 dark:focus:bg-gray-600"
+                      role="menuitem"
+                      onClick={() => setShowDropdown(false)}
+                    >
+                      {session?.user?.name || 'User Settings'}
+                    </Link>
+                  </li>
+                </ul>
+                <div className="py-2" role="none">
+                  <button
+                    onClick={handleLogout}
+                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white transition-colors focus:outline-none focus:bg-gray-100 dark:focus:bg-gray-600"
+                    role="menuitem"
+                  >
+                    Log Out
+                  </button>
+                </div>
+              </div>
+            </>
+          ) : (
+            <div className="flex space-x-4">
+              <Link 
+                href="/login" 
+                className="px-4 py-2 text-sm font-medium text-indigo-600 hover:text-indigo-700 transition-colors"
+              >
+                Sign In
+              </Link>
+              <Link 
+                href="/login" 
+                className="px-4 py-2 text-sm font-medium bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors"
+              >
+                Sign Up
+              </Link>
+            </div>
+          )}
+        </div>
+        </div>
+      </div>
+    </nav>
   )
 }
 
 export default Navbar
-
-
-
-
