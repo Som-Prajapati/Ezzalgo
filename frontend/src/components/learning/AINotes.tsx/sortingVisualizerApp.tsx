@@ -67,7 +67,7 @@ export default function SortingVisualizerApp() {
     | "binary"
     | "radix"
     | "interpolation"
-  >("linear");
+  >("bubble");
 
   // Control layout specific state
   const [inputWidth, setInputWidth] = useState(256);
