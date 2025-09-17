@@ -2,6 +2,7 @@
 import { useState, useMemo, useEffect, useRef, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { signOut, useSession } from "next-auth/react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Search,
@@ -47,6 +48,7 @@ interface SidebarProps {
     | "jump"
     | "linear"
     | "binary"
+    | "count"
     | "interpolation"
     | "radix";
   onAlgorithmChange?: (
@@ -58,6 +60,7 @@ interface SidebarProps {
       | "jump"
       | "linear"
       | "binary"
+      | "count"
       | "interpolation"
       | "radix"
   ) => void;
@@ -77,9 +80,11 @@ const menuItems: MenuItem[] = [
       { id: "bubble-sort", label: "Bubble Sort" },
       { id: "selection-sort", label: "Selection Sort" },
       { id: "insertion-sort", label: "Insertion Sort" },
-      { id: "merge-sort", label: "Merge Sort" },
-      { id: "quick-sort", label: "Quick Sort" },
+      //uncomment when done
+      // { id: "merge-sort", label: "Merge Sort" },
+      // { id: "quick-sort", label: "Quick Sort" },
       { id: "heap-sort", label: "Heap Sort" },
+      { id: "count-sort", label: "Count Sort" },
       { id: "radix-sort", label: "Radix Sort" },
     ],
   },
@@ -97,14 +102,15 @@ const menuItems: MenuItem[] = [
       { id: "binary-search", label: "Binary Search" },
       { id: "jump-search", label: "Jump Search" },
       { id: "interpolation-search", label: "Interpolation Search" },
-      { id: "exponential-search", label: "Exponential Search" },
+      //uncomment when done
+      // { id: "exponential-search", label: "Exponential Search" },
     ],
   },
   {
     id: "trees",
     label: "Trees",
     icon: <GitBranch className="w-4 h-4 text-orange-500" />,
-    children: [{ id: "binary-tree", label: "Binary Tree" }],
+    // children: [{ id: "binary-tree", label: "Binary Tree" }],
   },
 ];
 
@@ -122,6 +128,10 @@ export default function SideContent({
   const [activeTab, setActiveTab] = useState("docs");
   const [expandedItem, setExpandedItem] = useState<string | null>("sorting-algorithms");
   const [searchQuery, setSearchQuery] = useState("");
+  const [showDropdown, setShowDropdown] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null)
+
+  const { data: session } = useSession();
 
   // Filter menu items based on search
   const filteredMenuItems = useMemo(() => {
@@ -148,6 +158,19 @@ export default function SideContent({
     };
     return filterItems(menuItems);
   }, [searchQuery]);
+
+  // Close dropdown when clicking outside
+    useEffect(() => {
+      const handleClickOutside = (event : any) => {
+        if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+          setShowDropdown(false)
+        }
+      }
+  
+      document.addEventListener('mousedown', handleClickOutside)
+      return () => document.removeEventListener('mousedown', handleClickOutside)
+    }, [])
+    
   // Auto-expand dropdown when searching for algorithms
   useEffect(() => {
     if (searchQuery) {
@@ -192,6 +215,22 @@ export default function SideContent({
     setDragStartX(e.clientX);
     setDragStartWidth(width);
     e.preventDefault();
+  };
+
+  const handleKeyDown = (event : any) => {
+    if (event.key === 'Escape') {
+      setShowDropdown(false)
+    }
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault()
+      setShowDropdown(!showDropdown)
+    }
+  }
+
+  const handleLogout = (e: any) => {
+    e.preventDefault();
+    setShowDropdown(false);
+    signOut();
   };
 
   const handleSidebarMouseMove = (e: MouseEvent) => {
@@ -258,6 +297,7 @@ export default function SideContent({
       "linear-search",
       "interpolation-search",
       "binary-search",
+      "count-sort",
     ].includes(item.id);
     const isSelected =
       (isAlgorithmItem &&
@@ -266,10 +306,11 @@ export default function SideContent({
           (item.id === "insertion-sort" && selectedAlgorithm === "insertion") ||
           (item.id === "heap-sort" && selectedAlgorithm === "heap") ||
           (item.id === "jump-search" && selectedAlgorithm === "jump") ||
-          (item.id === "radix-sort" && selectedAlgorithm === "radix"))) ||
-      (item.id === "linear-search" && selectedAlgorithm === "linear") ||
-      (item.id === "interpolation-search" && selectedAlgorithm === "interpolation") ||
-      (item.id === "binary-search" && selectedAlgorithm === "binary");
+          (item.id === "radix-sort" && selectedAlgorithm === "radix") ||
+          (item.id === "linear-search" && selectedAlgorithm === "linear") ||
+          (item.id === "interpolation-search" && selectedAlgorithm === "interpolation") ||
+          (item.id === "binary-search" && selectedAlgorithm === "binary") ||
+          (item.id === "count-sort" && selectedAlgorithm === "count")));
 
     const handleItemClick = () => {
       if (hasChildren) {
@@ -285,6 +326,7 @@ export default function SideContent({
           | "jump"
           | "linear"
           | "binary"
+          | "count"
           | "interpolation"
           | "radix"
         > = {
@@ -297,6 +339,7 @@ export default function SideContent({
           "interpolation-search": "interpolation",
           "linear-search": "linear",
           "binary-search": "binary",
+          "count-sort": "count",
         };
         const algorithm = algorithmMap[item.id];
         if (algorithm) {
@@ -384,9 +427,8 @@ export default function SideContent({
               {selectedAlgorithm === "linear" && "Linear Search"}
               {selectedAlgorithm === "interpolation" && "Interpolation Search"}
               {selectedAlgorithm === "binary" && "Binary Search"}
+              {selectedAlgorithm === "count" && "Count Search"}
               {/* Default title if no algorithm is selected */}
-              {!selectedAlgorithm ||
-                (selectedAlgorithm === "bubble" && "Bubble Sort")}
               {!selectedAlgorithm && "Ezzalgo"}
             </span>
           </div>
@@ -399,10 +441,83 @@ export default function SideContent({
               </span>
             </button>
             <div className="underline flex justify-end items-center gap-1">
-              <span>Arjun</span>
-              <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center">
+              <span className="font-semibold text-gray-900">{session?.user?.name || 'User'}</span>
+              {/* <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center">
                 <User className="h-4 w-4 text-white" />
+              </div> */}
+              <div className='relative' ref={dropdownRef}>
+          {session ? (
+            <>
+              <button
+                className='text-gray-700 hover:opacity-80 rounded-full font-medium p-1 w-10 h-10 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all'
+                onClick={() => setShowDropdown(!showDropdown)}
+                onKeyDown={handleKeyDown}
+                aria-expanded={showDropdown}
+                aria-haspopup="true"
+                aria-label={`User menu for ${session?.user?.name || 'User'}`}
+              >
+                {session?.user?.image ? (
+                  <img 
+                    className='w-full rounded-full h-full object-cover'
+                    src={session?.user?.image} 
+                    alt={`${session?.user?.name || 'User'} profile picture`}
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.style.display = 'none';
+                      target.nextElementSibling?.classList.remove('hidden');
+                    }}
+                  />
+                ) : null}
+                <div className={`w-full h-full rounded-full bg-gray-500 flex items-center justify-center text-white font-bold text-sm ${session?.user?.image ? 'hidden' : ''}`}>
+                  {session?.user?.name?.charAt(0)?.toUpperCase() || 'U'}
+                </div>
+              </button>
+              
+              <div 
+                className={`z-10 ${showDropdown ? "block" : "hidden"} absolute top-14 right-0 bg-white divide-y divide-gray-100 rounded-lg shadow-lg w-44 dark:bg-gray-700 dark:divide-gray-600 border border-gray-200 dark:border-gray-600`}
+                role="menu"
+                aria-orientation="vertical"
+              >
+                <ul className="py-2 text-sm text-gray-700 dark:text-gray-200" role="none">
+                  <li role="none">
+                    <Link 
+                      href="/mysettings" 
+                      className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white transition-colors focus:outline-none focus:bg-gray-100 dark:focus:bg-gray-600"
+                      role="menuitem"
+                      onClick={() => setShowDropdown(false)}
+                    >
+                      {session?.user?.name || 'User Settings'}
+                    </Link>
+                  </li>
+                </ul>
+                <div className="py-2" role="none">
+                  <button
+                    onClick={handleLogout}
+                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white transition-colors focus:outline-none focus:bg-gray-100 dark:focus:bg-gray-600"
+                    role="menuitem"
+                  >
+                    Log Out
+                  </button>
+                </div>
               </div>
+            </>
+          ) : (
+            <div className="flex space-x-4">
+              {/* <Link 
+                href="/login" 
+                className="px-4 py-2 text-sm font-medium text-indigo-600 hover:text-indigo-700 transition-colors"
+              >
+                Sign In
+              </Link> */}
+              <Link 
+                href="/login" 
+                className="px-4 py-2 ml-2 text-sm font-medium bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors"
+              >
+                Sign Up
+              </Link>
+            </div>
+          )}
+        </div>
             </div>
           </div>
         </header>):(
@@ -424,6 +539,7 @@ export default function SideContent({
               {selectedAlgorithm === "linear" && "Linear Search"}
               {selectedAlgorithm === "interpolation" && "Interpolation Search"}
               {selectedAlgorithm === "binary" && "Binary Search"}
+              {selectedAlgorithm === "count" && "Count Search"}
               {/* Default title if no algorithm is selected */}
               {!selectedAlgorithm ||
                 (selectedAlgorithm === "bubble" && "Bubble Sort")}
@@ -439,10 +555,83 @@ export default function SideContent({
               </span>
             </button>
             <div className="underline flex justify-end items-center gap-1">
-              <span>Arjun</span>
-              <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center">
+              <span className="font-semibold text-gray-900">{session?.user?.name || 'User'}</span>
+              {/* <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center">
                 <User className="h-4 w-4 text-white" />
+              </div> */}
+              <div className='relative' ref={dropdownRef}>
+          {session ? (
+            <>
+              <button
+                className='text-gray-700 hover:opacity-80 rounded-full font-medium p-1 w-10 h-10 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all'
+                onClick={() => setShowDropdown(!showDropdown)}
+                onKeyDown={handleKeyDown}
+                aria-expanded={showDropdown}
+                aria-haspopup="true"
+                aria-label={`User menu for ${session?.user?.name || 'User'}`}
+              >
+                {session?.user?.image ? (
+                  <img 
+                    className='w-full rounded-full h-full object-cover'
+                    src={session?.user?.image} 
+                    alt={`${session?.user?.name || 'User'} profile picture`}
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.style.display = 'none';
+                      target.nextElementSibling?.classList.remove('hidden');
+                    }}
+                  />
+                ) : null}
+                <div className={`w-full h-full rounded-full bg-gray-500 flex items-center justify-center text-white font-bold text-sm ${session?.user?.image ? 'hidden' : ''}`}>
+                  {session?.user?.name?.charAt(0)?.toUpperCase() || 'U'}
+                </div>
+              </button>
+              
+              <div 
+                className={`z-10 ${showDropdown ? "block" : "hidden"} absolute top-14 right-0 bg-white divide-y divide-gray-100 rounded-lg shadow-lg w-44 dark:bg-gray-700 dark:divide-gray-600 border border-gray-200 dark:border-gray-600`}
+                role="menu"
+                aria-orientation="vertical"
+              >
+                <ul className="py-2 text-sm text-gray-700 dark:text-gray-200" role="none">
+                  <li role="none">
+                    <Link 
+                      href="/mysettings" 
+                      className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white transition-colors focus:outline-none focus:bg-gray-100 dark:focus:bg-gray-600"
+                      role="menuitem"
+                      onClick={() => setShowDropdown(false)}
+                    >
+                      {session?.user?.name || 'User Settings'}
+                    </Link>
+                  </li>
+                </ul>
+                <div className="py-2" role="none">
+                  <button
+                    onClick={handleLogout}
+                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white transition-colors focus:outline-none focus:bg-gray-100 dark:focus:bg-gray-600"
+                    role="menuitem"
+                  >
+                    Log Out
+                  </button>
+                </div>
               </div>
+            </>
+          ) : (
+            <div className="flex space-x-4">
+              {/* <Link 
+                href="/login" 
+                className="px-4 py-2 text-sm font-medium text-indigo-600 hover:text-indigo-700 transition-colors"
+              >
+                Sign In
+              </Link> */}
+              <Link 
+                href="/login" 
+                className="px-4 py-2 ml-2 text-sm font-medium bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors"
+              >
+                Sign Up
+              </Link>
+            </div>
+          )}
+        </div>
             </div>
           </div>
         </header>)}

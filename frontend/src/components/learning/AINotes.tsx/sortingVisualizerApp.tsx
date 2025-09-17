@@ -1,6 +1,7 @@
 "use client";
 import React from "react";
 import { useState, useMemo, useRef, useCallback } from "react";
+import { useSession } from "next-auth/react"
 import JumpSearch from "../searching/JumpSearch";
 import InterpolationSearch from "../searching/InterpolationSearch";
 import { Button } from "@/components/ui/button";
@@ -54,6 +55,9 @@ const pseudoCode = [
 ];
 
 export default function SortingVisualizerApp() {
+  
+  const { data: session } = useSession()
+
   // Sidebar state
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [sidebarWidth, setSidebarWidth] = useState(300);
@@ -65,6 +69,7 @@ export default function SortingVisualizerApp() {
     | "jump"
     | "linear"
     | "binary"
+    | "count"
     | "radix"
     | "interpolation"
   >("bubble");
@@ -118,6 +123,7 @@ export default function SortingVisualizerApp() {
       | "interpolation"
       | "linear"
       | "binary"
+      | "count"
       | "radix"
   ) => {
     setSelectedAlgorithm(algorithm);
@@ -445,6 +451,11 @@ export default function SortingVisualizerApp() {
           </div>
         )}
         {selectedAlgorithm === "binary" && (
+          <div className="flex justify-center items-center flex-1 p-4">
+            <BinarySearch isOpen={isSidebarOpen} width={sidebarWidth} />
+          </div>
+        )}
+        {selectedAlgorithm === "count" && (
           <div className="flex justify-center items-center flex-1 p-4">
             <CountSort isOpen={isSidebarOpen} width={sidebarWidth} />
           </div>
