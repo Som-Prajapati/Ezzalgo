@@ -138,7 +138,9 @@ const CountSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
   };
 
   // Sorted indicator animation
-  const animateSortedIndicator = (sortedArray: number[]): gsap.core.Timeline => {
+  const animateSortedIndicator = (
+    sortedArray: number[]
+  ): gsap.core.Timeline => {
     // Animate ALL array elements to a distinct "sorted" color to denote the sorted array
     const elements = arrayElementsRef.current.filter(
       (el): el is HTMLDivElement => el instanceof HTMLDivElement
@@ -167,8 +169,8 @@ const CountSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
         element,
         {
           backgroundColor: "#4caf50", // green background for sorted array
-          borderColor: "#388e3c",     // darker green border for sorted array
-          color: "#fff",              // white text for contrast
+          borderColor: "#388e3c", // darker green border for sorted array
+          color: "#fff", // white text for contrast
           duration: 0.5,
           ease: "power1.inOut",
         },
@@ -182,7 +184,7 @@ const CountSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
   // Highlight element
   const highlightElement = (
     element: HTMLElement,
-    color: string="#e3f2fd"
+    color: string = "#e3f2fd"
   ): gsap.core.Timeline => {
     const timeline = gsap.timeline();
     const elementIndex = arrayElementsRef.current.indexOf(
@@ -200,7 +202,7 @@ const CountSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
         opacity: 1,
         scale: 1.05,
         backgroundColor: color,
-        borderColor:"rgb(240, 158, 75)",
+        borderColor: "rgb(240, 158, 75)",
         duration: 0.15,
         ease: "power2.out",
         onStart: () => {
@@ -248,7 +250,6 @@ const CountSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
 
     const timeline = gsap.timeline();
     // INSERT_YOUR_CODE
-    
 
     timeline.to(countElement, {
       backgroundColor: "rgb(168, 230, 233)",
@@ -407,48 +408,48 @@ const CountSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
     return tl;
   }
   // INSERT_YOUR_CODE
-  
+
   function slideCountElementToArrayElement(
     value: number,
     arrayIdx: number
   ): gsap.core.Timeline {
-   const countEl = countElementsRef.current[value];
-  const arrayEl = arrayElementsRef.current[arrayIdx];
-  if (!countEl || !arrayEl) return gsap.timeline();
+    const countEl = countElementsRef.current[value];
+    const arrayEl = arrayElementsRef.current[arrayIdx];
+    if (!countEl || !arrayEl) return gsap.timeline();
 
-  // Get the container's position for relative positioning
-  
-  const countRect = countEl.getBoundingClientRect();
-  const arrayRect = arrayEl.getBoundingClientRect();
+    // Get the container's position for relative positioning
 
-  // Calculate positions relative to the container
-  
+    const arrayRect = arrayEl.getBoundingClientRect();
+    const countRect = countEl.getBoundingClientRect();
 
-  // Calculate the offset needed to move from count element to array element
-  const dx = countRect.right- arrayRect.left;
-  const dy = countRect.bottom - arrayRect.bottom;
+    // Calculate the offset needed to move arrayEl to countEl (relative to their current positions)
+    const dx = countRect.left - arrayRect.left - COUNT_SET_X;
+    const dy = countRect.top - arrayRect.top + COUNT_SET_Y;
 
-  // Animate: make the array element appear to emerge from the count element
-  const tl = gsap.timeline();
+    // const dy = countRect.top - arrayRect.top + COUNT_SET_Y + currentY;
+
+    // Animate: make the array element appear to emerge from the count element
+    const tl = gsap.timeline();
     // Set arrayEl to be at the countEl position and invisible
-    tl.set(arrayEl, {
+    tl.to(arrayEl, {
       x: dx,
       y: dy,
       opacity: 0,
       zIndex: 10,
+      duration: 0.1,
+      ease: "power1.inOut",
     });
+    // INSERT_YOUR_CODE
+    tl.to({}, { duration: 0.5 });
 
     // Use slideElementTo to animate to (0, -ARRAY_OFFSET_Y) and fade in
-    tl.to(
-      arrayEl,
-      {
-        x: 0,
-        y: -ARRAY_OFFSET_Y,
-        opacity: 1,
-        duration: 0.8,
-        ease: "power1.inOut",
-      }
-    );
+    tl.to(arrayEl, {
+      x: 0,
+      y: -ARRAY_OFFSET_Y,
+      opacity: 1,
+      duration: 0.8,
+      ease: "power1.inOut",
+    });
     // tl.to(
     //   arrayEl,
     //   {
@@ -475,31 +476,30 @@ const CountSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
     return tl;
   }
 
-
   const resetElementsForSortedIndicator = (): gsap.core.Timeline => {
     const timeline = gsap.timeline();
     const allElements = arrayElementsRef.current.filter(
       (el): el is HTMLDivElement => el instanceof HTMLDivElement
     );
-  
+
     if (allElements.length === 0) return timeline;
-  
+
     // Force all elements to the exact same state
     timeline.set(allElements, {
       scale: 1,
       opacity: 1,
       zIndex: "auto",
-      backgroundColor: "#f8f9fa",  // Reset to base gray
-      borderColor: "#e9ecef",      // Reset to base border
-      color: "#212529",            // Reset to base text color
+      backgroundColor: "#f8f9fa", // Reset to base gray
+      borderColor: "#e9ecef", // Reset to base border
+      color: "#212529", // Reset to base text color
       boxShadow: "0 2px 8px rgba(0, 0, 0, 0.08)", // Reset shadow
     });
-  
+
     return timeline;
   };
   const hideCountArray = (): gsap.core.Timeline => {
     const timeline = gsap.timeline();
-  
+
     // Fade out all count elements (the dash boxes with numbers)
     const countElements = countElementsRef.current.filter(Boolean);
     if (countElements.length > 0) {
@@ -511,34 +511,40 @@ const CountSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
         stagger: 0.03, // Small stagger for smooth effect
       });
     }
-  
+
     // Fade out count element indices (the numbers below each dash)
     const countIndexElements = countElementsIndexRef.current.filter(Boolean);
     if (countIndexElements.length > 0) {
-      timeline.to(countIndexElements, {
-        opacity: 0,
-        y: 10,
-        duration: 0.5,
-        ease: "power2.inOut",
-        stagger: 0.02,
-      }, "-=0.4"); // Start while count elements are still fading
+      timeline.to(
+        countIndexElements,
+        {
+          opacity: 0,
+          y: 10,
+          duration: 0.5,
+          ease: "power2.inOut",
+          stagger: 0.02,
+        },
+        "-=0.4"
+      ); // Start while count elements are still fading
     }
-  
+
     // Fade out the "Count Array" label
     if (countLabelRef.current) {
-      timeline.to(countLabelRef.current, {
-        opacity: 0,
-        y: 15,
-        duration: 0.5,
-        ease: "power2.inOut",
-      }, "-=0.3"); // Start while other elements are fading
+      timeline.to(
+        countLabelRef.current,
+        {
+          opacity: 0,
+          y: 15,
+          duration: 0.5,
+          ease: "power2.inOut",
+        },
+        "-=0.3"
+      ); // Start while other elements are fading
     }
-  
+
     return timeline;
   };
-  
-  
-  
+
   const playAnimation = (): void => {
     // Handle normal pause case
     if (wasPausedRef.current && timelineRef.current) {
@@ -546,22 +552,22 @@ const CountSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
       wasPausedRef.current = false;
       return;
     }
-  
+
     // Handle case when there is no timeline - create new timeline
     resetAnimation();
-  
+
     const arr = [...array];
     const n = arr.length;
     const mainTimeline = gsap.timeline();
     mainTimeline.timeScale(propsRef.current.speed);
     currentStepRef.current = 0;
-  
+
     // Add initial label
     mainTimeline.addLabel("step-0");
     mainTimeline.call(() => {
       currentStepRef.current = 0;
     });
-  
+
     // Make all array elements slide to the top using slideElementTo with a stagger of 0.1
     arrayElementsRef.current.forEach((element, idx) => {
       if (element) {
@@ -571,14 +577,14 @@ const CountSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
         );
       }
     });
-  
+
     // Fade in all countElementsRef elements (opacity 0 -> 1)
     mainTimeline.to(countElementsRef.current.filter(Boolean), {
       opacity: 1,
       duration: 0.4,
       ease: "power2.out",
     });
-  
+
     mainTimeline.to(
       Array.from(
         containerRef.current?.querySelectorAll(
@@ -592,7 +598,7 @@ const CountSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
         ease: "power2.out",
       }
     );
-  
+
     // Fade in "Count Array" label
     mainTimeline.to(
       containerRef.current?.querySelectorAll(
@@ -604,22 +610,20 @@ const CountSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
         ease: "power2.out",
       }
     );
-  
+
     const max = Math.max(...array);
     const count = new Array(max - 0 + 1).fill(0);
-  
+
     // PHASE 1: Count elements
     for (let i = 0; i < arr.length; i++) {
       count[arr[i]]++;
       const count_increment = count[arr[i]];
-      
+
       if (arrayElementsRef.current[i]) {
-        mainTimeline.add(
-          highlightElement(arrayElementsRef.current[i]!)
-        );
-  
+        mainTimeline.add(highlightElement(arrayElementsRef.current[i]!));
+
         mainTimeline.add(slideArrayElementToCountElement(i, arr[i]));
-        
+
         // Update the value in the count array visually
         mainTimeline.add(() => {
           const countElement = countElementsRef.current[arr[i]];
@@ -632,24 +636,26 @@ const CountSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
         });
       }
     }
-  
+
     // PHASE 2: Reconstruct sorted array
     // Pre-calculate the sorted positions to avoid modifying count during animation
     const sortedPositions: Array<{ value: number; position: number }> = [];
     let sortedIdx = 0;
-    
+
     // Build the sorted positions array without modifying count
     for (let value = 0; value < count.length; value++) {
-      for (let instanceCount = 0; instanceCount < count[value]; instanceCount++) {
+      for (
+        let instanceCount = 0;
+        instanceCount < count[value];
+        instanceCount++
+      ) {
         sortedPositions.push({ value, position: sortedIdx });
         sortedIdx++;
       }
     }
-  
+
     // Now animate each element to its sorted position
     sortedPositions.forEach(({ value, position }, animationIndex) => {
-      mainTimeline.add(slideCountElementToArrayElement(value, position));
-      
       // Update the array element's content
       mainTimeline.add(() => {
         const arrayEl = arrayElementsRef.current[position];
@@ -657,7 +663,8 @@ const CountSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
           arrayEl.textContent = value.toString();
         }
       });
-  
+
+      mainTimeline.add(slideCountElementToArrayElement(value, position));
       // Update count display (decrement visually)
       mainTimeline.add(() => {
         const countElement = countElementsRef.current[value];
@@ -672,29 +679,27 @@ const CountSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
         }
       });
     });
-  
+
     // Small pause before reset
     mainTimeline.to({}, { duration: 0.3 });
-   
-    
+
     // Reset all elements to consistent state
     mainTimeline.add(resetElementsForSortedIndicator());
-    
+
     // Another small pause after reset
     mainTimeline.to({}, { duration: 0.2 });
-     // Hide count array as we prepare to show final sorted array
-  mainTimeline.add(hideCountArray());
-  
+    // Hide count array as we prepare to show final sorted array
+    mainTimeline.add(hideCountArray());
+
     // Final animation: show all elements are sorted (NOW they'll all be the same color)
-   
-    mainTimeline.add(animateSortedIndicator(
-      Array.from({ length: array.length }, (_, i) => i)
-    ));
-  
+
+    mainTimeline.add(
+      animateSortedIndicator(Array.from({ length: array.length }, (_, i) => i))
+    );
+
     timelineRef.current = mainTimeline;
-  
   };
-  
+
   // const playAnimation = (): void => {
   //   // Handle normal pause case
   //   if (wasPausedRef.current && timelineRef.current) {
@@ -702,22 +707,22 @@ const CountSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
   //     wasPausedRef.current = false;
   //     return;
   //   }
-  
+
   //   // Handle case when there is no timeline - create new timeline
   //   resetAnimation();
-  
+
   //   const arr = [...array];
   //   const n = arr.length;
   //   const mainTimeline = gsap.timeline();
   //   mainTimeline.timeScale(propsRef.current.speed);
   //   currentStepRef.current = 0;
-  
+
   //   // Add initial label
   //   mainTimeline.addLabel("step-0");
   //   mainTimeline.call(() => {
   //     currentStepRef.current = 0;
   //   });
-  
+
   //   // Make all array elements slide to the top using slideElementTo with a stagger of 0.1
   //   arrayElementsRef.current.forEach((element, idx) => {
   //     if (element) {
@@ -727,14 +732,14 @@ const CountSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
   //       );
   //     }
   //   });
-  
+
   //   // Fade in all countElementsRef elements (opacity 0 -> 1)
   //   mainTimeline.to(countElementsRef.current.filter(Boolean), {
   //     opacity: 1,
   //     duration: 0.4,
   //     ease: "power2.out",
   //   });
-  
+
   //   mainTimeline.to(
   //     Array.from(
   //       containerRef.current?.querySelectorAll(
@@ -748,7 +753,7 @@ const CountSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
   //       ease: "power2.out",
   //     }
   //   );
-  
+
   //   // Fade in "Count Array" label
   //   mainTimeline.to(
   //     containerRef.current?.querySelectorAll(
@@ -760,22 +765,22 @@ const CountSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
   //       ease: "power2.out",
   //     }
   //   );
-  
+
   //   const max = Math.max(...array);
   //   const count = new Array(max - 0 + 1).fill(0);
-  
+
   //   // PHASE 1: Count elements
   //   for (let i = 0; i < arr.length; i++) {
   //     count[arr[i]]++;
   //     const count_increment = count[arr[i]];
-      
+
   //     if (arrayElementsRef.current[i]) {
   //       mainTimeline.add(
   //         highlightElement(arrayElementsRef.current[i]!)
   //       );
-  
+
   //       mainTimeline.add(slideArrayElementToCountElement(i, arr[i]));
-        
+
   //       // Update the value in the count array visually
   //       mainTimeline.add(() => {
   //         const countElement = countElementsRef.current[arr[i]];
@@ -788,27 +793,27 @@ const CountSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
   //       });
   //     }
   //   }
-  
+
   //   // PHASE 2: Reconstruct sorted array
   //   // PHASE 2: Reconstruct sorted array - IMPROVED VERSION
   //   let sortedIdx = 0;
-    
+
   //   // Process each value from 0 to max (left to right in count array)
   //   for (let dashValue = 0; dashValue < count.length; dashValue++) {
   //     const elementsInThisDash = count[dashValue];
-      
+
   //     if (elementsInThisDash > 0) {
   //       // Highlight the current dash being processed
   //       mainTimeline.add(highlightCountElement(dashValue));
-        
+
   //       // Add a small delay to emphasize which dash we're processing
   //       mainTimeline.to({}, { duration: 0.3 });
-        
+
   //       // Process each element in this dash sequentially
   //       for (let elementIndex = 0; elementIndex < elementsInThisDash; elementIndex++) {
   //         // Animate element emerging from this specific dash
   //         mainTimeline.add(slideCountElementToArrayElement(dashValue, sortedIdx));
-          
+
   //         // Update the array element's content and position
   //         mainTimeline.call(() => {
   //           const arrayEl = arrayElementsRef.current[sortedIdx];
@@ -816,7 +821,7 @@ const CountSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
   //             arrayEl.textContent = dashValue.toString();
   //           }
   //         });
-    
+
   //         // Visually decrement the count in the dash
   //         mainTimeline.call(() => {
   //           const countElement = countElementsRef.current[dashValue];
@@ -830,19 +835,19 @@ const CountSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
   //             }
   //           }
   //         });
-    
+
   //         // Small delay between elements from the same dash
   //         mainTimeline.to({}, { duration: 0.1 });
-          
+
   //         sortedIdx++;
   //       }
-        
+
   //       // Remove highlight from current dash and add pause before next dash
   //       mainTimeline.add(removeCountElementHighlight(dashValue));
   //       mainTimeline.to({}, { duration: 0.2 });
   //     }
   //   }
-  
+
   //   // // Final step: Show sorted state
   //   // mainTimeline.add(() => {
   //   //   // Update the actual array state with the final sorted array
@@ -854,16 +859,15 @@ const CountSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
   //   //   }
   //   //   setArray(newSortedArray);
   //   // });
-  
+
   //   // // Animate final sorted indicator
   //   // mainTimeline.add(animateSortedIndicator(
   //   //   Array.from({ length: array.length }, (_, i) => i)
   //   // ));
-  
+
   //   timelineRef.current = mainTimeline;
   // };
-  
-  
+
   // const resetAnimation = (): void => {
   //   // Kill any existing timeline
   //   if (timelineRef.current) {
@@ -963,7 +967,7 @@ const CountSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
       timelineRef.current.kill();
       timelineRef.current = null;
     }
-  
+
     // Reset all array elements to original state and restore original order and position
     if (arrayElementsRef.current) {
       arrayElementsRef.current.forEach((element, idx) => {
@@ -982,21 +986,21 @@ const CountSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
             zIndex: "auto",
             clearProps: "transform", // Clear any transform properties
           });
-          
+
           // Restore the original value from the array prop
           if (array[idx] !== undefined) {
             element.textContent = array[idx].toString();
           }
         }
       });
-  
+
       // Restore original array order based on the original array prop
       // This version handles duplicates by matching both value and DOM order
       const originalOrder: (HTMLDivElement | null)[] = new Array(
         array.length
       ).fill(null);
       const used = new Array(array.length).fill(false);
-  
+
       // Map elements back to their original positions
       arrayElementsRef.current.forEach((element) => {
         if (element) {
@@ -1011,23 +1015,23 @@ const CountSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
           }
         }
       });
-      
+
       // Update the ref with the restored order
       arrayElementsRef.current = originalOrder;
     }
-  
+
     // Reset count elements' opacity and their displayed values to 0
     if (countElementsRef.current) {
       countElementsRef.current.forEach((element) => {
         if (element) {
-          gsap.set(element, { 
+          gsap.set(element, {
             opacity: 0,
             y: 0, // Reset any vertical offset
             scale: 1, // Reset scale
             backgroundColor: "transparent", // Reset background
-            clearProps: "transform" // Clear transforms
+            clearProps: "transform", // Clear transforms
           });
-          
+
           // Reset the displayed count value to 0
           const valueDiv = element.querySelector("div:last-child");
           if (valueDiv) {
@@ -1036,55 +1040,55 @@ const CountSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
         }
       });
     }
-  
+
     // Reset countElementsIndexRef (the index labels under count dashes)
     if (countElementsIndexRef.current) {
       countElementsIndexRef.current.forEach((element) => {
         if (element) {
-          gsap.set(element, { 
+          gsap.set(element, {
             opacity: 0,
             y: 0, // Reset position
-            clearProps: "transform"
+            clearProps: "transform",
           });
         }
       });
     }
-  
+
     // Reset countLabelRef (the "Count Array" label)
     if (countLabelRef.current) {
-      gsap.set(countLabelRef.current, { 
+      gsap.set(countLabelRef.current, {
         opacity: 0,
         y: 0, // Reset position
-        clearProps: "transform"
+        clearProps: "transform",
       });
     }
-  
+
     // Clear the step indicator
     if (stepIndicatorRef.current) {
       gsap.set(stepIndicatorRef.current, {
         opacity: 0,
         y: -10,
-        clearProps: "transform"
+        clearProps: "transform",
       });
       stepIndicatorRef.current.textContent = "";
     }
-  
+
     // Reset current element arrow if it exists
     if (currentElementArrowRef.current) {
       gsap.set(currentElementArrowRef.current, {
         opacity: 0,
-        clearProps: "transform"
+        clearProps: "transform",
       });
     }
-  
+
     // Reset highlight state map
     highlightStateRef.current.clear();
-  
+
     // Reset control states
     wasPausedRef.current = false;
     currentStepRef.current = 0;
     totalStepsRef.current = 0;
-  
+
     // Note: Removed the countLabelRef array reset as countLabelRef is a DOM element ref, not an array
     // The count array logic is handled within the animation, not stored in refs
   };
@@ -1170,7 +1174,7 @@ const CountSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
     timelineRef.current.addPause("end");
     wasPausedRef.current = true;
   };
-  
+
   // const previousStep = (): void => {
   //   if (!timelineRef.current) return;
 
@@ -1204,29 +1208,32 @@ const CountSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
       // If no timeline exists, do nothing
       return;
     }
-  
+
     // Can't go before the beginning
     if (currentStepRef.current <= 0) {
       return;
     }
-  
+
     // Decrement the current step
     currentStepRef.current--;
-    
+
     // Store current speed to restore later
     const originalSpeed = propsRef.current.speed;
-    
+
     // Speed up the reverse animation for quick navigation
     timelineRef.current.timeScale(originalSpeed * 4);
-    
+
     // Determine the target label to go to
-    const targetLabel = currentStepRef.current === 0 ? "step-0" : `step-${currentStepRef.current}`;
-    
+    const targetLabel =
+      currentStepRef.current === 0
+        ? "step-0"
+        : `step-${currentStepRef.current}`;
+
     // If we're currently playing, we need to handle it differently
     if (propsRef.current.isPlaying && !wasPausedRef.current) {
       // Currently playing forward - pause and reverse
       timelineRef.current.pause();
-      
+
       // Reverse to the target step
       timelineRef.current.reverse();
       timelineRef.current.addPause(targetLabel, () => {
@@ -1248,7 +1255,7 @@ const CountSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
           timelineRef.current.timeScale(originalSpeed);
         }
         wasPausedRef.current = true;
-        
+
         // If we were originally playing, resume after a brief moment
         if (propsRef.current.isPlaying) {
           setTimeout(() => {
@@ -1563,11 +1570,6 @@ const CountSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
 };
 
 export default CountSort;
-
-
-
-
-
 
 // "use client";
 // import React, { useRef, useEffect, useState } from "react";
