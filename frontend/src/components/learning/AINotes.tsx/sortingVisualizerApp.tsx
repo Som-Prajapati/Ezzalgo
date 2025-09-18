@@ -1,6 +1,7 @@
 "use client";
 import React from "react";
 import { useState, useMemo, useRef, useCallback } from "react";
+import { useSession } from "next-auth/react"
 import JumpSearch from "../searching/JumpSearch";
 import InterpolationSearch from "../searching/InterpolationSearch";
 import { Button } from "@/components/ui/button";
@@ -54,6 +55,9 @@ const pseudoCode = [
 ];
 
 export default function SortingVisualizerApp() {
+  
+  const { data: session } = useSession()
+
   // Sidebar state
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [sidebarWidth, setSidebarWidth] = useState(300);
@@ -65,10 +69,10 @@ export default function SortingVisualizerApp() {
     | "jump"
     | "linear"
     | "binary"
+    | "count"
     | "radix"
     | "interpolation"
-    |"count"
-  >("linear");
+  >("bubble");
 
   // Control layout specific state
   const [inputWidth, setInputWidth] = useState(256);
@@ -119,6 +123,7 @@ export default function SortingVisualizerApp() {
       | "interpolation"
       | "linear"
       | "binary"
+      | "count"
       | "radix"
       |"count"
   ) => {

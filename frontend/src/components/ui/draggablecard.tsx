@@ -19,7 +19,7 @@ interface DraggableCodePanelProps {
   showPseudoCode?: number;
   tabTitles?: string[];
   showCode?: boolean;
-  currentLine?: number;
+  currentLine?: number | number[]; // Modified to accept array
 }
 
 const DraggableCodePanel: React.FC<DraggableCodePanelProps> = ({
@@ -48,6 +48,19 @@ const DraggableCodePanel: React.FC<DraggableCodePanelProps> = ({
   }>({ x: 0, y: 0, width: 0, height: 0 });
 
   const currentCodeLine: number = 4;
+
+  // Helper function to check if a line should be highlighted
+  const isLineHighlighted = (lineIndex: number): boolean => {
+    if (currentLine === undefined) {
+      return lineIndex === currentCodeLine;
+    }
+    
+    if (Array.isArray(currentLine)) {
+      return currentLine.includes(lineIndex);
+    }
+    
+    return lineIndex === currentLine;
+  };
 
   // Return null if showCode is false
 
@@ -197,7 +210,7 @@ const DraggableCodePanel: React.FC<DraggableCodePanelProps> = ({
       }}
       className="transition-transform duration-200 ease-in-out"
     >
-      <Card className="w-full h-full shadow-xl border-2 border-gray-300 rounded-xl relative py-0 gap-4">
+      <Card className="w-full h-full shadow-xl border-2 border-gray-300 rounded-xl relative py-0 gap-0">
         {/* Header with drag handle */}
         <div
           className="bg-blue-50 p-3 flex rounded-t-xl items-center justify-between cursor-grab active:cursor-grabbing select-none border-b"
@@ -219,13 +232,13 @@ const DraggableCodePanel: React.FC<DraggableCodePanelProps> = ({
             <div className="flex">
               {tabTitles.map((title, index) => (
                 <button
-                  key={index}
-                  onClick={() => setActiveTab(index)}
-                  className={`px-4 text-sm font-medium whitespace-nowrap transition-colors ${
-                    activeTab === index
-                      ? "bg-white text-blue-600 border-b-2 border-blue-500"
-                      : "text-gray-600 hover:text-gray-800 hover:bg-gray-100"
-                  }`}
+                key={index}
+                onClick={() => setActiveTab(index)}
+                className={`px-4 py-2 text-sm font-medium whitespace-nowrap transition-colors ${
+                  activeTab === index
+                  ? "bg-white text-blue-600 border-b-2 border-blue-500"
+                  : "text-gray-600 hover:text-gray-800 hover:bg-gray-100"
+                }`}
                 >
                   {title}
                 </button>
@@ -234,6 +247,7 @@ const DraggableCodePanel: React.FC<DraggableCodePanelProps> = ({
           </div>
         )}
 
+        <div className="h-4"></div>
         {/* Code Content */}
         <CardContent className="p-0 flex-1 h-[calc(100%-60px)] mb-2 ">
           <div className="bg-white overflow-y-auto rounded-b-lg rounded-t-lg scrollbar-none h-full">
@@ -243,11 +257,9 @@ const DraggableCodePanel: React.FC<DraggableCodePanelProps> = ({
                   <div
                     key={index}
                     className={`leading-5 transition-colors py-0.5 ${
-                      (currentLine !== undefined
-                        ? currentLine
-                        : currentCodeLine) === index
-                        ? "bg-blue-100 border-l-4 border-blue-500 font-semibold pl-1"
-                        : "pl-2"
+                      isLineHighlighted(index)
+                        ? "bg-blue-100 border-l-4 border-blue-500 font-semibold px-1"
+                        : "px-2"
                     }`}
                   >
                     <span className="text-slate-600 font-sans mr-8 select-none">

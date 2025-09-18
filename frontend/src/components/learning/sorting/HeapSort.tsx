@@ -111,12 +111,53 @@ const HeapSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
   const propsRef = useRef({ array, speed, isAscending, isPlaying });
   const svgRef = useRef<SVGSVGElement>(null);
   const heapTreeLabelRef = useRef<HTMLDivElement | null>(null);
-  const [currentPseudoCodeLine, setCurrentPseudoCodeLine] = useState(0);
-
+  // const [currentPseudoCodeLine, setCurrentPseudoCodeLine] = useState(0);
+  // Add these state variables to your component
+  const [currentPseudoCodeLine, setCurrentPseudoCodeLine] = useState<
+    number | number[]
+  >(0);
   const [showCodePanel, setShowCodePanel] = useState(false);
-  const tabTitles = ["Selection Sort"] as const;
-  const showPseudoCode = 0;
-  const pseudoCode = [["------- selection sort"]];
+  const [showPseudoCode, setShowPseudoCode] = useState(0); // 0: HeapSort, 1: buildHeap, 2: heapify
+
+  // const [showCodePanel, setShowCodePanel] = useState(false);
+  const tabTitles = ["HeapSort", "buildHeap", "heapify"] as const;
+  // const showPseudoCode = 0;
+  const pseudoCode = [
+    [
+      "Algorithm HeapSort(array, size):",
+      "",
+      "   buildHeap(array, size)",
+      "",
+      "   for i ← (size - 1) to 1 do",
+      "       swap array[0] and array[i]",
+      "       heapify(array, i, 0)",
+      "",
+      "return array",
+    ],
+    [
+      "Procedure buildHeap(array, size):",
+      "",
+      "   for i ← ((size / 2) - 1) to 0 do",
+      "       heapify(array, size, i)",
+    ],
+    [
+      "Procedure heapify(array, size, root):",
+      "",
+      "   largest ← root",
+      "   left ← 2 * root + 1",
+      "   right ← 2 * root + 2",
+      "",
+      "   if left < size AND array[left] > array[largest] then",
+      "       largest ← left",
+      "",
+      "   if right < size AND array[right] > array[largest] then",
+      "       largest ← right",
+      "",
+      "   if largest ≠ root then",
+      "       swap array[root] and array[largest]",
+      "       heapify(array, size, largest)",
+    ],
+  ];
 
   // Add refs for step management
   const currentStepRef = useRef<number>(0);
@@ -182,6 +223,30 @@ const HeapSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
     });
 
     return timeline;
+  };
+  // Helper function to update pseudo code line with tab switching
+  const updatePseudoCodeLine = (
+    lineIndex: number | number[],
+    tabIndex: number
+  ): gsap.core.Timeline => {
+    const tl = gsap.timeline();
+
+    // First switch to the correct tab
+    tl.call(() => {
+      if (showPseudoCode !== tabIndex) {
+        setShowPseudoCode(tabIndex);
+      }
+    });
+
+    // Add a small delay to ensure tab switch happens
+    tl.to({}, { duration: 0.1 });
+
+    // Then highlight the line(s)
+    tl.call(() => {
+      setCurrentPseudoCodeLine(lineIndex);
+    });
+
+    return tl;
   };
 
   const highlightElement = (
@@ -1188,140 +1253,352 @@ const HeapSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
     return timeline;
   }
 
+  // Add this function to ensure proper tab switching
+  const switchToTab = (tabIndex: number): gsap.core.Timeline => {
+    const tl = gsap.timeline();
+    tl.call(() => {
+      setShowPseudoCode(tabIndex);
+    });
+    return tl;
+  };
+
   // Heapify function: heapifies subtree rooted at i in array arr of size n, returns a GSAP timeline of the swaps
-  function heapify(
-    arr: number[],
-    n: number,
-    i: number,
-    isMaxHeap: boolean = propsRef.current.isAscending
-  ): GSAPTimeline {
-    const timeline = gsap.timeline();
+  // function heapify(
+  //   arr: number[],
+  //   n: number,
+  //   i: number,
+  //   isMaxHeap: boolean = propsRef.current.isAscending
+  // ): GSAPTimeline {
+  //   const timeline = gsap.timeline();
 
-    let target = i; // Use 'target' instead of 'target' for clarity
-    const left = 2 * i + 1;
-    const right = 2 * i + 2;
+  //   timeline.add(switchToTab(2), "+=0.2");
 
-    // Grey out all nodes from index i to the end (for heapify subtree)
-    if (arrayNodeRef.current) {
-      // Collect all indices in the subtree rooted at i
-      const indicesToGrey: number[] = [];
-      const collectSubtreeIndices = (root: number) => {
-        if (root >= n) return;
-        indicesToGrey.push(root);
-        collectSubtreeIndices(2 * root + 1);
-        collectSubtreeIndices(2 * root + 2);
-      };
-      collectSubtreeIndices(i);
-      timeline.add(greyOutOtherNodes(indicesToGrey));
+  //   // Switch to heapify tab and highlight function declaration
+  //   timeline.add(updatePseudoCodeLine(0, 2)); // heapify function declaration
+
+  //   let target = i; // Use 'target' instead of 'target' for clarity
+  //   const left = 2 * i + 1;
+  //   const right = 2 * i + 2;
+
+  //   // Grey out all nodes from index i to the end (for heapify subtree)
+  //   if (arrayNodeRef.current) {
+  //     // Collect all indices in the subtree rooted at i
+  //     const indicesToGrey: number[] = [];
+  //     const collectSubtreeIndices = (root: number) => {
+  //       if (root >= n) return;
+  //       indicesToGrey.push(root);
+  //       collectSubtreeIndices(2 * root + 1);
+  //       collectSubtreeIndices(2 * root + 2);
+  //     };
+  //     collectSubtreeIndices(i);
+  //     timeline.add(greyOutOtherNodes(indicesToGrey));
+  //   }
+
+  //   // Highlight variable initialization
+  //   timeline.add(updatePseudoCodeLine([2, 3, 4], 2)); // largest, left, right initialization
+
+  //   // Highlight current node
+  //   if (arrayNodeRef.current) {
+  //     timeline.add(highlightNode(target));
+  //   }
+  //   timeline.add(highlightElement(i, "blue"));
+
+  //   timeline.add(updatePseudoCodeLine(6, 2), "+=0.3"); // if left < size condition
+
+  //   if (arrayNodeRef.current && left < n && arrayNodeRef.current[left]) {
+  //     timeline.add(highlightNode(left));
+  //     timeline.to(arrayNodeRef.current[left], {
+  //       duration: 0.3,
+  //     });
+  //     timeline.add(removeHighlightNode(left));
+  //     // Highlight the array box at index 'left'
+  //     timeline.add(highlightElement(left, "blue"));
+  //     timeline.to(arrayElementsRef.current[left], {
+  //       duration: 0.3,
+  //     });
+  //     timeline.add(removeHighlight(left));
+  //   }
+  //   if (left < n) {
+  //     if (isMaxHeap && arr[left] > arr[target]) {
+  //       timeline.add(updatePseudoCodeLine(7, 2), "+=0.1"); // largest = left
+  //       target = left;
+  //     } else if (!isMaxHeap && arr[left] < arr[target]) {
+  //       timeline.add(updatePseudoCodeLine(7, 2), "+=0.1"); // largest = left
+  //       target = left;
+  //     }
+  //   }
+
+  //   // Check right child
+  //   timeline.add(updatePseudoCodeLine(9, 2), "+=0.3"); // if right < size condition
+
+  //   if (arrayNodeRef.current && right < n && arrayNodeRef.current[right]) {
+  //     timeline.add(highlightNode(right));
+  //     timeline.to(arrayNodeRef.current[right], {
+  //       duration: 0.3,
+  //     });
+  //     timeline.add(removeHighlightNode(right));
+  //     // Highlight the array box at index 'right'
+  //     timeline.add(highlightElement(right, "blue"));
+  //     timeline.to(arrayElementsRef.current[right], {
+  //       duration: 0.3,
+  //     });
+  //     timeline.add(removeHighlight(right));
+  //   }
+  //   if (right < n) {
+  //     if (isMaxHeap && arr[right] > arr[target]) {
+  //       timeline.add(updatePseudoCodeLine(10, 2), "+=0.1"); // largest = right
+  //       target = right;
+  //     } else if (!isMaxHeap && arr[right] < arr[target]) {
+  //       timeline.add(updatePseudoCodeLine(10, 2), "+=0.1"); // largest = right
+  //       target = right;
+  //     }
+  //   }
+
+  //   // Check if swap is needed
+  //   timeline.add(updatePseudoCodeLine(12, 2), "+=0.3"); // if largest ≠ root
+
+  //   if (target !== i) {
+  //     timeline.add(updatePseudoCodeLine(13, 2)); // swap operation
+  //     // timeline.to({}, { duration: 0.3 });
+
+  //     // Animate swap
+
+  //     if (
+  //       arrayNodeRef.current &&
+  //       arrayNodeRef.current[i] &&
+  //       arrayNodeRef.current[target]
+  //     ) {
+  //       // Use eclipseSwapNodes animation for the swap
+  //       timeline.add(eclipseSwapNodes(i, target));
+  //       // Swap the array boxes (arrayElementsRef) visually using eclipseSwap
+  //       if (
+  //         arrayElementsRef.current &&
+  //         arrayElementsRef.current[i] &&
+  //         arrayElementsRef.current[target]
+  //       ) {
+  //         timeline.add(
+  //           eclipseSwap(
+  //             arrayElementsRef.current[i],
+  //             arrayElementsRef.current[target] as HTMLElement
+  //           )
+  //         );
+  //         // Swap the refs so the visual order matches the logical order
+  //         const tempRef = arrayElementsRef.current[i];
+  //         arrayElementsRef.current[i] = arrayElementsRef.current[target];
+  //         arrayElementsRef.current[target] = tempRef;
+
+  //         // Swap the text content of the array boxes so the numbers visually swap
+
+  //         timeline.call(() => {});
+  //         // Print the x and y GSAP positions for the swapped elements
+  //       }
+  //       if (
+  //         arrayNodeRef.current &&
+  //         arrayNodeRef.current[i] &&
+  //         arrayNodeRef.current[target]
+  //       ) {
+  //         [arrayNodeRef.current[i], arrayNodeRef.current[target]] = [
+  //           arrayNodeRef.current[target],
+  //           arrayNodeRef.current[i],
+  //         ];
+  //       }
+  //     }
+
+  //     // Swap values in array
+  //     [arr[i], arr[target]] = [arr[target], arr[i]];
+
+  //     // Also swap the arrayNodeRef nodes so the tree visualization matches the array swap
+  //     // Highlight recursive heapify call
+  //     timeline.to({}, { duration: 1.5 });
+
+  //     timeline.add(updatePseudoCodeLine(14, 2)); // recursive heapify call
+  //     timeline.to({}, { duration: 0.3 });
+  //     timeline.add(heapify(arr, n, target));
+  //   } else {
+  //     if (currentPseudoCodeLine == 13) {
+  //       timeline.add(switchToTab(0), "+=0.2");
+  //     }
+  //     // timeline.add(updatePseudoCodeLine(14, 0)); // recursive heapify call
+
+  //     // If no swap, restore only the nodes in the subtree rooted at i
+  //     timeline.add(restoreOnlyNodes([i]));
+  //     // Remove highlight from i
+  //     timeline.add(removeHighlightNode(i));
+  //     timeline.add(removeHighlight(i));
+  //   }
+
+  //   return timeline;
+  // }
+
+// Modified heapify function with correct tab return logic
+function heapify(
+  arr: number[],
+  n: number,
+  i: number,
+  isMaxHeap: boolean = propsRef.current.isAscending,
+  isRecursiveCall: boolean = false,
+  returnToTab: number = 0 // Add parameter to specify which tab to return to
+): GSAPTimeline {
+  const timeline = gsap.timeline();
+
+  // Only switch to heapify tab if this is not a recursive call
+  if (!isRecursiveCall) {
+    timeline.add(switchToTab(2), "+=0.2");
+  }
+
+  // Switch to heapify tab and highlight function declaration
+  timeline.add(updatePseudoCodeLine(0, 2)); // heapify function declaration
+
+  let target = i;
+  const left = 2 * i + 1;
+  const right = 2 * i + 2;
+
+  // Grey out all nodes from index i to the end (for heapify subtree)
+  if (arrayNodeRef.current) {
+    const indicesToGrey: number[] = [];
+    const collectSubtreeIndices = (root: number) => {
+      if (root >= n) return;
+      indicesToGrey.push(root);
+      collectSubtreeIndices(2 * root + 1);
+      collectSubtreeIndices(2 * root + 2);
+    };
+    collectSubtreeIndices(i);
+    timeline.add(greyOutOtherNodes(indicesToGrey));
+  }
+
+  // Highlight variable initialization
+  timeline.add(updatePseudoCodeLine([2, 3, 4], 2)); // largest, left, right initialization
+
+  // Highlight current node
+  if (arrayNodeRef.current) {
+    timeline.add(highlightNode(target));
+  }
+  timeline.add(highlightElement(i, "blue"));
+
+  timeline.add(updatePseudoCodeLine(6, 2), "+=0.3"); // if left < size condition
+
+  if (arrayNodeRef.current && left < n && arrayNodeRef.current[left]) {
+    timeline.add(highlightNode(left));
+    timeline.to(arrayNodeRef.current[left], {
+      duration: 0.3,
+    });
+    timeline.add(removeHighlightNode(left));
+    timeline.add(highlightElement(left, "blue"));
+    timeline.to(arrayElementsRef.current[left], {
+      duration: 0.3,
+    });
+    timeline.add(removeHighlight(left));
+  }
+  
+  if (left < n) {
+    if (isMaxHeap && arr[left] > arr[target]) {
+      timeline.add(updatePseudoCodeLine(7, 2), "+=0.1"); // largest = left
+      target = left;
+    } else if (!isMaxHeap && arr[left] < arr[target]) {
+      timeline.add(updatePseudoCodeLine(7, 2), "+=0.1"); // largest = left
+      target = left;
     }
+  }
 
-    // Highlight current node
-    if (arrayNodeRef.current) {
-      timeline.add(highlightNode(target));
-    }
-    timeline.add(highlightElement(i, "blue"));
+  // Check right child
+  timeline.add(updatePseudoCodeLine(9, 2), "+=0.3"); // if right < size condition
 
-    if (arrayNodeRef.current && left < n && arrayNodeRef.current[left]) {
-      timeline.add(highlightNode(left));
-      timeline.to(arrayNodeRef.current[left], {
-        duration: 0.3,
-      });
-      timeline.add(removeHighlightNode(left));
-      // Highlight the array box at index 'left'
-      timeline.add(highlightElement(left, "blue"));
-      timeline.to(arrayElementsRef.current[left], {
-        duration: 0.3,
-      });
-      timeline.add(removeHighlight(left));
+  if (arrayNodeRef.current && right < n && arrayNodeRef.current[right]) {
+    timeline.add(highlightNode(right));
+    timeline.to(arrayNodeRef.current[right], {
+      duration: 0.3,
+    });
+    timeline.add(removeHighlightNode(right));
+    timeline.add(highlightElement(right, "blue"));
+    timeline.to(arrayElementsRef.current[right], {
+      duration: 0.3,
+    });
+    timeline.add(removeHighlight(right));
+  }
+  
+  if (right < n) {
+    if (isMaxHeap && arr[right] > arr[target]) {
+      timeline.add(updatePseudoCodeLine(10, 2), "+=0.1"); // largest = right
+      target = right;
+    } else if (!isMaxHeap && arr[right] < arr[target]) {
+      timeline.add(updatePseudoCodeLine(10, 2), "+=0.1"); // largest = right
+      target = right;
     }
-    if (left < n) {
-      if (isMaxHeap && arr[left] > arr[target]) {
-        target = left;
-      } else if (!isMaxHeap && arr[left] < arr[target]) {
-        target = left;
+  }
+
+  // Check if swap is needed
+  timeline.add(updatePseudoCodeLine(12, 2), "+=0.3"); // if largest ≠ root
+
+  if (target !== i) {
+    timeline.add(updatePseudoCodeLine(13, 2)); // swap operation
+
+    // Perform swap animations
+    if (
+      arrayNodeRef.current &&
+      arrayNodeRef.current[i] &&
+      arrayNodeRef.current[target]
+    ) {
+      timeline.add(eclipseSwapNodes(i, target));
+      
+      if (
+        arrayElementsRef.current &&
+        arrayElementsRef.current[i] &&
+        arrayElementsRef.current[target]
+      ) {
+        timeline.add(
+          eclipseSwap(
+            arrayElementsRef.current[i],
+            arrayElementsRef.current[target] as HTMLElement
+          )
+        );
+        
+        const tempRef = arrayElementsRef.current[i];
+        arrayElementsRef.current[i] = arrayElementsRef.current[target];
+        arrayElementsRef.current[target] = tempRef;
+        timeline.call(() => {});
       }
-    }
-    if (arrayNodeRef.current && right < n && arrayNodeRef.current[right]) {
-      timeline.add(highlightNode(right));
-      timeline.to(arrayNodeRef.current[right], {
-        duration: 0.3,
-      });
-      timeline.add(removeHighlightNode(right));
-      // Highlight the array box at index 'right'
-      timeline.add(highlightElement(right, "blue"));
-      timeline.to(arrayElementsRef.current[right], {
-        duration: 0.3,
-      });
-      timeline.add(removeHighlight(right));
-    }
-    if (right < n) {
-      if (isMaxHeap && arr[right] > arr[target]) {
-        target = right;
-      } else if (!isMaxHeap && arr[right] < arr[target]) {
-        target = right;
-      }
-    }
-
-    if (target !== i) {
-      // Animate swap
-
+      
       if (
         arrayNodeRef.current &&
         arrayNodeRef.current[i] &&
         arrayNodeRef.current[target]
       ) {
-        // Use eclipseSwapNodes animation for the swap
-        timeline.add(eclipseSwapNodes(i, target));
-        // Swap the array boxes (arrayElementsRef) visually using eclipseSwap
-        if (
-          arrayElementsRef.current &&
-          arrayElementsRef.current[i] &&
-          arrayElementsRef.current[target]
-        ) {
-          timeline.add(
-            eclipseSwap(
-              arrayElementsRef.current[i],
-              arrayElementsRef.current[target] as HTMLElement
-            )
-          );
-          // Swap the refs so the visual order matches the logical order
-          const tempRef = arrayElementsRef.current[i];
-          arrayElementsRef.current[i] = arrayElementsRef.current[target];
-          arrayElementsRef.current[target] = tempRef;
-
-          // Swap the text content of the array boxes so the numbers visually swap
-
-          timeline.call(() => {});
-          // Print the x and y GSAP positions for the swapped elements
-        }
-        if (
-          arrayNodeRef.current &&
-          arrayNodeRef.current[i] &&
-          arrayNodeRef.current[target]
-        ) {
-          [arrayNodeRef.current[i], arrayNodeRef.current[target]] = [
-            arrayNodeRef.current[target],
-            arrayNodeRef.current[i],
-          ];
-        }
+        [arrayNodeRef.current[i], arrayNodeRef.current[target]] = [
+          arrayNodeRef.current[target],
+          arrayNodeRef.current[i],
+        ];
       }
-
-      // Swap values in array
-      [arr[i], arr[target]] = [arr[target], arr[i]];
-
-      // Also swap the arrayNodeRef nodes so the tree visualization matches the array swap
-
-      timeline.add(heapify(arr, n, target));
-    } else {
-      // If no swap, restore only the nodes in the subtree rooted at i
-      timeline.add(restoreOnlyNodes([i]));
-      // Remove highlight from i
-      timeline.add(removeHighlightNode(i));
-      timeline.add(removeHighlight(i));
     }
 
-    return timeline;
+    // Swap values in array
+    [arr[i], arr[target]] = [arr[target], arr[i]];
+
+    timeline.to({}, { duration: 1.5 });
+    timeline.add(updatePseudoCodeLine(14, 2)); // recursive heapify call
+    timeline.to({}, { duration: 0.3 });
+
+    timeline.add(switchToTab(returnToTab), "+=0.2");
+
+    
+    // Make recursive call with the same returnToTab
+    timeline.add(heapify(arr, n, target, isMaxHeap, true, returnToTab));
+  } else {
+    // No swap needed - this heapify call is complete
+    // Switch back to the correct tab only if this is not a recursive call
+    if (!isRecursiveCall) {
+      timeline.add(switchToTab(returnToTab), "+=0.2");
+    } else {
+      timeline.add(switchToTab(returnToTab), "+=0.2");
+    }
+
+    // Restore nodes and remove highlights
+    timeline.add(restoreOnlyNodes([i]));
+    timeline.add(removeHighlightNode(i));
+    timeline.add(removeHighlight(i));
   }
+
+  return timeline;
+}
 
   // Build heap function: builds a max heap from array arr, returns a GSAP timeline of the process
 
@@ -1348,6 +1625,10 @@ const HeapSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
       currentStepRef.current = 0;
     });
     let stepIndex = 1;
+    mainTimeline.add(updatePseudoCodeLine(0, 0)); // HeapSort function declaration
+
+    // Highlight buildHeap call and switch to buildHeap tab
+    mainTimeline.add(updatePseudoCodeLine(2, 0)); // buildHeap call in HeapSort
 
     if (arrayElementsRef.current) {
       const elements = arrayElementsRef.current.filter(Boolean);
@@ -1396,6 +1677,8 @@ const HeapSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
         })
       );
     }
+    // Build heap phase
+    mainTimeline.add(updatePseudoCodeLine(2, 1), "-=1.3"); // for loop in buildHeap
 
     // Create all nodes for the heap tree
     for (let i = 0; i < n; i++) {
@@ -1422,7 +1705,13 @@ const HeapSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
       });
       stepIndex++;
 
-      mainTimeline.add(heapify(arr, n, i));
+      // mainTimeline.to({}, { duration: 0.3 });
+
+      // Highlight heapify call in buildHeap
+      mainTimeline.add(updatePseudoCodeLine(3, 1));
+      mainTimeline.to({}, { duration: 0.3 });
+
+      mainTimeline.add(heapify(arr, n, i, isMaxHeap, false, 1));
     }
 
     // Update the heap tree label to "Max heap tree" and add to mainTimeline
@@ -1445,7 +1734,14 @@ const HeapSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
       );
     }
 
+    mainTimeline.add(switchToTab(0), "+=0.2");
+
+    // Switch back to HeapSort tab and highlight the sorting loop
+    mainTimeline.add(updatePseudoCodeLine(4, 0), "+=0.3"); // for loop in HeapSort
+
     for (let i = n - 1; i > 0; i--) {
+      // Switch back to HeapSort tab and highlight the sorting loop
+      mainTimeline.add(updatePseudoCodeLine(4, 0), "+=0.3"); // for loop in HeapSort
       {
         const thisStep = stepIndex;
         mainTimeline.addLabel(`step-${thisStep}`);
@@ -1454,6 +1750,10 @@ const HeapSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
         });
         stepIndex++;
       }
+
+      // Highlight swap operation
+      mainTimeline.add(updatePseudoCodeLine(5, 0), "+=0.2"); // swap line
+
       // Animate swap of max element (root, index 0) with last element (index i) in the heap tree nodes
       // Highlight both the max (root, index 0) and last element node (index i)
       if (arrayNodeRef.current) {
@@ -1561,8 +1861,13 @@ const HeapSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
         });
         stepIndex++;
       }
+
+      mainTimeline.to({}, { duration: 0.3 });
+
+      mainTimeline.add(updatePseudoCodeLine(6, 0), "+=0.2"); // heapify call in HeapSort
+
       // Remove the node from arrayNodeRef and the edge from edgeRefs after hiding
-      mainTimeline.add(heapify(arr, i, 0));
+      mainTimeline.add(heapify(arr, i, 0,isMaxHeap, false, 0));
     }
 
     // Animate the sorted indicator for the first element (index 0)
@@ -1605,6 +1910,9 @@ const HeapSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
       );
     }
 
+    // Highlight return statement
+    mainTimeline.add(updatePseudoCodeLine(8, 0), "-=1.5"); // return array
+
     totalStepsRef.current = stepIndex;
     currentStepRef.current = 0;
     mainTimeline.addLabel("end");
@@ -1612,8 +1920,10 @@ const HeapSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
     timelineRef.current = mainTimeline;
     // ... (rest of animation logic for edges and other nodes)
   };
+
   const nextStep = (): void => {
     console.log("Current step:", currentStepRef.current);
+
     console.log("Total steps:", totalStepsRef.current);
     if (!timelineRef.current) {
       playAnimation();
@@ -1703,15 +2013,15 @@ const HeapSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
       }
     }
 
-  // INSERT_YOUR_CODE
-  // When at step 0, set all heap edges' opacity to 0
-  if (currentStepRef.current === 0 && edgeRefs.current) {
-    edgeRefs.current.forEach((edge) => {
-      if (edge instanceof SVGLineElement) {
-        edge.setAttribute("opacity", "0");
-      }
-    });
-  }
+    // INSERT_YOUR_CODE
+    // When at step 0, set all heap edges' opacity to 0
+    if (currentStepRef.current === 0 && edgeRefs.current) {
+      edgeRefs.current.forEach((edge) => {
+        if (edge instanceof SVGLineElement) {
+          edge.setAttribute("opacity", "0");
+        }
+      });
+    }
   };
 
   // Control handlers

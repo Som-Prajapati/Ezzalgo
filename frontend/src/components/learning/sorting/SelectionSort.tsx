@@ -67,13 +67,28 @@ const SelectionSort: React.FC<SidebarProps> = ({
   const propsRef = useRef({ array, speed, isAscending, isPlaying });
   const tabTitles = ["Selection Sort"] as const;
   const showPseudoCode = 0;
-  const pseudoCode = [["------- selection sort"]];
+  const pseudoCode = [
+    [
+      "for i ← 0 to (size - 2) do",
+      "    minIndex ← i",
+      "",
+      "    for j ← i + 1 to (size - 1) do",
+      "        if array[j] < array[minIndex] then",
+      "            minIndex ← j",
+      "",
+      "    swap array[i] and array[minIndex]",
+      "",
+      "return array",
+    ],
+  ];
 
   // Add refs for step management
   const currentStepRef = useRef<number>(0);
   const totalStepsRef = useRef<number>(0);
   const [showCodePanel, setShowCodePanel] = useState(false);
-  const [currentPseudoCodeLine, setCurrentPseudoCodeLine] = useState(0);
+  const [currentPseudoCodeLine, setCurrentPseudoCodeLine] = useState<
+    number | number[]
+  >(0);
 
   const dynamicSizing = getDynamicSizing(array.length);
   const {
@@ -296,13 +311,25 @@ const SelectionSort: React.FC<SidebarProps> = ({
     mainTimeline.addLabel("step-0");
     mainTimeline.call(() => {
       currentStepRef.current = 0;
+      setCurrentPseudoCodeLine(0);
     });
 
     let stepIndex = 1;
 
     // Selection sort algorithm with labels and eclipse swap
     for (let i = 0; i < n - 1; i++) {
+      if (i > 0) {
+        mainTimeline.call(() => {
+          setCurrentPseudoCodeLine(0); // Highlight "for i ← 1 to (size - 1) do"
+        });
+        mainTimeline.add(gsap.to({}, { duration: 0.3 })); // Small pause to show for loop
+      }
+
       let minIndex = i;
+
+      mainTimeline.call(() => {
+        setCurrentPseudoCodeLine(1);
+      });
 
       // Add label for this iteration
       // mainTimeline.addLabel(`step-${stepIndex}`, "+=0.2");
@@ -362,8 +389,23 @@ const SelectionSort: React.FC<SidebarProps> = ({
       // Highlight initial min element (red)
       mainTimeline.add(highlightMinElement(i), "-=0.3");
 
+      // Show inner for loop before starting comparisons
+      mainTimeline.call(() => {
+        setCurrentPseudoCodeLine(3); // Highlight "for j ← i + 1 to (size - 1) do"
+      });
+
+      mainTimeline.add(gsap.to({}, { duration: 0.3 })); // Pause to show inner for loop
+
       // Find minimum element in remaining array
       for (let j = i + 1; j < n; j++) {
+        if (j > i + 1) {
+          mainTimeline.call(() => {
+            setCurrentPseudoCodeLine(3); // Highlight "for j ← i + 1 to (size - 1) do"
+          });
+        }
+
+        // mainTimeline.add(gsap.to({}, { duration: 0.3 })); // Small pause
+
         // Add label for comparison step
         mainTimeline.addLabel(`step-${stepIndex}`, "+=0.1");
         {
@@ -386,6 +428,9 @@ const SelectionSort: React.FC<SidebarProps> = ({
             "+=0.2"
           );
         }
+        mainTimeline.call(() => {
+          setCurrentPseudoCodeLine(4); // Highlight "if array[j] < array[minIndex] then"
+        });
 
         // Remove highlight from previous j only if it's not the current min
         if (j > i + 1 && j - 1 !== minIndex) {
@@ -402,6 +447,9 @@ const SelectionSort: React.FC<SidebarProps> = ({
 
         // Check if we found a new minimum
         if (isAscending ? arr[j] < arr[minIndex] : arr[j] > arr[minIndex]) {
+          mainTimeline.call(() => {
+            setCurrentPseudoCodeLine(5); // Highlight "minIndex ← j"
+          });
           const oldMinIndex = minIndex;
           minIndex = j;
 
@@ -438,6 +486,11 @@ const SelectionSort: React.FC<SidebarProps> = ({
       if (lastJ !== minIndex) {
         mainTimeline.add(removeHighlight(lastJ));
       }
+
+      // Show swap line
+      mainTimeline.call(() => {
+        setCurrentPseudoCodeLine(7); // Highlight "swap array[i] and array[minIndex]"
+      });
 
       // Swap if needed
       if (minIndex !== i) {
@@ -558,6 +611,10 @@ const SelectionSort: React.FC<SidebarProps> = ({
         "-=0.5"
       );
     }
+
+    mainTimeline.call(() => {
+      setCurrentPseudoCodeLine(9);
+    });
 
     // Final sorted animation
     mainTimeline.add(

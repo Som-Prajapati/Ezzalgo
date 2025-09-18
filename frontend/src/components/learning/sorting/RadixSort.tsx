@@ -83,11 +83,50 @@ const RadixSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
   const wasPausedRef = useRef<boolean>(false);
   const propsRef = useRef({ array, speed, isAscending, isPlaying });
   const stepDigitPlaceRef = useRef<Map<number, number>>(new Map());
-  const [currentPseudoCodeLine, setCurrentPseudoCodeLine] = useState(0);
+  const [currentPseudoCodeLine, setCurrentPseudoCodeLine] = useState<
+    number | number[]
+  >(0);
+
   const [showCodePanel, setShowCodePanel] = useState(false);
-  const tabTitles = ["Selection Sort"] as const;
-  const showPseudoCode = 0;
-  const pseudoCode = [["------- selection sort"]];
+  const tabTitles = ["RadixSort", "CountingSortByDigit"] as const;
+  // const showPseudoCode = 0;
+  const [showPseudoCode, setShowPseudoCode] = useState(0); // Changed from const to state
+  const pseudoCode = [
+    [
+      "RadixSort(array, size):",
+      "",
+      "   maxElement ← maximum value in array",
+      "   exp ← 1",
+      "",
+      "   while (maxElement / exp) > 0 do",
+      "       CountingSortByDigit(array, size, exp)",
+      "       exp ← exp * 10",
+      "",
+      "return array",
+    ],
+    [
+      "CountingSortByDigit(array, size, exp):",
+      "",
+      "   output[size]",
+      "   count[10] ← all zeros",
+      "",
+      "   for i ← 0 to (size - 1) do",
+      "       index ← (array[i] / exp) mod 10",
+      "       count[index] ← count[index] + 1",
+      "",
+      "   for i ← 1 to 9 do",
+      "       count[i] ← count[i] + count[i - 1]",
+      "",
+      "   for i ← (size - 1) to 0 do",
+      "       index ← (array[i] / exp) mod 10",
+      "       output[count[index] - 1] ← array[i]",
+      "       count[index] ← count[index] - 1",
+      "",
+      "   for i ← 0 to (size - 1) do",
+      "       array[i] ← output[i]",
+      "",
+    ],
+  ];
 
   // Add refs for step management
   const currentStepRef = useRef<number>(0);
@@ -124,6 +163,23 @@ const RadixSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
   const getMaxDigits = (arr: number[]): number => {
     const maxNum = Math.max(...arr);
     return maxNum.toString().length;
+  };
+
+  // Helper function to update pseudo code line highlighting
+  const updatePseudoCodeLine = (
+    line: number | number[],
+    tabIndex: number = 0
+  ): gsap.core.Timeline => {
+    const timeline = gsap.timeline();
+
+    timeline.call(() => {
+      setCurrentPseudoCodeLine(line);
+      if (tabIndex !== showPseudoCode) {
+        setShowPseudoCode(tabIndex);
+      }
+    });
+
+    return timeline;
   };
 
   // Helper to map digit place to user-friendly label
@@ -190,6 +246,15 @@ const RadixSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
     });
 
     return timeline;
+  };
+
+  // Add this function to ensure proper tab switching
+  const switchToTab = (tabIndex: number): gsap.core.Timeline => {
+    const tl = gsap.timeline();
+    tl.call(() => {
+      setShowPseudoCode(tabIndex);
+    });
+    return tl;
   };
 
   // Highlights the digit at the given digitPlace in red for the current element
@@ -627,6 +692,198 @@ const RadixSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
   };
 
   // Fixed playAnimation function
+  // const playAnimation = (): void => {
+  //   if (wasPausedRef.current && timelineRef.current) {
+  //     timelineRef.current.play();
+  //     wasPausedRef.current = false;
+  //     return;
+  //   }
+
+  //   // Create an array to store all
+  //   // values for step tracking
+  //   const addLabelArray: string[] = [];
+
+  //   resetAnimation();
+  //   stepDigitPlaceRef.current.clear();
+
+  //   const arr = [...array];
+  //   const maxDigits = getMaxDigits(arr);
+  //   const mainTimeline = gsap.timeline();
+  //   mainTimeline.timeScale(propsRef.current.speed);
+  //   currentStepRef.current = 0;
+
+  //   let stepIndex = 0;
+
+  //   // Add initial label
+  //   mainTimeline.addLabel("step-0");
+  //   mainTimeline.call(() => {
+  //     currentStepRef.current = 0;
+  //   });
+  //   mainTimeline.call(() => {
+  //     stepDigitPlaceRef.current.set(0, 0);
+  //   });
+  //   stepIndex++;
+
+  //   // Add initial label to addLabelArray for step tracking
+  //   addLabelArray.push("step-0");
+
+  //   // Move all elements to the top initially
+  //   const elements = arrayElementsRef.current;
+  //   if (elements) {
+  //     mainTimeline.fromTo(
+  //       elements,
+  //       { y: 0 },
+  //       {
+  //         y: -TOP_OFFSET,
+  //         duration: 0.5,
+  //         ease: "power1.inOut",
+  //         stagger: 0.1,
+  //       },
+  //       0
+  //     );
+  //   }
+
+  //   // Show bucket dashes initially
+  //   mainTimeline.add(showBucketDashes());
+
+  //   // Process each digit place (ones, tens, hundreds, etc.)
+  //   for (let digitPlace = 0; digitPlace < maxDigits; digitPlace++) {
+  //     // Update digit place indicator
+  //     mainTimeline.add(updateDigitPlaceIndicator(digitPlace), "+=0.2");
+
+  //     // Add step label for digit place start
+  //     mainTimeline.addLabel(`step-${stepIndex}`, "+=0.1");
+  //     {
+  //       const thisStep = stepIndex;
+  //       mainTimeline.call(() => {
+  //         currentStepRef.current = thisStep;
+  //       });
+  //       mainTimeline.call(() => {
+  //         stepDigitPlaceRef.current.set(thisStep, digitPlace);
+  //       });
+  //     }
+  //     stepIndex++;
+
+  //     // PHASE 1: Distribute to buckets
+  //     const buckets: HTMLElement[][] = Array.from({ length: 10 }, () => []);
+
+  //     for (let i = 0; i < arr.length; i++) {
+  //       const element = arrayElementsRef.current[i];
+  //       if (!element) continue;
+
+  //       const digit = getDigitAtPlace(arr[i], digitPlace);
+  //       buckets[digit].push(element);
+
+  //       // Add step label for each element distribution
+  //       mainTimeline.addLabel(`step-${stepIndex}`, "+=0.1");
+  //       {
+  //         const thisStep = stepIndex;
+  //         mainTimeline.call(() => {
+  //           currentStepRef.current = thisStep;
+  //         });
+  //         mainTimeline.call(() => {
+  //           stepDigitPlaceRef.current.set(thisStep, digitPlace);
+  //         });
+  //       }
+  //       stepIndex++;
+
+  //       // Highlight and animate to bucket
+  //       mainTimeline.add(highlightDigit(element, digitPlace), ">");
+  //       mainTimeline.add(highlightBucketDash(digit), "-=0.1");
+
+  //       const stackPosition = buckets[digit].length - 1;
+  //       mainTimeline.add(
+  //         moveElementToBucket(element, digit, stackPosition, 0.8),
+  //         "+=0.3"
+  //       );
+
+  //       mainTimeline.add(removeBucketDashHighlight(digit), "-=0.4");
+  //       mainTimeline.to({}, { duration: 0.2 });
+  //     }
+
+  //     // PHASE 2: Collect from buckets back to array
+  //     const newOrder: number[] = [];
+  //     const newElementOrder: (HTMLDivElement | null)[] = [];
+
+  //     if (propsRef.current.isAscending) {
+  //       for (let bucket = 0; bucket < 10; bucket++) {
+  //         buckets[bucket].forEach((element) => {
+  //           const value = parseInt(element.textContent || "0");
+  //           newOrder.push(value);
+  //           newElementOrder.push(element as HTMLDivElement);
+  //         });
+  //       }
+  //     } else {
+  //       for (let bucket = 9; bucket >= 0; bucket--) {
+  //         buckets[bucket].forEach((element) => {
+  //           const value = parseInt(element.textContent || "0");
+  //           newOrder.push(value);
+  //           newElementOrder.push(element as HTMLDivElement);
+  //         });
+  //       }
+  //     }
+
+  //     // Update array state
+  //     for (let i = 0; i < newOrder.length; i++) {
+  //       arr[i] = newOrder[i];
+  //     }
+  //     arrayElementsRef.current = newElementOrder;
+
+  //     // Add step label for collection phase
+  //     mainTimeline.addLabel(`step-${stepIndex}`, "+=0.1");
+  //     {
+  //       const thisStep = stepIndex;
+  //       mainTimeline.call(() => {
+  //         currentStepRef.current = thisStep;
+  //       });
+  //       mainTimeline.call(() => {
+  //         stepDigitPlaceRef.current.set(thisStep, digitPlace);
+  //       });
+  //     }
+  //     stepIndex++;
+
+  //     mainTimeline.add(
+  //       moveElementsFromBucketsToArray(
+  //         buckets,
+  //         1.2,
+  //         propsRef.current.isAscending
+  //       )
+  //     );
+
+  //     // Remove all digit highlights after elements return to array
+  //     for (let i = 0; i < arr.length; i++) {
+  //       const element = arrayElementsRef.current[i];
+  //       if (!element) continue;
+  //       mainTimeline.add(removeDigitHighlight(element), "+=0.1");
+  //     }
+
+  //     // Wait for elements to finish moving back before proceeding to next digit
+  //     mainTimeline.to({}, { duration: 1.0 });
+  //   }
+
+  //   // Final cleanup
+  //   mainTimeline.add(hideBucketDashes(), "+=0.2");
+  //   mainTimeline.add(removeDigitPlaceIndicator(), "+=0.1");
+  //   mainTimeline.add(
+  //     animateSortedIndicator([...Array(arr.length).keys()]),
+  //     "-=0.1"
+  //   );
+
+  //   // Set total steps and add end label
+  //   totalStepsRef.current = stepIndex - 1;
+  //   currentStepRef.current = 0;
+  //   mainTimeline.addLabel("end");
+
+  //   mainTimeline.call(() => {
+  //     wasPausedRef.current = false;
+  //     setIsPlaying(false);
+  //   });
+
+  //   console.log("addLabelArray:", addLabelArray);
+
+  //   timelineRef.current = mainTimeline;
+  // };
+
   const playAnimation = (): void => {
     if (wasPausedRef.current && timelineRef.current) {
       timelineRef.current.play();
@@ -634,8 +891,7 @@ const RadixSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
       return;
     }
 
-    // Create an array to store all
-    // values for step tracking
+    // Create an array to store all values for step tracking
     const addLabelArray: string[] = [];
 
     resetAnimation();
@@ -657,6 +913,9 @@ const RadixSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
     mainTimeline.call(() => {
       stepDigitPlaceRef.current.set(0, 0);
     });
+
+    // Highlight the first line of RadixSort
+    mainTimeline.add(updatePseudoCodeLine([2, 3], 0), "+=0.1");
     stepIndex++;
 
     // Add initial label to addLabelArray for step tracking
@@ -681,10 +940,23 @@ const RadixSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
     // Show bucket dashes initially
     mainTimeline.add(showBucketDashes());
 
+    // // Highlight maxElement calculation (line 2)
+    // mainTimeline.add(updatePseudoCodeLine(2, 0), "+=0.2");
+
+    // // Highlight exp initialization (line 3)
+    // mainTimeline.add(updatePseudoCodeLine(3, 0), "+=0.5");
+
     // Process each digit place (ones, tens, hundreds, etc.)
     for (let digitPlace = 0; digitPlace < maxDigits; digitPlace++) {
+      // Highlight while condition (line 5)
+      mainTimeline.add(updatePseudoCodeLine(5, 0), "+=0.3");
+
       // Update digit place indicator
       mainTimeline.add(updateDigitPlaceIndicator(digitPlace), "+=0.2");
+
+      // Highlight CountingSortByDigit call (line 6) and switch to CountingSortByDigit tab
+      mainTimeline.add(updatePseudoCodeLine(6, 0), "+=0.2");
+      mainTimeline.add(updatePseudoCodeLine(0, 1), "+=0.3"); // Switch to CountingSortByDigit tab
 
       // Add step label for digit place start
       mainTimeline.addLabel(`step-${stepIndex}`, "+=0.1");
@@ -699,7 +971,12 @@ const RadixSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
       }
       stepIndex++;
 
-      // PHASE 1: Distribute to buckets
+      // Initialize count array (line 3 in CountingSortByDigit)
+      mainTimeline.add(updatePseudoCodeLine([2, 3], 1), "+=0.3");
+
+      // PHASE 1: Count occurrences of each digit (lines 5-7 in CountingSortByDigit)
+      mainTimeline.add(updatePseudoCodeLine(5, 1), "+=0.5");
+
       const buckets: HTMLElement[][] = Array.from({ length: 10 }, () => []);
 
       for (let i = 0; i < arr.length; i++) {
@@ -722,9 +999,14 @@ const RadixSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
         }
         stepIndex++;
 
+        // Highlight digit extraction and count increment (lines 6-7)
+        mainTimeline.add(updatePseudoCodeLine(6, 1), "+=0.1");
+
         // Highlight and animate to bucket
         mainTimeline.add(highlightDigit(element, digitPlace), ">");
         mainTimeline.add(highlightBucketDash(digit), "-=0.1");
+
+        mainTimeline.add(updatePseudoCodeLine(7, 1), "+=0.1");
 
         const stackPosition = buckets[digit].length - 1;
         mainTimeline.add(
@@ -736,26 +1018,48 @@ const RadixSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
         mainTimeline.to({}, { duration: 0.2 });
       }
 
+      // Transform count array to cumulative (lines 9-10 in CountingSortByDigit)
+      mainTimeline.add(updatePseudoCodeLine([9, 10], 1), "+=0.3");
+      mainTimeline.to({}, { duration: 0.3 });
+
       // PHASE 2: Collect from buckets back to array
       const newOrder: number[] = [];
       const newElementOrder: (HTMLDivElement | null)[] = [];
 
+      // Build output array (lines 12-15 in CountingSortByDigit)
+      // Instead of highlighting all lines at once, highlight each line as each element is collected
+      let collectIndex = 0;
+      let collectElements: HTMLDivElement[] = [];
+
       if (propsRef.current.isAscending) {
         for (let bucket = 0; bucket < 10; bucket++) {
           buckets[bucket].forEach((element) => {
-            const value = parseInt(element.textContent || "0");
-            newOrder.push(value);
-            newElementOrder.push(element as HTMLDivElement);
+            collectElements.push(element as HTMLDivElement);
           });
         }
       } else {
         for (let bucket = 9; bucket >= 0; bucket--) {
           buckets[bucket].forEach((element) => {
-            const value = parseInt(element.textContent || "0");
-            newOrder.push(value);
-            newElementOrder.push(element as HTMLDivElement);
+            collectElements.push(element as HTMLDivElement);
           });
         }
+      }
+
+      // For each element being collected, highlight lines 12-15 in a staggered manner
+      for (let i = 0; i < collectElements.length; i++) {
+        // // Highlight line 12: for i ← (size - 1) to 0 do
+        // mainTimeline.add(updatePseudoCodeLine(12, 1), i === 0 ? "+=0.3" : "+=0.15");
+        // // Highlight line 13: index ← (array[i] / exp) mod 10
+        // mainTimeline.add(updatePseudoCodeLine(13, 1), "+=0.1");
+        // // Highlight line 14: output[count[index] - 1] ← array[i]
+        // mainTimeline.add(updatePseudoCodeLine(14, 1), "+=0.1");
+        // // Highlight line 15: count[index] ← count[index] - 1
+        // mainTimeline.add(updatePseudoCodeLine(15, 1), "+=0.1");
+
+        const element = collectElements[i];
+        const value = parseInt(element.textContent || "0");
+        newOrder.push(value);
+        newElementOrder.push(element as HTMLDivElement);
       }
 
       // Update array state
@@ -777,12 +1081,37 @@ const RadixSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
       }
       stepIndex++;
 
+      // For each element being collected, highlight lines 12-15 in a staggered manner
+      for (let i = 0; i < collectElements.length; i++) {
+        // Highlight line 12: for i ← (size - 1) to 0 do
+        mainTimeline.add(updatePseudoCodeLine(12, 1));
+        mainTimeline.to({}, { duration: 0.15 });
+
+        // Highlight line 13: index ← (array[i] / exp) mod 10
+        mainTimeline.add(updatePseudoCodeLine(13, 1));
+        mainTimeline.to({}, { duration: 0.15 });
+
+        // Highlight line 14: output[count[index] - 1] ← array[i]
+        mainTimeline.add(updatePseudoCodeLine(14, 1));
+        mainTimeline.to({}, { duration: 0.15 });
+
+        // Highlight line 15: count[index] ← count[index] - 1
+        mainTimeline.add(updatePseudoCodeLine(15, 1));
+        mainTimeline.to({}, { duration: 0.15 });
+
+      }
+      // Move elements from buckets to array, highlighting lines 12-15 in sync with the movement
       mainTimeline.add(
-        moveElementsFromBucketsToArray(
-          buckets,
-          1.2,
-          propsRef.current.isAscending
-        )
+        gsap
+          .timeline()
+          .add(
+            moveElementsFromBucketsToArray(
+              buckets,
+              1.2,
+              propsRef.current.isAscending
+            )
+          ),
+          "-=5"
       );
 
       // Remove all digit highlights after elements return to array
@@ -792,13 +1121,21 @@ const RadixSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
         mainTimeline.add(removeDigitHighlight(element), "+=0.1");
       }
 
+      mainTimeline.add(updatePseudoCodeLine([17, 18], 1), "+=0.3");
+
       // Wait for elements to finish moving back before proceeding to next digit
       mainTimeline.to({}, { duration: 1.0 });
+      mainTimeline.add(switchToTab(0), "+=0.2");
+      mainTimeline.add(updatePseudoCodeLine(7, 0), "+=0.3");
     }
 
-    // Final cleanup
+    // Final cleanup - highlight return statement (line 9)
+    mainTimeline.add(updatePseudoCodeLine(9, 0), "+=0.2");
     mainTimeline.add(hideBucketDashes(), "+=0.2");
     mainTimeline.add(removeDigitPlaceIndicator(), "+=0.1");
+    // Switch back to RadixSort tab and highlight exp increment (line 7)
+    mainTimeline.add(updatePseudoCodeLine(9, 0), "+=0.3");
+
     mainTimeline.add(
       animateSortedIndicator([...Array(arr.length).keys()]),
       "-=0.1"
@@ -812,6 +1149,7 @@ const RadixSort: React.FC<SidebarProps> = ({ isOpen, width }: SidebarProps) => {
     mainTimeline.call(() => {
       wasPausedRef.current = false;
       setIsPlaying(false);
+      // setCurrentPseudoCodeLine(0); // Reset to initial state
     });
 
     console.log("addLabelArray:", addLabelArray);

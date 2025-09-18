@@ -64,7 +64,13 @@ const BinarySearch: React.FC<SidebarProps> = ({
   });
   const timelineRef = useRef<gsap.core.Timeline | null>(null);
   const wasPausedRef = useRef<boolean>(false);
-  const propsRef = useRef({ array, speed, isPlaying, searchValue, isAscending });
+  const propsRef = useRef({
+    array,
+    speed,
+    isPlaying,
+    searchValue,
+    isAscending,
+  });
 
   // Step management
   const currentStepRef = useRef<number>(0);
@@ -104,25 +110,33 @@ const BinarySearch: React.FC<SidebarProps> = ({
     return timeline;
   };
 
-  const eliminateElements = (start: number, end: number, direction: 'left' | 'right'): gsap.core.Timeline => {
+  const eliminateElements = (
+    start: number,
+    end: number,
+    direction: "left" | "right"
+  ): gsap.core.Timeline => {
     const timeline = gsap.timeline();
 
     // Calculate rotation direction based on which side is being eliminated
-    const rotation = direction === 'left' ? -15 : 15;
+    const rotation = direction === "left" ? -15 : 15;
 
     for (let i = start; i <= end; i++) {
       const element = arrayElementsRef.current[i];
       if (element) {
-        timeline.to(element, {
-          backgroundColor: "#9e9e9e",
-          borderColor: "#757575",
-          y: 400,
-          opacity: 0,
-          rotation: rotation,
-          duration: 0.6,
-          ease: "power2.in",
-          delay: (i - start) * 0, // Reduced delay for faster animation
-        }, `eliminate-${i}`);
+        timeline.to(
+          element,
+          {
+            backgroundColor: "#9e9e9e",
+            borderColor: "#757575",
+            y: 400,
+            opacity: 0,
+            rotation: rotation,
+            duration: 0.6,
+            ease: "power2.in",
+            delay: (i - start) * 0, // Reduced delay for faster animation
+          },
+          `eliminate-${i}`
+        );
       }
     }
 
@@ -144,37 +158,49 @@ const BinarySearch: React.FC<SidebarProps> = ({
     }
   };
 
-  const restoreElements = (mid: number, targetedMid: boolean): gsap.core.Timeline => {
+  const restoreElements = (
+    mid: number,
+    targetedMid: boolean
+  ): gsap.core.Timeline => {
     const timeline = gsap.timeline();
 
     arrayElementsRef.current.forEach((element, index) => {
       if (element) {
         console.log("COLORRR => ", foundIndex, mid, targetedMid);
-        timeline.to(element, {
-          backgroundColor: (index === mid && targetedMid) ? "#d4edda" : "#f8f9fa",
-          borderColor: (index === mid && targetedMid) ? "#c3e6cb" : "#e9ecef",
-          y: 0,
-          opacity: 0.8,
-          scale: 1,
-          rotation: 0,
-          duration: 0.6,
-          ease: "back.out(1.5)",
-        }, index * 0.05);
+        timeline.to(
+          element,
+          {
+            backgroundColor:
+              index === mid && targetedMid ? "#d4edda" : "#f8f9fa",
+            borderColor: index === mid && targetedMid ? "#c3e6cb" : "#e9ecef",
+            y: 0,
+            opacity: 0.8,
+            scale: 1,
+            rotation: 0,
+            duration: 0.6,
+            ease: "back.out(1.5)",
+          },
+          index * 0.05
+        );
       }
     });
 
     // Add target box coloring during restoration - sync with the longest element animation
     const maxDelay = (arrayElementsRef.current.length - 1) * 0.05;
-    timeline.call(() => {
-      if (targetBoxRef.current) {
-        gsap.to(targetBoxRef.current, {
-          backgroundColor: targetedMid ? "#d4edda" : "#f8d7da",
-          borderColor: targetedMid ? "#c3e6cb" : "#f5c6cb",
-          scale: 1.1,
-          duration: 0.6,
-        });
-      }
-    }, [], maxDelay); // Start when the last element starts restoring
+    timeline.call(
+      () => {
+        if (targetBoxRef.current) {
+          gsap.to(targetBoxRef.current, {
+            backgroundColor: targetedMid ? "#d4edda" : "#f8d7da",
+            borderColor: targetedMid ? "#c3e6cb" : "#f5c6cb",
+            scale: 1.1,
+            duration: 0.6,
+          });
+        }
+      },
+      [],
+      maxDelay
+    ); // Start when the last element starts restoring
 
     return timeline;
   };
@@ -186,20 +212,22 @@ const BinarySearch: React.FC<SidebarProps> = ({
     const timeline = gsap.timeline();
 
     // Make the found element animation faster and smoother
-    timeline.to(element, {
-      backgroundColor: "#d4edda",
-      borderColor: "#c3e6cb",
-      scale: 1.15,
-      boxShadow: "#757575",
-      duration: 0.6,
-      ease: "elastic.out(1.2, 0.5)",
-    }).to(element, {
-      scale: 1,
-      backgroundColor: "#d4edda",
-      boxShadow: "#757575",
-      duration: 0.4,
-      ease: "power2.out",
-    });
+    timeline
+      .to(element, {
+        backgroundColor: "#d4edda",
+        borderColor: "#c3e6cb",
+        scale: 1.15,
+        boxShadow: "#757575",
+        duration: 0.6,
+        ease: "elastic.out(1.2, 0.5)",
+      })
+      .to(element, {
+        scale: 1,
+        backgroundColor: "#d4edda",
+        boxShadow: "#757575",
+        duration: 0.4,
+        ease: "power2.out",
+      });
 
     return timeline;
   };
@@ -210,12 +238,16 @@ const BinarySearch: React.FC<SidebarProps> = ({
     // Animate all elements to grey
     arrayElementsRef.current.forEach((element, index) => {
       if (element) {
-        timeline.to(element, {
-          backgroundColor: "#9e9e9e",
-          borderColor: "#757575",
-          duration: 1.0,
-          ease: "power2.out",
-        }, index * 0.1);
+        timeline.to(
+          element,
+          {
+            backgroundColor: "#9e9e9e",
+            borderColor: "#757575",
+            duration: 1.0,
+            ease: "power2.out",
+          },
+          index * 0.1
+        );
       }
     });
 
@@ -242,17 +274,20 @@ const BinarySearch: React.FC<SidebarProps> = ({
 
   // Improved mid pointer logic functions:
 
-  const animatePointerAppearance = (pointer: 'low' | 'mid' | 'high', position: number): gsap.core.Timeline => {
+  const animatePointerAppearance = (
+    pointer: "low" | "mid" | "high",
+    position: number
+  ): gsap.core.Timeline => {
     const element = pointerRefs.current[pointer].current;
     if (!element) return gsap.timeline();
 
     const timeline = gsap.timeline();
 
     // Calculate position based on array index
-    let actualPosition = position * (BOX_WIDTH + BOX_GAP) + (BOX_WIDTH / 2);
-    if (pointer === 'low') {
-    actualPosition -= 20; // Shift low pointer 20px to the left
-  }
+    let actualPosition = position * (BOX_WIDTH + BOX_GAP) + BOX_WIDTH / 2;
+    if (pointer === "low") {
+      actualPosition -= 20; // Shift low pointer 20px to the left
+    }
 
     // Set initial position (below the array)
     gsap.set(element, {
@@ -266,23 +301,26 @@ const BinarySearch: React.FC<SidebarProps> = ({
       y: 0, // Move to final position above array
       opacity: 1,
       duration: 1.5,
-      ease: "back.out(1.5)"
+      ease: "back.out(1.5)",
     });
 
     return timeline;
   };
 
-  const movePointer = (pointer: 'low' | 'mid' | 'high', position: number): gsap.core.Timeline => {
+  const movePointer = (
+    pointer: "low" | "mid" | "high",
+    position: number
+  ): gsap.core.Timeline => {
     const element = pointerRefs.current[pointer].current;
     if (!element) return gsap.timeline();
 
     const timeline = gsap.timeline();
 
     // Calculate position based on array index
-    let actualPosition = position * (BOX_WIDTH + BOX_GAP) + (BOX_WIDTH / 2);
-    if (pointer === 'low') {
-    actualPosition -= 20; // Shift low pointer 20px to the left
-  }
+    let actualPosition = position * (BOX_WIDTH + BOX_GAP) + BOX_WIDTH / 2;
+    if (pointer === "low") {
+      actualPosition -= 20; // Shift low pointer 20px to the left
+    }
 
     timeline.to(element, {
       x: actualPosition,
@@ -293,46 +331,50 @@ const BinarySearch: React.FC<SidebarProps> = ({
     return timeline;
   };
 
-// FIXED MID POINTER LOGIC - only moves vertically, always from below the correct element
-const animateMidPointer = (midPosition: number): gsap.core.Timeline => {
-  const element = pointerRefs.current.mid.current;
-  if (!element) return gsap.timeline();
+  // FIXED MID POINTER LOGIC - only moves vertically, always from below the correct element
+  const animateMidPointer = (midPosition: number): gsap.core.Timeline => {
+    const element = pointerRefs.current.mid.current;
+    if (!element) return gsap.timeline();
 
-  const timeline = gsap.timeline();
-  const actualPosition = midPosition * (BOX_WIDTH + BOX_GAP) + (BOX_WIDTH / 2);
+    const timeline = gsap.timeline();
+    const actualPosition = midPosition * (BOX_WIDTH + BOX_GAP) + BOX_WIDTH / 2;
 
-  // Step 1: Instantly position horizontally at the target element and hide it
-  timeline.to(element, {
-    opacity: 0,
-    x: actualPosition, // Position at the correct horizontal location
-    y: 150,   
-    duration: 0.1,        // Start below the array
-    scale: 0.8,
-    rotation: 0
-  });
+    // Step 1: Instantly position horizontally at the target element and hide it
+    timeline.to(element, {
+      opacity: 0,
+      x: actualPosition, // Position at the correct horizontal location
+      y: 150,
+      duration: 0.1, // Start below the array
+      scale: 0.8,
+      rotation: 0,
+    });
 
-  // Step 2: Animate vertically from bottom to top with opacity
-  timeline.to(element, {
-    opacity: 1,       // Become visible
-    y: 0,            // Move up to final position above array
-    scale: 1,        // Scale to normal size
-    duration: 1.2,
-    ease: "power1.inOut"
-  });
+    // INSERT_YOUR_CODE
+    // timeline.to({}, { duration: 0.3 });
+    // Step 2: Animate vertically from bottom to top with opacity
+    timeline.to(element, {
+      opacity: 1, // Become visible
+      y: 0, // Move up to final position above array
+      scale: 1, // Scale to normal size
+      duration: 0.8,
+      ease: "power1.inOut",
+    });
 
-  // Step 3: Subtle bounce effect
-  timeline.to(element, {
-    y: -5,
-    duration: 0.3,
-    ease: "power1.inOut"
-  }).to(element, {
-    y: 0,
-    duration: 0.3,
-    ease: "bounce.out"
-  });
+    // Step 3: Subtle bounce effect
+    timeline
+      .to(element, {
+        y: -5,
+        duration: 0.3,
+        ease: "power1.inOut",
+      })
+      .to(element, {
+        y: 0,
+        duration: 0.3,
+        ease: "bounce.out",
+      });
 
-  return timeline;
-};
+    return timeline;
+  };
 
   const hideMidPointer = (): gsap.core.Timeline => {
     const element = pointerRefs.current.mid.current;
@@ -351,7 +393,7 @@ const animateMidPointer = (midPosition: number): gsap.core.Timeline => {
     return timeline;
   };
 
-  const hidePointer = (pointer: 'low' | 'mid' | 'high'): gsap.core.Timeline => {
+  const hidePointer = (pointer: "low" | "mid" | "high"): gsap.core.Timeline => {
     const element = pointerRefs.current[pointer].current;
     if (!element) return gsap.timeline();
 
@@ -393,7 +435,7 @@ const animateMidPointer = (midPosition: number): gsap.core.Timeline => {
         gsap.set(arrayElementsRef.current[index], {
           opacity: 0.8,
           y: 0,
-          rotation: 0
+          rotation: 0,
         });
       });
     });
@@ -407,10 +449,10 @@ const animateMidPointer = (midPosition: number): gsap.core.Timeline => {
       low: number;
       high: number;
       mid: number;
-      comparison: 'found' | 'go_right' | 'go_left' | 'not_found';
+      comparison: "found" | "go_right" | "go_left" | "not_found";
       eliminateStart?: number;
       eliminateEnd?: number;
-      eliminateDirection?: 'left' | 'right';
+      eliminateDirection?: "left" | "right";
       newLow?: number;
       newHigh?: number;
     }> = [];
@@ -425,13 +467,13 @@ const animateMidPointer = (midPosition: number): gsap.core.Timeline => {
           low,
           high,
           mid,
-          comparison: 'found'
+          comparison: "found",
         });
         found = true;
       } else {
         // FIXED: Check sort order to determine comparison logic
         const shouldGoRight = propsRef.current.isAscending
-          ? arr[mid] < propsRef.current.searchValue  // Ascending: go right if mid is smaller
+          ? arr[mid] < propsRef.current.searchValue // Ascending: go right if mid is smaller
           : arr[mid] > propsRef.current.searchValue; // Descending: go right if mid is larger
 
         if (shouldGoRight) {
@@ -440,12 +482,12 @@ const animateMidPointer = (midPosition: number): gsap.core.Timeline => {
             low,
             high,
             mid,
-            comparison: 'go_right',
+            comparison: "go_right",
             eliminateStart: low,
             eliminateEnd: mid,
-            eliminateDirection: 'left',
+            eliminateDirection: "left",
             newLow: mid + 1,
-            newHigh: high
+            newHigh: high,
           });
           low = mid + 1;
         } else {
@@ -454,12 +496,12 @@ const animateMidPointer = (midPosition: number): gsap.core.Timeline => {
             low,
             high,
             mid,
-            comparison: 'go_left',
+            comparison: "go_left",
             eliminateStart: mid,
             eliminateEnd: high,
-            eliminateDirection: 'right',
+            eliminateDirection: "right",
             newLow: low,
-            newHigh: mid - 1
+            newHigh: mid - 1,
           });
           high = mid - 1;
         }
@@ -471,15 +513,21 @@ const animateMidPointer = (midPosition: number): gsap.core.Timeline => {
         low,
         high,
         mid: -1, // Invalid mid for not found case
-        comparison: 'not_found'
+        comparison: "not_found",
       });
     }
 
     // Show initial low and high pointers
     if (searchSteps.length > 0) {
       const firstStep = searchSteps[0];
-      mainTimeline.add(animatePointerAppearance('low', firstStep.low), "step-0");
-      mainTimeline.add(animatePointerAppearance('high', firstStep.high), "step-0+=0.3");
+      mainTimeline.add(
+        animatePointerAppearance("low", firstStep.low),
+        "step-0"
+      );
+      mainTimeline.add(
+        animatePointerAppearance("high", firstStep.high),
+        "step-0+=0.3"
+      );
     }
 
     // Now animate each step
@@ -494,21 +542,25 @@ const animateMidPointer = (midPosition: number): gsap.core.Timeline => {
       });
       stepIndex++;
 
-      if (step.comparison === 'not_found') {
+      if (step.comparison === "not_found") {
         // Handle not found case
         mainTimeline.add(animateNotFound(), `step-${currentStep}+=0.5`);
 
         // Make target box red
-        mainTimeline.call(() => {
-          if (targetBoxRef.current) {
-            gsap.to(targetBoxRef.current, {
-              backgroundColor: "#f8d7da",
-              borderColor: "#f5c6cb",
-              scale: 1.1,
-              duration: 0.8,
-            });
-          }
-        }, [], `step-${currentStep}+=1.0`);
+        mainTimeline.call(
+          () => {
+            if (targetBoxRef.current) {
+              gsap.to(targetBoxRef.current, {
+                backgroundColor: "#f8d7da",
+                borderColor: "#f5c6cb",
+                scale: 1.1,
+                duration: 0.8,
+              });
+            }
+          },
+          [],
+          `step-${currentStep}+=1.0`
+        );
         return; // Skip rest of the steps
       }
 
@@ -516,44 +568,70 @@ const animateMidPointer = (midPosition: number): gsap.core.Timeline => {
       mainTimeline.add(animateMidPointer(step.mid), `step-${currentStep}+=0.2`);
 
       // Highlight mid element
-      mainTimeline.add(highlightCurrentElement(step.mid), `step-${currentStep}+=1.0`);
+      mainTimeline.add(
+        highlightCurrentElement(step.mid),
+        `step-${currentStep}+=1.0`
+      );
 
       // Pause for comparison
       mainTimeline.to({}, { duration: 1.0 }, `step-${currentStep}+=1.6`);
 
-      if (step.comparison === 'found') {
+      if (step.comparison === "found") {
         // Mark as found
-        mainTimeline.add(animateFoundElement(step.mid), `step-${currentStep}+=2.2`);
+        mainTimeline.add(
+          animateFoundElement(step.mid),
+          `step-${currentStep}+=2.2`
+        );
 
-        mainTimeline.call(() => {
-          console.log("COLORRrrrrR => ", step.mid);
-          setFoundIndex(step.mid);
-          setTargetFound(true);
+        mainTimeline.call(
+          () => {
+            console.log("COLORRrrrrR => ", step.mid);
+            setFoundIndex(step.mid);
+            setTargetFound(true);
 
-          // Make target box green
-          if (targetBoxRef.current) {
-            gsap.to(targetBoxRef.current, {
-              backgroundColor: "#d4edda",
-              borderColor: "#c3e6cb",
-              scale: 1.1,
-              duration: 0.6
-            });
-          }
-        }, [], `step-${currentStep}+=2.5`);
+            // Make target box green
+            if (targetBoxRef.current) {
+              gsap.to(targetBoxRef.current, {
+                backgroundColor: "#d4edda",
+                borderColor: "#c3e6cb",
+                scale: 1.1,
+                duration: 0.6,
+              });
+            }
+          },
+          [],
+          `step-${currentStep}+=2.5`
+        );
       } else {
         // Eliminate elements and move pointers
-        if (step.eliminateStart !== undefined && step.eliminateEnd !== undefined) {
+        if (
+          step.eliminateStart !== undefined &&
+          step.eliminateEnd !== undefined
+        ) {
           mainTimeline.add(
-            eliminateElements(step.eliminateStart, step.eliminateEnd, step.eliminateDirection!),
+            eliminateElements(
+              step.eliminateStart,
+              step.eliminateEnd,
+              step.eliminateDirection!
+            ),
             `step-${currentStep}+=2.2`
           );
         }
 
         // Move the appropriate pointer
-        if (step.comparison === 'go_right' && step.newLow !== undefined) {
-          mainTimeline.add(movePointer('low', step.newLow), `step-${currentStep}+=2.8`);
-        } else if (step.comparison === 'go_left' && step.newHigh !== undefined) {
-          mainTimeline.add(movePointer('high', step.newHigh), `step-${currentStep}+=2.8`);
+        if (step.comparison === "go_right" && step.newLow !== undefined) {
+          mainTimeline.add(
+            movePointer("low", step.newLow),
+            `step-${currentStep}+=2.8`
+          );
+        } else if (
+          step.comparison === "go_left" &&
+          step.newHigh !== undefined
+        ) {
+          mainTimeline.add(
+            movePointer("high", step.newHigh),
+            `step-${currentStep}+=2.8`
+          );
         }
 
         // FIXED MID POINTER HIDING - Use consistent hiding
@@ -570,16 +648,16 @@ const animateMidPointer = (midPosition: number): gsap.core.Timeline => {
         break;
       }
     }
-    if(finalMid !== -1 && arr[finalMid] === propsRef.current.searchValue) {
+    if (finalMid !== -1 && arr[finalMid] === propsRef.current.searchValue) {
       targetedMid = true;
     }
     // Add restoration phase - all elements come back at the same time
     mainTimeline.add(restoreElements(finalMid, targetedMid), "+=1.5");
 
     // Hide all pointers at the end
-    mainTimeline.add(hidePointer('low'), "+=0.8");
-    mainTimeline.add(hidePointer('high'), "<0.3");
-    mainTimeline.add(hidePointer('mid'), "<0.3");
+    mainTimeline.add(hidePointer("low"), "+=0.8");
+    mainTimeline.add(hidePointer("high"), "<0.3");
+    mainTimeline.add(hidePointer("mid"), "<0.3");
 
     totalStepsRef.current = stepIndex;
     mainTimeline.addLabel("end");
@@ -593,57 +671,134 @@ const animateMidPointer = (midPosition: number): gsap.core.Timeline => {
     timelineRef.current = mainTimeline;
   };
 
-
   // Control functions
-// Replace the existing nextStep and previousStep functions with these fixed versions:
+  // Replace the existing nextStep and previousStep functions with these fixed versions:
 
-const nextStep = (): void => {
-  if (!timelineRef.current) {
-    playAnimation();
-    if (timelineRef.current) {
-      (timelineRef.current as gsap.core.Timeline).pause();
-      currentStepRef.current = 0;
-      wasPausedRef.current = true;
+  const nextStep = (): void => {
+    if (!timelineRef.current) {
+      playAnimation();
+      if (timelineRef.current) {
+        (timelineRef.current as gsap.core.Timeline).pause();
+        currentStepRef.current = 0;
+        wasPausedRef.current = true;
+      }
+      return;
     }
-    return;
-  }
 
-  const timeline = timelineRef.current as gsap.core.Timeline;
-  timeline.pause();
-
-  // Reset all boxes to original state before highlighting new mid
-  arrayElementsRef.current.forEach((element) => {
-    if (element) {
-      gsap.to(element, {
-        backgroundColor: "#f8f9fa",
-        borderColor: "#e9ecef",
-        scale: 1,
-        duration: 0.8,
-        ease: "power2.out",
-      });
-    }
-  });
-
-  if (currentStepRef.current < totalStepsRef.current) {
-    currentStepRef.current++;
-    const targetLabel = `step-${currentStepRef.current}`;
-    timeline.seek(targetLabel);
-    timeline.timeScale(1); // Match normal animation speed
+    const timeline = timelineRef.current as gsap.core.Timeline;
     timeline.pause();
-    updateMidPointerVisibility(currentStepRef.current);
 
-    // Check if this is the step before final (when target element should be colored)
-    if (currentStepRef.current === totalStepsRef.current - 1) {
-      // Calculate final mid for coloring
+    // Reset all boxes to original state before highlighting new mid
+    arrayElementsRef.current.forEach((element) => {
+      if (element) {
+        gsap.to(element, {
+          backgroundColor: "#f8f9fa",
+          borderColor: "#e9ecef",
+          scale: 1,
+          duration: 0.8,
+          ease: "power2.out",
+        });
+      }
+    });
+
+    if (currentStepRef.current < totalStepsRef.current) {
+      currentStepRef.current++;
+      const targetLabel = `step-${currentStepRef.current}`;
+      timeline.seek(targetLabel);
+      timeline.timeScale(1); // Match normal animation speed
+      timeline.pause();
+      updateMidPointerVisibility(currentStepRef.current);
+
+      // Check if this is the step before final (when target element should be colored)
+      if (currentStepRef.current === totalStepsRef.current - 1) {
+        // Calculate final mid for coloring
+        const arr = [...array];
+        let finalMid = -1;
+        let targetedMid = false;
+        let low = 0;
+        let high = arr.length - 1;
+
+        while (low <= high) {
+          const mid = Math.floor((low + high) / 2);
+
+          if (arr[mid] === propsRef.current.searchValue) {
+            finalMid = mid;
+            targetedMid = true;
+            break;
+          } else {
+            const shouldGoRight = propsRef.current.isAscending
+              ? arr[mid] < propsRef.current.searchValue
+              : arr[mid] > propsRef.current.searchValue;
+
+            if (shouldGoRight) {
+              low = mid + 1;
+            } else {
+              high = mid - 1;
+            }
+          }
+        }
+
+        // Color the target box one step before final
+        if (targetBoxRef.current) {
+          gsap.to(targetBoxRef.current, {
+            backgroundColor: targetedMid ? "#d4edda" : "#f8d7da",
+            borderColor: targetedMid ? "#c3e6cb" : "#f5c6cb",
+            scale: 1.1,
+            duration: 0.8,
+          });
+        }
+      }
+
+      // Highlight the mid element for this step using highlightCurrentElement
+      // Re-calculate mid for this step
+      const arr = [...array];
+      const n = arr.length;
+      let low = 0;
+      let high = n - 1;
+      let step = 1;
+      while (low <= high && step <= currentStepRef.current) {
+        const mid = Math.floor((low + high) / 2);
+        if (step === currentStepRef.current) {
+          highlightCurrentElement(mid);
+          break;
+        }
+        if (arr[mid] === propsRef.current.searchValue) {
+          break;
+        } else {
+          const shouldGoRight = propsRef.current.isAscending
+            ? arr[mid] < propsRef.current.searchValue
+            : arr[mid] > propsRef.current.searchValue;
+          if (shouldGoRight) {
+            low = mid + 1;
+          } else {
+            high = mid - 1;
+          }
+        }
+        step++;
+      }
+    } else {
+      // Final step - seek to end and show final result
+      timeline.seek("end");
+      timeline.timeScale(1);
+      timeline.pause();
+
+      // Hide mid pointer
+      if (pointerRefs.current.mid.current) {
+        gsap.set(pointerRefs.current.mid.current, { opacity: 0 });
+      }
+
+      // Show final state with proper coloring
       const arr = [...array];
       let finalMid = -1;
       let targetedMid = false;
+
+      // Find the final mid element that was targeted
       let low = 0;
       let high = arr.length - 1;
-      
+
       while (low <= high) {
         const mid = Math.floor((low + high) / 2);
-        
+
         if (arr[mid] === propsRef.current.searchValue) {
           finalMid = mid;
           targetedMid = true;
@@ -652,7 +807,7 @@ const nextStep = (): void => {
           const shouldGoRight = propsRef.current.isAscending
             ? arr[mid] < propsRef.current.searchValue
             : arr[mid] > propsRef.current.searchValue;
-          
+
           if (shouldGoRight) {
             low = mid + 1;
           } else {
@@ -661,122 +816,100 @@ const nextStep = (): void => {
         }
       }
 
-      // Color the target box one step before final
-      if (targetBoxRef.current) {
-        gsap.to(targetBoxRef.current, {
-          backgroundColor: targetedMid ? "#d4edda" : "#f8d7da",
-          borderColor: targetedMid ? "#c3e6cb" : "#f5c6cb",
-          scale: 1.1,
-          duration: 0.8,
-        });
-      }
-    }
-
-    // Highlight the mid element for this step using highlightCurrentElement
-    // Re-calculate mid for this step
-    const arr = [...array];
-    const n = arr.length;
-    let low = 0;
-    let high = n - 1;
-    let step = 1;
-    while (low <= high && step <= currentStepRef.current) {
-      const mid = Math.floor((low + high) / 2);
-      if (step === currentStepRef.current) {
-        highlightCurrentElement(mid);
-        break;
-      }
-      if (arr[mid] === propsRef.current.searchValue) {
-        break;
-      } else {
-        const shouldGoRight = propsRef.current.isAscending
-          ? arr[mid] < propsRef.current.searchValue
-          : arr[mid] > propsRef.current.searchValue;
-        if (shouldGoRight) {
-          low = mid + 1;
-        } else {
-          high = mid - 1;
+      // Apply final coloring
+      arrayElementsRef.current.forEach((element, index) => {
+        if (element) {
+          gsap.to(element, {
+            backgroundColor:
+              index === finalMid && targetedMid ? "#d4edda" : "#f8f9fa",
+            borderColor:
+              index === finalMid && targetedMid ? "#c3e6cb" : "#e9ecef",
+            scale: 1,
+            duration: 0.8,
+            ease: "power2.out",
+          });
         }
-      }
-      step++;
+      });
     }
-  } else {
-    // Final step - seek to end and show final result
-    timeline.seek("end");
-    timeline.timeScale(1);
+    wasPausedRef.current = true;
+  };
+
+  const previousStep = (): void => {
+    if (!timelineRef.current) return;
+
+    const timeline = timelineRef.current as gsap.core.Timeline;
     timeline.pause();
-    
-    // Hide mid pointer
-    if (pointerRefs.current.mid.current) {
-      gsap.set(pointerRefs.current.mid.current, { opacity: 0 });
-    }
 
-    // Show final state with proper coloring
-    const arr = [...array];
-    let finalMid = -1;
-    let targetedMid = false;
-    
-    // Find the final mid element that was targeted
-    let low = 0;
-    let high = arr.length - 1;
-    
-    while (low <= high) {
-      const mid = Math.floor((low + high) / 2);
-      
-      if (arr[mid] === propsRef.current.searchValue) {
-        finalMid = mid;
-        targetedMid = true;
-        break;
-      } else {
-        const shouldGoRight = propsRef.current.isAscending
-          ? arr[mid] < propsRef.current.searchValue
-          : arr[mid] > propsRef.current.searchValue;
-        
-        if (shouldGoRight) {
-          low = mid + 1;
-        } else {
-          high = mid - 1;
-        }
-      }
-    }
-
-    // Apply final coloring
-    arrayElementsRef.current.forEach((element, index) => {
+    // Reset all boxes to original state before highlighting new mid
+    arrayElementsRef.current.forEach((element) => {
       if (element) {
         gsap.to(element, {
-          backgroundColor: (index === finalMid && targetedMid) ? "#d4edda" : "#f8f9fa",
-          borderColor: (index === finalMid && targetedMid) ? "#c3e6cb" : "#e9ecef",
+          backgroundColor: "#f8f9fa",
+          borderColor: "#e9ecef",
           scale: 1,
           duration: 0.8,
           ease: "power2.out",
         });
       }
     });
-  }
-  wasPausedRef.current = true;
-};
 
-const previousStep = (): void => {
-  if (!timelineRef.current) return;
+    if (currentStepRef.current > 0) {
+      // Check if we're going back from the step before final (reset target box color)
+      if (currentStepRef.current === totalStepsRef.current - 1) {
+        if (targetBoxRef.current) {
+          gsap.to(targetBoxRef.current, {
+            backgroundColor: "#f8f9fa",
+            borderColor: "#e9ecef",
+            scale: 1,
+            duration: 0.8,
+          });
+        }
+      }
 
-  const timeline = timelineRef.current as gsap.core.Timeline;
-  timeline.pause();
+      currentStepRef.current--;
+      const targetLabel =
+        currentStepRef.current === 0
+          ? "step-0"
+          : `step-${currentStepRef.current}`;
+      timeline.seek(targetLabel);
+      timeline.timeScale(1);
+      timeline.pause();
+      updateMidPointerVisibility(currentStepRef.current);
 
-  // Reset all boxes to original state before highlighting new mid
-  arrayElementsRef.current.forEach((element) => {
-    if (element) {
-      gsap.to(element, {
-        backgroundColor: "#f8f9fa",
-        borderColor: "#e9ecef",
-        scale: 1,
-        duration: 0.8,
-        ease: "power2.out",
-      });
-    }
-  });
+      // Highlight the mid element for this step using highlightCurrentElement
+      const arr = [...array];
+      const n = arr.length;
+      let low = 0;
+      let high = n - 1;
+      let step = 1;
+      while (low <= high && step <= currentStepRef.current) {
+        const mid = Math.floor((low + high) / 2);
+        if (step === currentStepRef.current) {
+          highlightCurrentElement(mid);
+          break;
+        }
+        if (arr[mid] === propsRef.current.searchValue) {
+          break;
+        } else {
+          const shouldGoRight = propsRef.current.isAscending
+            ? arr[mid] < propsRef.current.searchValue
+            : arr[mid] > propsRef.current.searchValue;
+          if (shouldGoRight) {
+            low = mid + 1;
+          } else {
+            high = mid - 1;
+          }
+        }
+        step++;
+      }
+    } else {
+      timeline.seek("step-0");
+      timeline.pause();
+      if (pointerRefs.current.mid.current) {
+        gsap.set(pointerRefs.current.mid.current, { opacity: 0 });
+      }
 
-  if (currentStepRef.current > 0) {
-    // Check if we're going back from the step before final (reset target box color)
-    if (currentStepRef.current === totalStepsRef.current - 1) {
+      // Reset target box color when going back to initial step
       if (targetBoxRef.current) {
         gsap.to(targetBoxRef.current, {
           backgroundColor: "#f8f9fa",
@@ -786,127 +919,80 @@ const previousStep = (): void => {
         });
       }
     }
+    wasPausedRef.current = true;
+  };
 
-    currentStepRef.current--;
-    const targetLabel = currentStepRef.current === 0 ? "step-0" : `step-${currentStepRef.current}`;
-    timeline.seek(targetLabel);
-    timeline.timeScale(1);
-    timeline.pause();
-    updateMidPointerVisibility(currentStepRef.current);
+  // Helper function to update mid pointer visibility based on current step
+  const updateMidPointerVisibility = (stepNumber: number): void => {
+    if (!pointerRefs.current.mid.current) return;
 
-    // Highlight the mid element for this step using highlightCurrentElement
+    // Mid pointer should be visible during steps where binary search is actively comparing
+    // Step 0 = initial state (no mid pointer)
+    // Step 1+ = mid pointer should be visible during comparison steps
+
+    if (stepNumber === 0) {
+      // Initial step - hide mid pointer
+      gsap.set(pointerRefs.current.mid.current, { opacity: 0 });
+    } else {
+      // During search steps - show mid pointer
+      // We need to calculate the correct position for the mid pointer at this step
+      calculateAndShowMidPointer(stepNumber);
+    }
+  };
+
+  // Helper function to calculate and show mid pointer at correct position for given step
+  const calculateAndShowMidPointer = (stepNumber: number): void => {
+    if (!pointerRefs.current.mid.current) return;
+
+    // Re-calculate the binary search steps to determine mid position at this step
     const arr = [...array];
     const n = arr.length;
     let low = 0;
     let high = n - 1;
-    let step = 1;
-    while (low <= high && step <= currentStepRef.current) {
+    let currentStep = 1;
+
+    while (low <= high && currentStep <= stepNumber) {
       const mid = Math.floor((low + high) / 2);
-      if (step === currentStepRef.current) {
-        highlightCurrentElement(mid);
+
+      if (currentStep === stepNumber) {
+        // Show mid pointer at the correct position
+        const actualPosition =
+          mid *
+            (getDynamicSizing(array.length).BOX_WIDTH +
+              getDynamicSizing(array.length).BOX_GAP) +
+          getDynamicSizing(array.length).BOX_WIDTH / 2;
+
+        gsap.set(pointerRefs.current.mid.current, {
+          opacity: 1,
+          x: actualPosition,
+          y: 0,
+          scale: 1,
+        });
         break;
       }
+
       if (arr[mid] === propsRef.current.searchValue) {
-        break;
+        break; // Found
       } else {
         const shouldGoRight = propsRef.current.isAscending
           ? arr[mid] < propsRef.current.searchValue
           : arr[mid] > propsRef.current.searchValue;
+
         if (shouldGoRight) {
           low = mid + 1;
         } else {
           high = mid - 1;
         }
       }
-      step++;
+
+      currentStep++;
     }
-  } else {
-    timeline.seek("step-0");
-    timeline.pause();
-    if (pointerRefs.current.mid.current) {
+
+    // If we've gone past the search steps, hide the mid pointer
+    if (currentStep > stepNumber) {
       gsap.set(pointerRefs.current.mid.current, { opacity: 0 });
     }
-    
-    // Reset target box color when going back to initial step
-    if (targetBoxRef.current) {
-      gsap.to(targetBoxRef.current, {
-        backgroundColor: "#f8f9fa",
-        borderColor: "#e9ecef",
-        scale: 1,
-        duration: 0.8,
-      });
-    }
-  }
-  wasPausedRef.current = true;
-};
-
-// Helper function to update mid pointer visibility based on current step
-const updateMidPointerVisibility = (stepNumber: number): void => {
-  if (!pointerRefs.current.mid.current) return;
-  
-  // Mid pointer should be visible during steps where binary search is actively comparing
-  // Step 0 = initial state (no mid pointer)
-  // Step 1+ = mid pointer should be visible during comparison steps
-  
-  if (stepNumber === 0) {
-    // Initial step - hide mid pointer
-    gsap.set(pointerRefs.current.mid.current, { opacity: 0 });
-  } else {
-    // During search steps - show mid pointer
-    // We need to calculate the correct position for the mid pointer at this step
-    calculateAndShowMidPointer(stepNumber);
-  }
-};
-
-// Helper function to calculate and show mid pointer at correct position for given step
-const calculateAndShowMidPointer = (stepNumber: number): void => {
-  if (!pointerRefs.current.mid.current) return;
-  
-  // Re-calculate the binary search steps to determine mid position at this step
-  const arr = [...array];
-  const n = arr.length;
-  let low = 0;
-  let high = n - 1;
-  let currentStep = 1;
-  
-  while (low <= high && currentStep <= stepNumber) {
-    const mid = Math.floor((low + high) / 2);
-    
-    if (currentStep === stepNumber) {
-      // Show mid pointer at the correct position
-      const actualPosition = mid * (getDynamicSizing(array.length).BOX_WIDTH + getDynamicSizing(array.length).BOX_GAP) + (getDynamicSizing(array.length).BOX_WIDTH / 2);
-      
-      gsap.set(pointerRefs.current.mid.current, {
-        opacity: 1,
-        x: actualPosition,
-        y: 0,
-        scale: 1
-      });
-      break;
-    }
-    
-    if (arr[mid] === propsRef.current.searchValue) {
-      break; // Found
-    } else {
-      const shouldGoRight = propsRef.current.isAscending
-        ? arr[mid] < propsRef.current.searchValue
-        : arr[mid] > propsRef.current.searchValue;
-      
-      if (shouldGoRight) {
-        low = mid + 1;
-      } else {
-        high = mid - 1;
-      }
-    }
-    
-    currentStep++;
-  }
-  
-  // If we've gone past the search steps, hide the mid pointer
-  if (currentStep > stepNumber) {
-    gsap.set(pointerRefs.current.mid.current, { opacity: 0 });
-  }
-};
+  };
 
   const pauseAnimation = (): void => {
     if (timelineRef.current) {
@@ -922,11 +1008,11 @@ const calculateAndShowMidPointer = (stepNumber: number): void => {
         backgroundColor: "#f8f9fa",
         borderColor: "#e9ecef",
         scale: 1,
-        duration: 0.5
+        duration: 0.5,
       });
     }
     if (foundElementRef.current) {
-      foundElementRef.current.innerHTML = '';
+      foundElementRef.current.innerHTML = "";
     }
     if (timelineRef.current) {
       timelineRef.current.kill();
@@ -955,7 +1041,7 @@ const calculateAndShowMidPointer = (stepNumber: number): void => {
       gsap.set(pointerRefs.current.low.current, {
         opacity: 0,
         x: BOX_WIDTH / 2 - 20, // Position at first element with left offset
-        y: 100 // Start below the array
+        y: 100, // Start below the array
       });
     }
     if (pointerRefs.current.mid.current) {
@@ -969,7 +1055,7 @@ const calculateAndShowMidPointer = (stepNumber: number): void => {
       gsap.set(pointerRefs.current.high.current, {
         opacity: 0,
         x: BOX_WIDTH / 2, // Position at first element
-        y: 100 // Start below the array
+        y: 100, // Start below the array
       });
     }
 
@@ -1025,7 +1111,9 @@ const calculateAndShowMidPointer = (stepNumber: number): void => {
 
   const handleArrayChange = (newArray: number[]): void => {
     // Ensure array is sorted for binary search
-    const sortedArray = [...newArray].sort((a, b) => isAscending ? a - b : b - a);
+    const sortedArray = [...newArray].sort((a, b) =>
+      isAscending ? a - b : b - a
+    );
     setArray(sortedArray);
     setIsPlaying(false);
     resetAnimation();
@@ -1203,12 +1291,14 @@ const calculateAndShowMidPointer = (stepNumber: number): void => {
           </div>
 
           {/* Pointer Indicators */}
-          <div style={{
-            position: "relative",
-            width: "100%",
-            height: "80px",
-            marginTop: "10px"
-          }}>
+          <div
+            style={{
+              position: "relative",
+              width: "100%",
+              height: "80px",
+              marginTop: "10px",
+            }}
+          >
             {/* Low Pointer */}
             <div
               ref={pointerRefs.current.low}
@@ -1321,8 +1411,6 @@ const calculateAndShowMidPointer = (stepNumber: number): void => {
             </div>
           </div>
 
-
-
           {/* Search Input Controls */}
           <div
             className="mb-6 flex items-center justify-center gap-6"
@@ -1371,3 +1459,5 @@ const calculateAndShowMidPointer = (stepNumber: number): void => {
 };
 
 export default BinarySearch;
+
+//helo helo
