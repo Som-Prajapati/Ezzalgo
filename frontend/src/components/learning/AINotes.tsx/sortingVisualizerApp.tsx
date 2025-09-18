@@ -67,6 +67,7 @@ export default function SortingVisualizerApp() {
     | "binary"
     | "radix"
     | "interpolation"
+    |"count"
   >("linear");
 
   // Control layout specific state
@@ -119,6 +120,7 @@ export default function SortingVisualizerApp() {
       | "linear"
       | "binary"
       | "radix"
+      |"count"
   ) => {
     setSelectedAlgorithm(algorithm);
   };
@@ -439,6 +441,11 @@ export default function SortingVisualizerApp() {
             <RadixSort isOpen={isSidebarOpen} width={sidebarWidth} />
           </div>
         )}
+        {selectedAlgorithm === "count" && (
+          <div className="flex justify-center items-center flex-1 p-4">
+            <CountSort isOpen={isSidebarOpen} width={sidebarWidth} />
+          </div>
+        )}
         {selectedAlgorithm === "linear" && (
           <div className="flex justify-center items-center flex-1 p-4">
             <LinearSearch isOpen={isSidebarOpen} width={sidebarWidth} />
@@ -446,7 +453,7 @@ export default function SortingVisualizerApp() {
         )}
         {selectedAlgorithm === "binary" && (
           <div className="flex justify-center items-center flex-1 p-4">
-            <CountSort isOpen={isSidebarOpen} width={sidebarWidth} />
+            <BinarySearch isOpen={isSidebarOpen} width={sidebarWidth} />
           </div>
         )}
         {/* Control Panel - Inline */}

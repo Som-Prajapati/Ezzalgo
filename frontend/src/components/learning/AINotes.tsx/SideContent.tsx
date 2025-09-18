@@ -48,7 +48,8 @@ interface SidebarProps {
     | "linear"
     | "binary"
     | "interpolation"
-    | "radix";
+    | "radix"
+    |"count";
   onAlgorithmChange?: (
     algorithm:
       | "bubble"
@@ -60,6 +61,7 @@ interface SidebarProps {
       | "binary"
       | "interpolation"
       | "radix"
+      |"count"
   ) => void;
 }
 
@@ -81,7 +83,8 @@ const menuItems: MenuItem[] = [
       { id: "quick-sort", label: "Quick Sort" },
       { id: "heap-sort", label: "Heap Sort" },
       { id: "radix-sort", label: "Radix Sort" },
-    ],
+      { id: "count-sort", label: "Count Sort" },
+    ],  
   },
   {
     id: "data-structures",
@@ -106,6 +109,18 @@ const menuItems: MenuItem[] = [
     icon: <GitBranch className="w-4 h-4 text-orange-500" />,
     children: [{ id: "binary-tree", label: "Binary Tree" }],
   },
+  {
+    id: "graph",
+    label: "Graph",
+    icon: <GitBranch className="w-4 h-4 text-orange-500" />,
+    children: [{ id: "bfs", label: "BFS" },
+      { id: "dfs", label: "DFS" },
+      { id: "prims", label: "Prims" },
+      { id: "kruskals", label: "Krushkals" },
+      { id: "dijkstra", label: "Dijkstra" },
+      { id: "warshalls", label: "Waarshalls" }
+    ],
+  }
 ];
 
 export default function SideContent({
@@ -258,6 +273,10 @@ export default function SideContent({
       "linear-search",
       "interpolation-search",
       "binary-search",
+      "count-sort",
+      "bfs",
+      "dfs",
+      ""
     ].includes(item.id);
     const isSelected =
       (isAlgorithmItem &&
@@ -266,7 +285,9 @@ export default function SideContent({
           (item.id === "insertion-sort" && selectedAlgorithm === "insertion") ||
           (item.id === "heap-sort" && selectedAlgorithm === "heap") ||
           (item.id === "jump-search" && selectedAlgorithm === "jump") ||
-          (item.id === "radix-sort" && selectedAlgorithm === "radix"))) ||
+          (item.id === "radix-sort" && selectedAlgorithm === "radix")||
+          (item.id === "count-sort" && selectedAlgorithm === "count")
+        )) ||
       (item.id === "linear-search" && selectedAlgorithm === "linear") ||
       (item.id === "interpolation-search" && selectedAlgorithm === "interpolation") ||
       (item.id === "binary-search" && selectedAlgorithm === "binary");
@@ -287,6 +308,7 @@ export default function SideContent({
           | "binary"
           | "interpolation"
           | "radix"
+          |"count"
         > = {
           "bubble-sort": "bubble",
           "selection-sort": "selection",
@@ -297,6 +319,7 @@ export default function SideContent({
           "interpolation-search": "interpolation",
           "linear-search": "linear",
           "binary-search": "binary",
+           "count-sort": "count", 
         };
         const algorithm = algorithmMap[item.id];
         if (algorithm) {
@@ -384,6 +407,7 @@ export default function SideContent({
               {selectedAlgorithm === "linear" && "Linear Search"}
               {selectedAlgorithm === "interpolation" && "Interpolation Search"}
               {selectedAlgorithm === "binary" && "Binary Search"}
+              {selectedAlgorithm === "count" && "Count Sort"}
               {/* Default title if no algorithm is selected */}
               {!selectedAlgorithm ||
                 (selectedAlgorithm === "bubble" && "Bubble Sort")}
@@ -424,6 +448,7 @@ export default function SideContent({
               {selectedAlgorithm === "linear" && "Linear Search"}
               {selectedAlgorithm === "interpolation" && "Interpolation Search"}
               {selectedAlgorithm === "binary" && "Binary Search"}
+              {selectedAlgorithm ==="count"&&"Count Sort"}
               {/* Default title if no algorithm is selected */}
               {!selectedAlgorithm ||
                 (selectedAlgorithm === "bubble" && "Bubble Sort")}
